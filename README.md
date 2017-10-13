@@ -1,5 +1,5 @@
 # DPMTeam4
-Team members:
+Team members:  
 Anna Bieber  
 Walid Chabchoub  
 Kevin Laframboise  
