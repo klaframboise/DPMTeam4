@@ -32,7 +32,7 @@ public class ZipLineLab {
 		/* Local variables */
 		@SuppressWarnings("resource")
 		SensorModes usSensor = new EV3UltrasonicSensor(usPort); // usSensor is the instance
-		SampleProvider usSampler = usSensor.getMode("Distance"); // usDistance provides samples from this instance
+		SampleProvider usSampler = usSensor.getMode("Distance"); // usSampler provides samples from this instance
 		float[] usData = new float[usSampler.sampleSize() * SAMPLE_SIZE]; // usData is the buffer in which data are
 		@SuppressWarnings("resource")
 		SensorModes colorSensor = new EV3ColorSensor(lightPort);
