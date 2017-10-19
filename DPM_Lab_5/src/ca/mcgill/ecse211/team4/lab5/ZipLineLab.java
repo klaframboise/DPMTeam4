@@ -46,6 +46,9 @@ public class ZipLineLab {
 		int zipX = 0;
 		int zipY = 0;
 		
+		leftMotor.setAcceleration(1000);
+		rightMotor.setAcceleration(1000);
+		
 		
 		while(true) {
 			//clear display
@@ -81,9 +84,12 @@ public class ZipLineLab {
 		odo.start();
 		display.start();
 		usLocalizer.localize();
-		lightLocalizer.localize();
+		lightLocalizer.localize(false);
 		nav.travelTo(zipX * GRID_SIZE, zipY * GRID_SIZE);
-		nav.turnTo(3.0 * Math.PI/ 2.0);
+		nav.turnTo(Math.toRadians(345));
+		lightLocalizer.localize(true);
+		nav.turnTo(Math.PI/2.0);
+		//nav.travelTo(odo.getX() + 60.96, odo.getY());
 		
 		//wait for input per design requirements
 		Button.waitForAnyPress();

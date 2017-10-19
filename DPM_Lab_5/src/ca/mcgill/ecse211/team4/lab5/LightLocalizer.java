@@ -63,14 +63,19 @@ public class LightLocalizer {
 	/**
 	 * Localizes the robot with respect to its distance from the grid lines.
 	 */
-	public void localize() {
+	public void localize(boolean angleOnly) {
 		double x;
 		double y;
 		double dTheta;
 
 		while(true) {
-			adjust('x');
-			adjust('y');
+			if(angleOnly) {
+				ZipLineLab.getNav().turnTo(0);
+			}
+			else {
+				adjust('x');
+				adjust('y');
+			}
 			sweep();
 
 			// already in position to localize
@@ -101,14 +106,12 @@ public class LightLocalizer {
 		}
 		
 		// adjust odometer
-		ZipLineLab.getOdo().setX(x);
-		ZipLineLab.getOdo().setY(y);
+		if(!angleOnly) {
+			ZipLineLab.getOdo().setX(x);
+			ZipLineLab.getOdo().setY(y);
+		}
 		ZipLineLab.getOdo().setTheta(ZipLineLab.getOdo().getTheta() + dTheta);
-		
-		//travel to 0,0
-		ZipLineLab.getNav().travelTo(0,0);
-		//turn to face heading 0deg
-		ZipLineLab.getNav().turnTo(0);
+	
 	}
 
 	/**
