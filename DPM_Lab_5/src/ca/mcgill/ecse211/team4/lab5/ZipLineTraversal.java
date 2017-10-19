@@ -33,11 +33,22 @@ public class ZipLineTraversal {
 		navigator.travelTo(GRID_SIZE+5, GRID_SIZE-2);
 		
 		//convert distance and rotate motors so it travels the entire zip line
-		lineMotor.rotate(ZipLineLab.convertDistance(WHEEL_RADIUS, DISTANCE));
+		lineMotor.rotate(ZipLineLab.convertDistance(WHEEL_RADIUS, DISTANCE), true);
 		
+		
+	
 		//once on the line stop the wheel motors
-		leftMotor.stop();
-		rightMotor.stop();
+		if(lineMotor.isMoving()) {
+			leftMotor.stop();
+			rightMotor.stop();	
+		}
+		
+		//start the wheel motors when done with the traversal
+		if(!lineMotor.isMoving()) {
+			leftMotor.setSpeed(FORWARD_SPEED);
+			rightMotor.setSpeed(FORWARD_SPEED);
+		}
+		
 		
 		
 		
