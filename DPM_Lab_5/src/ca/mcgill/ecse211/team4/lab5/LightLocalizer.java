@@ -8,19 +8,21 @@ import lejos.robotics.SampleProvider;
 
 public class LightLocalizer {
 
-	private static final float LINE_RED_INTENSITY = 0.30f;
-	private static final double LS_TO_CENTER = 10;
-	private SampleProvider colorSampler;
-	private float[] lightData;
+	private static final double LS_TO_CENTER = 8.9;
+	private static SampleProvider colorSampler;
+	private static float[] lightData;
 	private EV3LargeRegulatedMotor leftMotor, rightMotor;
 
 	int counter;
 	double[] angles;
+	double dx;
+	double dy;
+	double dTheta;
 
 	public LightLocalizer(SampleProvider colorSampler, float[] lightData, EV3LargeRegulatedMotor leftMotor,
 			EV3LargeRegulatedMotor rightMotor) {
-		this.colorSampler = colorSampler;
-		this.lightData = lightData;
+		LightLocalizer.colorSampler = colorSampler;
+		LightLocalizer.lightData = lightData;
 		this.leftMotor = leftMotor;
 		this.rightMotor = rightMotor;
 		counter = 0;
@@ -44,7 +46,7 @@ public class LightLocalizer {
 
 		// sample light sensor every 25 ms to detect lines
 		do {
-			if(getRedIntensity() < LINE_RED_INTENSITY) {
+			if(getRedIntensity() < ZipLineLab.LINE_RED_INTENSITY) {
 				angles[counter++] = ZipLineLab.getOdo().getTheta();
 				Sound.beep();
 				try {
@@ -59,29 +61,73 @@ public class LightLocalizer {
 		rightMotor.stop(true);
 
 	}
+	
+	/**
+	 * Localizes with consideration for the starting corner.
+	 * @param startingCorner [0,3]
+	 */
+	public void localize(int startingCorner) {
+		localize(true);
+		
+		switch(startingCorner) {
+		case 0:
+			ZipLineLab.getOdo().setX(ZipLineLab.GRID_SIZE + dx);
+			ZipLineLab.getOdo().setY(ZipLineLab.GRID_SIZE + dy);
+			ZipLineLab.getOdo().setTheta(ZipLineLab.getOdo().getTheta() + dTheta);
+			break;
+		case 1:
+			ZipLineLab.getOdo().setX(7 * ZipLineLab.GRID_SIZE - dy);
+			ZipLineLab.getOdo().setY(ZipLineLab.GRID_SIZE + dx);
+			ZipLineLab.getOdo().setTheta(Math.PI/2.0 + ZipLineLab.getOdo().getTheta() + dTheta);
+			break;
+		case 2:
+			ZipLineLab.getOdo().setX(7 * ZipLineLab.GRID_SIZE - dx);
+			ZipLineLab.getOdo().setY(7 * ZipLineLab.GRID_SIZE - dy);
+			ZipLineLab.getOdo().setTheta(Math.PI + ZipLineLab.getOdo().getTheta() + dTheta);
+			break;
+		case 3:
+			ZipLineLab.getOdo().setX(ZipLineLab.GRID_SIZE + dy);
+			ZipLineLab.getOdo().setY(7 * ZipLineLab.GRID_SIZE - dx);
+			ZipLineLab.getOdo().setTheta(3.0 * Math.PI/2.0 + ZipLineLab.getOdo().getTheta() + dTheta);
+			break;
+		}
+	}
+	
+	/**
+	 * Performs light localization by assuming that this is not the initial localization.
+	 */
+	public void localize() {
+		localize(false);
+	}
 
 	/**
-	 * Localizes the robot with respect to its distance from the grid lines.
+	 * Performs light localization according to initial localization.
+	 * @param initialLocalization
 	 */
-	public void localize(boolean angleOnly) {
-		double x;
-		double y;
-		double dTheta;
+	public void localize(boolean initialLocalization) {
+		
+		//signal localization to correction
+		ZipLineLab.getCorrection().pauseCorrection();
+		
+		//wait for correction operation to finish
+		try {
+			Thread.sleep(50);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
 
 		while(true) {
-			if(angleOnly) {
-				ZipLineLab.getNav().turnTo(0);
-			}
-			else {
+			if (initialLocalization) {
 				adjust('x');
 				adjust('y');
 			}
+			ZipLineLab.getNav().turnTo(0);
 			sweep();
 
 			// already in position to localize
 			if(counter == 4) {
-				x = -LS_TO_CENTER * Math.cos((angles[2] - angles[0])/2);	//theta-y is difference in angle between the first and third line crossed
-				y =  (-LS_TO_CENTER * Math.cos((angles[3] - angles[1])/2)) - LS_TO_CENTER;	//theta-x is difference in angle between the second and fourth line crossed
+				dx = -LS_TO_CENTER * Math.cos((angles[2] - angles[0])/2);	//theta-y is difference in angle between the first and third line crossed
+				dy =  (-LS_TO_CENTER * Math.cos((angles[3] - angles[1])/2)) - LS_TO_CENTER;	//theta-x is difference in angle between the second and fourth line crossed
 				dTheta = -Math.PI/2.0 - (angles[2] - Math.PI) + (angles[2] - angles[0])/2.0;
 				break;
 			}
@@ -105,12 +151,13 @@ public class LightLocalizer {
 			}
 		}
 		
-		// adjust odometer
-		if(!angleOnly) {
-			ZipLineLab.getOdo().setX(x);
-			ZipLineLab.getOdo().setY(y);
+		//adjust odometer
+		if(!initialLocalization) {
+			ZipLineLab.getOdo().setTheta(ZipLineLab.getOdo().getTheta() + dTheta);
 		}
-		ZipLineLab.getOdo().setTheta(ZipLineLab.getOdo().getTheta() + dTheta);
+		
+		
+		ZipLineLab.getCorrection().resumeCorrection();
 	
 	}
 
@@ -128,7 +175,7 @@ public class LightLocalizer {
 		}
 
 		// go forward until axis is found
-		while(getRedIntensity() > LINE_RED_INTENSITY) {
+		while(getRedIntensity() > ZipLineLab.LINE_RED_INTENSITY) {
 			leftMotor.setSpeed(ZipLineLab.FORWARD_SPEED);
 			rightMotor.setSpeed(ZipLineLab.FORWARD_SPEED);
 			
@@ -153,7 +200,7 @@ public class LightLocalizer {
 	 * Returns the mean of a group of sample from the color sensor as the detected color.
 	 * @return color intensity detected
 	 */
-	private float getRedIntensity() {
+	public static float getRedIntensity() {
 
 		for(int i = 0; i < lightData.length; i++) {
 			colorSampler.fetchSample(lightData, i);

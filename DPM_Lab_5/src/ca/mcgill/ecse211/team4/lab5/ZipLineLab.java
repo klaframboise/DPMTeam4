@@ -18,6 +18,7 @@ public class ZipLineLab {
 	public static final double GRID_SIZE = 30.48;
 	public static final int FORWARD_SPEED = 250;
 	public static final int ROTATE_SPEED = 100;
+	public static final float LINE_RED_INTENSITY = 0.30f;
 	private static final int SAMPLE_SIZE = 10;
 	
 	/* Static system wide variables */
@@ -27,8 +28,10 @@ public class ZipLineLab {
 	private static final EV3LargeRegulatedMotor rightMotor = new EV3LargeRegulatedMotor(LocalEV3.get().getPort("D"));
 	private static final EV3LargeRegulatedMotor lineMotor = new EV3LargeRegulatedMotor(LocalEV3.get().getPort("C"));
 	private static Odometer odo = new Odometer(leftMotor, rightMotor);
+	private static OdometryCorrection correction = new OdometryCorrection(odo);
 	private static Navigation nav = new Navigation(odo, leftMotor, rightMotor);
 
+	@SuppressWarnings("unused")
 	public static void main(String[] args) {
 		/* Local variables */
 		@SuppressWarnings("resource")
@@ -45,60 +48,118 @@ public class ZipLineLab {
 		OdometryDisplay display = new OdometryDisplay(odo, t);
 		ZipLineTraversal lineTraversal = new ZipLineTraversal(lineMotor, leftMotor, rightMotor);
 		int buttonChoice;
-		int zipX = 0;
-		int zipY = 0;
+		int[] coords = {0,0};
+		int x_0 = 0;
+		int y_0 = 0;
+		int x_c = 0;
+		int y_c = 0;
+		int sc = 0;
 		
 		leftMotor.setAcceleration(1000);
 		rightMotor.setAcceleration(1000);
 		
+		promptCoordInput(t, "x0", "y0", coords);
+		x_0 = coords[0];
+		y_0 = coords[1];
+		promptCoordInput(t, "xc", "yc", coords);
+		x_c = coords[0];
+		y_c = coords[1];
 		
+		//prompt for sc
 		while(true) {
 			//clear display
 			t.clear();
 			
 			//prompt user for input
-			t.drawString("X: Left & Right", 0, 0);
-			t.drawString("Y: Up & Down", 0, 1);
-			t.drawString("(" + zipX + ", " + zipY + ")",  0, 3);
+			t.drawString("SC: Up & Down", 0, 0);
+			t.drawString(String.valueOf(sc), 0, 2);
 			
 			//wait for button press
 			buttonChoice = Button.waitForAnyPress();
 			
 			//act on user input
 			switch(buttonChoice) {
-			case Button.ID_RIGHT: zipX++; break;
-			case Button.ID_LEFT: zipX--; break;
-			case Button.ID_UP: zipY++; break;
-			case Button.ID_DOWN: zipY--; break;
+			case Button.ID_UP: sc++; break;
+			case Button.ID_DOWN: sc--; break;
 			default: break;
 			}
 			
-			//wrap around [0,12]
-			zipX = (zipX < 0)? 12 : zipX % 13;
-			zipY = (zipY < 0)? 12 : zipY % 13;
+			//wrap around [0,3]
+			sc = (sc < 0)? 3 : sc % 4;
 			
 			//break out of loop if enter was pressed
 			if(buttonChoice == Button.ID_ENTER) break;
 			
 		} 
 		
-		//travel to zip line start after localization
+		//start odometry and display
 		odo.start();
+		correction.start();
 		display.start();
+		//localize
 		usLocalizer.localize();
-		lightLocalizer.localize(false);
-		nav.travelTo(zipX * GRID_SIZE, zipY * GRID_SIZE);
-		nav.turnTo(Math.toRadians(345));
-		lightLocalizer.localize(true);
+		lightLocalizer.localize(sc);
+		//TODO check that localization corrects according to sc
+		Button.waitForAnyPress();	//debugging purposes only
+		//navigate to waypoint
+		nav.setWaypoints(x_0 * GRID_SIZE, y_0 * GRID_SIZE);
+		//wait for nav to end
+		while(nav.isNavigating()) {
+			try {
+				Thread.sleep(25);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		Button.waitForAnyPress();	//debugging purposes only
+		//localize
+		lightLocalizer.localize();
+		//turn to face zipline
 		nav.turnTo(Math.PI/2.0);
-		//nav.travelTo(odo.getX() + 60.96, odo.getY());
-		
 		//wait for input per design requirements
 		Button.waitForAnyPress();
-		
-		//prepare for zip line traversal
-		//TODO implement zip line traversal
+		lineTraversal.traverse();
 
+	}
+	
+	/**
+	 * Prompts for an 2D point.
+	 * @param t reference to th TextLCD
+	 * @param xLabel name of x coordinate
+	 * @param yLabel name of y coordinate
+	 * @param coords array in which the coords are placed
+	 */
+	private static void promptCoordInput(TextLCD t, String xLabel, String yLabel, int[] coords) {
+		int buttonChoice;
+		while(true) {
+			//clear display
+			t.clear();
+			
+			//prompt user for input
+			t.drawString(xLabel + ": Left & Right", 0, 0);
+			t.drawString(yLabel + ": Up & Down", 0, 1);
+			t.drawString("(" + coords[0] + ", " + coords[1] + ")",  0, 3);
+			
+			//wait for button press
+			buttonChoice = Button.waitForAnyPress();
+			
+			//act on user input
+			switch(buttonChoice) {
+			case Button.ID_RIGHT: coords[0]++; break;
+			case Button.ID_LEFT: coords[0]--; break;
+			case Button.ID_UP: coords[1]++; break;
+			case Button.ID_DOWN: coords[1]--; break;
+			default: break;
+			}
+			
+			//wrap around [0,8]
+			coords[0] = (coords[0] < 0)? 8 : coords[0] % 9;
+			coords[1] = (coords[1] < 0)? 8 : coords[1] % 9;
+			
+			//break out of loop if enter was pressed
+			if(buttonChoice == Button.ID_ENTER) break;
+		}
 	}
 	/**
 	 * 
@@ -116,6 +177,9 @@ public class ZipLineLab {
 		return nav;
 	}
 
+	public static OdometryCorrection getCorrection() {
+		return correction;
+	}
 	/**
 	 * From Lab 2 sample code
 	 */

@@ -63,7 +63,6 @@ public class Odometer extends Thread {
 				dLeftWheel = Math.PI * ZipLineLab.WHEEL_RADIUS * (leftMotorTachoCount - leftLastTachoCount) / 180;
 				dRightWheel = Math.PI * ZipLineLab.WHEEL_RADIUS * (rightMotorTachoCount - rightLastTachoCount) / 180;
 
-
 				deltaD = (dLeftWheel + dRightWheel)/2; // magnitude of displacement
 				deltaT = (dLeftWheel - dRightWheel)/ZipLineLab.TRACK; // change in heading
 				theta = (theta + deltaT) % (2*Math.PI); // update heading

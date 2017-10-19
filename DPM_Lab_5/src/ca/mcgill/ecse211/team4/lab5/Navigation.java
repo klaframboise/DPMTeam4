@@ -1,11 +1,8 @@
 package ca.mcgill.ecse211.team4.lab5;
 
-import lejos.hardware.Sound;
 import lejos.hardware.motor.EV3LargeRegulatedMotor;
 
 public class Navigation extends Thread {
-
-	private static final int[] WAYPOINTS = {0,1,1,2,1,0,2,1,2,2};
 
 	private Odometer odo;
 	private EV3LargeRegulatedMotor leftMotor, rightMotor;
@@ -13,6 +10,7 @@ public class Navigation extends Thread {
 	private double waypointX;
 	private double waypointY;
 	private boolean isAvoiding;
+	private boolean updateNeeded;
 	private Object lock;
 
 	public Navigation(Odometer odo, EV3LargeRegulatedMotor leftMotor, EV3LargeRegulatedMotor rightMotor){
@@ -27,16 +25,30 @@ public class Navigation extends Thread {
 
 	public void run() {
 
-		int waypoint = 0;
-		while(waypoint < WAYPOINTS.length) {
+		double distance; 
+		
+		while(true) {
 			synchronized(lock) {
-				if(!isAvoiding) {
-					Sound.beep();
-					travelTo(WAYPOINTS[waypoint] * ZipLineLab.GRID_SIZE, WAYPOINTS[waypoint + 1] * ZipLineLab.GRID_SIZE);
-
+				
+				//check if path needs to be recalculated
+				if(!isAvoiding && updateNeeded) {
+					travelTo(waypointX, waypointY);
+					isNavigating = true;
+					updateNeeded = false;
 				}
-				if(!isAvoiding) {
-					waypoint += 2;
+				
+				//check is navigation is done using euclidean distance
+				distance = Math.sqrt(Math.pow(waypointX - odo.getX(), 2) + Math.pow(waypointY - odo.getY(), 2));
+				if(distance < 1.0) {
+					isNavigating = false;
+				}
+				
+				//wait 100ms before recalculating path
+				try {
+					Thread.sleep(100);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
 				}
 			}
 		}
@@ -48,12 +60,11 @@ public class Navigation extends Thread {
 	 * @param x x-coordinate in cm
 	 * @param y y-coordinate in cm
 	 */
-	void travelTo(double x, double y) {
+	private void travelTo(double x, double y) {
 
 		// if currently navigating, don't change destination waypoint
 		waypointX = (isNavigating())? waypointX : x;
 		waypointY = (isNavigating())? waypointY : y;
-		isNavigating = true;
 
 		double dX = x - odo.getX();
 		double dY = y - odo.getY();
@@ -71,12 +82,6 @@ public class Navigation extends Thread {
 		// wrap around 2pi
 		if(heading > 2 * Math.PI) heading -= 2 * Math.PI;
 
-		// reset the motors
-		for (EV3LargeRegulatedMotor motor : new EV3LargeRegulatedMotor[] {leftMotor, rightMotor}) {
-			motor.stop();
-			motor.setAcceleration(3000);
-		}
-
 		//turn robot to wanted heading 
 		turnTo(heading);
 		isNavigating = true;
@@ -86,15 +91,14 @@ public class Navigation extends Thread {
 		leftMotor.setSpeed(ZipLineLab.FORWARD_SPEED);
 		rightMotor.setSpeed(ZipLineLab.FORWARD_SPEED);
 		leftMotor.rotate(rotateAngle, true);
-		rightMotor.rotate(rotateAngle, false);
-		isNavigating = false;
+		rightMotor.rotate(rotateAngle, true);
 	}
 
 	/**
 	 * Turns to given heading using the minimum angle.
 	 * @param theta heading in radians
 	 */
-	void turnTo(double theta) {
+	public void turnTo(double theta) {
 
 		double dTheta = theta - odo.getTheta();
 		if(dTheta < 0) dTheta += 2 * Math.PI;
@@ -113,7 +117,7 @@ public class Navigation extends Thread {
 	/**
 	 * Turns in given direction.
 	 * @param dTheta change in heading wanted, in degrees
-	 * @param direction
+	 * @param direction left or right
 	 */
 	public void turn(double dTheta, String direction) {
 
@@ -152,7 +156,6 @@ public class Navigation extends Thread {
 		rightMotor.stop(true);
 
 		isAvoiding = true;
-		
 	}
 
 	/**
@@ -161,15 +164,46 @@ public class Navigation extends Thread {
 	void resumeNav() {
 		isAvoiding = false;
 	}
+	
+	/**
+	 * Indicates to navigation that a recalculation of the path is required.
+	 */
+	void update() {
+		updateNeeded = true;
+	}
 
+	/**
+	 * 
+	 * @return current x waypoint
+	 */
 	public double getWaypointX() {
 		return waypointX;
 	}
 
+	/**
+	 * 
+	 * @return current y waypoint
+	 */
 	public double getWaypointY() {
 		return waypointY;
 	}
+	
+	/**
+	 * Sets the destination of the navigation.
+	 * This overwrites the previous destination.
+	 * @param x in cm
+	 * @param y in cm
+	 */
+	public void setWaypoints(double x, double y) {
+		waypointX = x;
+		waypointY = y;
+		updateNeeded = true;
+	}
 
+	/**
+	 * 
+	 * @return isAvoiding
+	 */
 	public boolean isAvoiding() {
 		return isAvoiding;
 	}
