@@ -25,6 +25,7 @@ public class ZipLineLab {
 	private static final Port lightPort = LocalEV3.get().getPort("S4");
 	private static final EV3LargeRegulatedMotor leftMotor = new EV3LargeRegulatedMotor(LocalEV3.get().getPort("A"));
 	private static final EV3LargeRegulatedMotor rightMotor = new EV3LargeRegulatedMotor(LocalEV3.get().getPort("D"));
+	private static final EV3LargeRegulatedMotor lineMotor = new EV3LargeRegulatedMotor(LocalEV3.get().getPort("C"));
 	private static Odometer odo = new Odometer(leftMotor, rightMotor);
 	private static Navigation nav = new Navigation(odo, leftMotor, rightMotor);
 
@@ -42,6 +43,7 @@ public class ZipLineLab {
 		UltrasonicLocalizer usLocalizer = new UltrasonicLocalizer(usSampler, usData, leftMotor, rightMotor);
 		LightLocalizer lightLocalizer = new LightLocalizer(colorSampler, lightData, leftMotor, rightMotor);
 		OdometryDisplay display = new OdometryDisplay(odo, t);
+		ZipLineTraversal lineTraversal = new ZipLineTraversal(lineMotor, leftMotor, rightMotor);
 		int buttonChoice;
 		int zipX = 0;
 		int zipY = 0;
