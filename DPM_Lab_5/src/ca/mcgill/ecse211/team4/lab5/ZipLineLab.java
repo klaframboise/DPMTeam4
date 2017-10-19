@@ -17,7 +17,7 @@ public class ZipLineLab {
 	public static final double TRACK = 13.5;
 	public static final double GRID_SIZE = 30.48;
 	public static final int FORWARD_SPEED = 250;
-	public static final int ROTATE_SPEED = 150;
+	public static final int ROTATE_SPEED = 100;
 	private static final int SAMPLE_SIZE = 10;
 	
 	/* Static system wide variables */
@@ -38,12 +38,14 @@ public class ZipLineLab {
 		SensorModes colorSensor = new EV3ColorSensor(lightPort);
 		SampleProvider colorSampler = colorSensor.getMode("Red");
 		float[] lightData = new float[colorSampler.sampleSize() * SAMPLE_SIZE];
+		TextLCD t = LocalEV3.get().getTextLCD();
 		UltrasonicLocalizer usLocalizer = new UltrasonicLocalizer(usSampler, usData, leftMotor, rightMotor);
 		LightLocalizer lightLocalizer = new LightLocalizer(colorSampler, lightData, leftMotor, rightMotor);
+		OdometryDisplay display = new OdometryDisplay(odo, t);
 		int buttonChoice;
 		int zipX = 0;
 		int zipY = 0;
-		TextLCD t = LocalEV3.get().getTextLCD();
+		
 		
 		while(true) {
 			//clear display
@@ -76,6 +78,8 @@ public class ZipLineLab {
 		} 
 		
 		//travel to zip line start after localization
+		odo.start();
+		display.start();
 		usLocalizer.localize();
 		lightLocalizer.localize();
 		nav.travelTo(zipX * GRID_SIZE, zipY * GRID_SIZE);
