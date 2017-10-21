@@ -32,7 +32,6 @@ public class ZipLineLab {
 	private static OdometryCorrection correction = new OdometryCorrection(odo);
 	private static Navigation nav = new Navigation(odo, leftMotor, rightMotor);
 
-	@SuppressWarnings("unused")
 	public static void main(String[] args) {
 		/* Local variables */
 		@SuppressWarnings("resource")
@@ -47,6 +46,7 @@ public class ZipLineLab {
 		UltrasonicLocalizer usLocalizer = new UltrasonicLocalizer(usSampler, usData, leftMotor, rightMotor);
 		LightLocalizer lightLocalizer = new LightLocalizer(colorSampler, lightData, leftMotor, rightMotor);
 		OdometryDisplay display = new OdometryDisplay(odo, t);
+		ZipLineTraversal lineTraversal;
 		int buttonChoice;
 		int[] coords = {0,0};
 		int x_0 = 0;
@@ -58,6 +58,7 @@ public class ZipLineLab {
 		leftMotor.setAcceleration(500);
 		rightMotor.setAcceleration(500);
 		
+		//get zipline location from user
 		promptCoordInput(t, "x0", "y0", coords);
 		x_0 = coords[0];
 		y_0 = coords[1];
@@ -65,7 +66,8 @@ public class ZipLineLab {
 		x_c = coords[0];
 		y_c = coords[1];
 		
-		ZipLineTraversal lineTraversal = new ZipLineTraversal(lineMotor, leftMotor, rightMotor, x_c * GRID_SIZE, y_c * GRID_SIZE);
+		lineTraversal = new ZipLineTraversal(lineMotor, leftMotor, rightMotor, x_c * GRID_SIZE, y_c * GRID_SIZE);
+		
 		//prompt for sc
 		while(true) {
 			//clear display
@@ -180,6 +182,10 @@ public class ZipLineLab {
 		return nav;
 	}
 
+	/**
+	 * 
+	 * @return correction
+	 */
 	public static OdometryCorrection getCorrection() {
 		return correction;
 	}

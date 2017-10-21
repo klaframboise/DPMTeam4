@@ -34,14 +34,15 @@ public class OdometryCorrection extends Thread {
 				gridX = odo.getX() / ZipLineLab.GRID_SIZE;
 				gridY = odo.getY() / ZipLineLab.GRID_SIZE;
 				
-				// assuming odometer is accurate within +/- 3cm
+				// correct the coordinate which most likely corresponds to the axis detected
 				if(gridX % 1 <  gridY % 1) {
 					odo.setX(Math.round(gridX) * ZipLineLab.GRID_SIZE);
 				}
-				// assuming odometer is accurate within +/- 3cm
 				else {
 					odo.setY(Math.round(gridY) * ZipLineLab.GRID_SIZE);
 				}
+				
+				//update nav to recompute path
 				ZipLineLab.getNav().update();
 			}
 

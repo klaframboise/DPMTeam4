@@ -14,6 +14,14 @@ public class ZipLineTraversal {
 	private double x_c;
 	private double y_c;
 	
+	/**
+	 * 
+	 * @param lineMotor
+	 * @param leftMotor
+	 * @param rightMotor
+	 * @param x_c x coordinate of the zipine start in cm
+	 * @param y_c y coordinate of the zipine start in cm
+	 */
 	public ZipLineTraversal(EV3LargeRegulatedMotor lineMotor, EV3LargeRegulatedMotor leftMotor, EV3LargeRegulatedMotor rightMotor, double x_c, double y_c) {
 		this.lineMotor = lineMotor;
 		this.leftMotor = leftMotor;
@@ -22,7 +30,9 @@ public class ZipLineTraversal {
 		this.y_c = y_c;
 	}
 
-	// this method will allow the robot to traverse the zip line
+	/*
+	 * Traverse the zipline. This method assumes the robot is placed at (x_0, y_0).
+	 */
 	public void traverse() {
 		//start the line motor
 		lineMotor.setSpeed(FORWARD_SPEED);

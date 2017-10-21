@@ -37,7 +37,7 @@ public class Navigation extends Thread {
 					updateNeeded = false;
 				}
 				
-				//check is navigation is done using euclidean distance
+				//check if navigation is done using euclidean distance
 				distance = Math.sqrt(Math.pow(waypointX - odo.getX(), 2) + Math.pow(waypointY - odo.getY(), 2));
 				if(distance < 1.0) {
 					isNavigating = false;
@@ -59,6 +59,7 @@ public class Navigation extends Thread {
 	 * Travels to the given way point.
 	 * @param x x-coordinate in cm
 	 * @param y y-coordinate in cm
+	 * @param immediateReturn
 	 */
 	public void travelTo(double x, double y, boolean immediateReturn) {
 
