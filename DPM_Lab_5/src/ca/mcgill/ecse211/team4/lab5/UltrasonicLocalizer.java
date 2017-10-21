@@ -29,7 +29,7 @@ public class UltrasonicLocalizer {
 	 * Localizes the robot with respect to its distance form the wall.
 	 */
 	public void localize() {
-		leftMotor.setSpeed(ZipLineLab.ROTATE_SPEED);
+		leftMotor.setSpeed(ZipLineLab.ROTATE_SPEED * ZipLineLab.SPEED_OFFSET);
 		rightMotor.setSpeed(ZipLineLab.ROTATE_SPEED);
 		currentDistance = getFilteredDistance();
 		if(currentDistance < 30) { //in case we start facing the walls
@@ -54,7 +54,7 @@ public class UltrasonicLocalizer {
 			rightMotor.setSpeed(0);
 			goingClockwise = false;
 			alphaAngle = ZipLineLab.getOdo().getTheta();
-			leftMotor.setSpeed(ZipLineLab.ROTATE_SPEED); //go counter counterclockwise
+			leftMotor.setSpeed(ZipLineLab.ROTATE_SPEED * ZipLineLab.SPEED_OFFSET); //go counter counterclockwise
 			rightMotor.setSpeed(ZipLineLab.ROTATE_SPEED);
 			leftMotor.backward();
 			rightMotor.forward();
@@ -85,7 +85,7 @@ public class UltrasonicLocalizer {
 			rightMotor.setSpeed(0);
 			goingClockwise = false;
 			alphaAngle = ZipLineLab.getOdo().getTheta();
-			leftMotor.setSpeed(ZipLineLab.ROTATE_SPEED); //go counter counterclockwise
+			leftMotor.setSpeed(ZipLineLab.ROTATE_SPEED * ZipLineLab.SPEED_OFFSET); //go counter counterclockwise
 			rightMotor.setSpeed(ZipLineLab.ROTATE_SPEED);
 			leftMotor.backward();
 			rightMotor.forward();

@@ -30,7 +30,7 @@ public class ZipLineTraversal {
 		ZipLineLab.getNav().travelTo(x_c, y_c + 5, false);
 		
 		//after getting to point (0,1) travel to the point where the zip line is
-		leftMotor.setSpeed(ZipLineLab.ROTATE_SPEED);
+		leftMotor.setSpeed(ZipLineLab.ROTATE_SPEED * ZipLineLab.SPEED_OFFSET);
 		rightMotor.setSpeed(ZipLineLab.ROTATE_SPEED);
 		leftMotor.rotate(ZipLineLab.convertDistance(ZipLineLab.WHEEL_RADIUS, ZipLineLab.GRID_SIZE + 5), true);
 		rightMotor.rotate(ZipLineLab.convertDistance(ZipLineLab.WHEEL_RADIUS, ZipLineLab.GRID_SIZE + 5), false);

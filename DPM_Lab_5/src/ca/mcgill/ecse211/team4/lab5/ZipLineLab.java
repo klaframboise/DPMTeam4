@@ -16,8 +16,9 @@ public class ZipLineLab {
 	public static final double WHEEL_RADIUS = 2.1;
 	public static final double TRACK = 13.5;
 	public static final double GRID_SIZE = 30.48;
-	public static final int FORWARD_SPEED = 250;
+	public static final int FORWARD_SPEED = 175;
 	public static final int ROTATE_SPEED = 100;
+	public static final float SPEED_OFFSET = 0.98f;
 	public static final float LINE_RED_INTENSITY = 0.30f;
 	private static final int SAMPLE_SIZE = 10;
 	
@@ -54,8 +55,8 @@ public class ZipLineLab {
 		int y_c = 0;
 		int sc = 0;
 		
-		leftMotor.setAcceleration(1000);
-		rightMotor.setAcceleration(1000);
+		leftMotor.setAcceleration(500);
+		rightMotor.setAcceleration(500);
 		
 		promptCoordInput(t, "x0", "y0", coords);
 		x_0 = coords[0];

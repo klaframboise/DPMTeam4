@@ -9,7 +9,7 @@ import lejos.robotics.SampleProvider;
 public class LightLocalizer {
 
 	private static final double LS_TO_CENTER = 8.9;
-	private static final double ANGLE_OFFSET = Math.toRadians(6.5);
+	private static final double ANGLE_OFFSET = Math.toRadians(7);
 	private static SampleProvider colorSampler;
 	private static float[] lightData;
 	private EV3LargeRegulatedMotor leftMotor, rightMotor;
@@ -38,7 +38,7 @@ public class LightLocalizer {
 		counter = 0;
 		angles = new double[4];
 
-		leftMotor.setSpeed(ZipLineLab.ROTATE_SPEED);
+		leftMotor.setSpeed(ZipLineLab.ROTATE_SPEED * ZipLineLab.SPEED_OFFSET);
 		rightMotor.setSpeed(ZipLineLab.ROTATE_SPEED);
 
 		// start rotating 360 deg
@@ -79,7 +79,7 @@ public class LightLocalizer {
 		case 1:
 			ZipLineLab.getOdo().setX(7 * ZipLineLab.GRID_SIZE + dy);
 			ZipLineLab.getOdo().setY(ZipLineLab.GRID_SIZE - dx);
-			ZipLineLab.getOdo().setTheta(Math.PI/2.0 + ZipLineLab.getOdo().getTheta() + dTheta);
+			ZipLineLab.getOdo().setTheta(3.0 * Math.PI/2.0 + ZipLineLab.getOdo().getTheta() + dTheta);
 			break;
 		case 2:
 			ZipLineLab.getOdo().setX(7 * ZipLineLab.GRID_SIZE - dx);
@@ -89,7 +89,7 @@ public class LightLocalizer {
 		case 3:
 			ZipLineLab.getOdo().setX(ZipLineLab.GRID_SIZE - dy);
 			ZipLineLab.getOdo().setY(7 * ZipLineLab.GRID_SIZE + dx);
-			ZipLineLab.getOdo().setTheta(3.0 * Math.PI/2.0 + ZipLineLab.getOdo().getTheta() + dTheta);
+			ZipLineLab.getOdo().setTheta(Math.PI/2.0 + ZipLineLab.getOdo().getTheta() + dTheta);
 			break;
 		}
 	}
@@ -158,8 +158,10 @@ public class LightLocalizer {
 		//adjust odometer
 		if(!initialLocalization) {
 			ZipLineLab.getOdo().setTheta(ZipLineLab.getOdo().getTheta() + dTheta);
+			ZipLineLab.getOdo().setX(ZipLineLab.getNav().getWaypointX() + dx);
+			ZipLineLab.getOdo().setY(ZipLineLab.getNav().getWaypointX() + dy);
+
 		}
-		
 		
 		ZipLineLab.getCorrection().resumeCorrection();
 	
@@ -180,7 +182,7 @@ public class LightLocalizer {
 
 		// go forward until axis is found
 		while(getRedIntensity() > ZipLineLab.LINE_RED_INTENSITY) {
-			leftMotor.setSpeed(ZipLineLab.FORWARD_SPEED);
+			leftMotor.setSpeed(ZipLineLab.FORWARD_SPEED * ZipLineLab.SPEED_OFFSET);
 			rightMotor.setSpeed(ZipLineLab.FORWARD_SPEED);
 			
 			leftMotor.forward();

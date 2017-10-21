@@ -84,7 +84,7 @@ public class Navigation extends Thread {
 
 		//travel to x,y
 		int rotateAngle = ZipLineLab.convertDistance(ZipLineLab.WHEEL_RADIUS, distance);
-		leftMotor.setSpeed(ZipLineLab.FORWARD_SPEED);
+		leftMotor.setSpeed(ZipLineLab.FORWARD_SPEED * ZipLineLab.SPEED_OFFSET);
 		rightMotor.setSpeed(ZipLineLab.FORWARD_SPEED);
 		leftMotor.rotate(rotateAngle, true);
 		rightMotor.rotate(rotateAngle, immediateReturn);
@@ -120,7 +120,7 @@ public class Navigation extends Thread {
 		int distance = ZipLineLab.convertAngle(ZipLineLab.WHEEL_RADIUS, ZipLineLab.TRACK, dTheta);
 
 		// set motor speed
-		leftMotor.setSpeed(ZipLineLab.ROTATE_SPEED);
+		leftMotor.setSpeed(ZipLineLab.ROTATE_SPEED * ZipLineLab.SPEED_OFFSET);
 		rightMotor.setSpeed(ZipLineLab.ROTATE_SPEED);
 
 		switch (direction) {

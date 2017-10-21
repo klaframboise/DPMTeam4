@@ -57,7 +57,7 @@ public class Odometer extends Thread {
 
 				// get new tacho counts
 				rightMotorTachoCount = rightMotor.getTachoCount();
-				leftMotorTachoCount = leftMotor.getTachoCount();
+				leftMotorTachoCount = (int) (leftMotor.getTachoCount() / ZipLineLab.SPEED_OFFSET);
 
 				// find each wheel's displacement
 				dLeftWheel = Math.PI * ZipLineLab.WHEEL_RADIUS * (leftMotorTachoCount - leftLastTachoCount) / 180;
