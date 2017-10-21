@@ -76,8 +76,8 @@ public class LightLocalizer {
 			ZipLineLab.getOdo().setTheta(ZipLineLab.getOdo().getTheta() + dTheta);
 			break;
 		case 1:
-			ZipLineLab.getOdo().setX(7 * ZipLineLab.GRID_SIZE - dy);
-			ZipLineLab.getOdo().setY(ZipLineLab.GRID_SIZE + dx);
+			ZipLineLab.getOdo().setX(7 * ZipLineLab.GRID_SIZE + dy);
+			ZipLineLab.getOdo().setY(ZipLineLab.GRID_SIZE - dx);
 			ZipLineLab.getOdo().setTheta(Math.PI/2.0 + ZipLineLab.getOdo().getTheta() + dTheta);
 			break;
 		case 2:
@@ -86,8 +86,8 @@ public class LightLocalizer {
 			ZipLineLab.getOdo().setTheta(Math.PI + ZipLineLab.getOdo().getTheta() + dTheta);
 			break;
 		case 3:
-			ZipLineLab.getOdo().setX(ZipLineLab.GRID_SIZE + dy);
-			ZipLineLab.getOdo().setY(7 * ZipLineLab.GRID_SIZE - dx);
+			ZipLineLab.getOdo().setX(ZipLineLab.GRID_SIZE - dy);
+			ZipLineLab.getOdo().setY(7 * ZipLineLab.GRID_SIZE + dx);
 			ZipLineLab.getOdo().setTheta(3.0 * Math.PI/2.0 + ZipLineLab.getOdo().getTheta() + dTheta);
 			break;
 		}

@@ -103,6 +103,7 @@ public class ZipLineLab {
 		Button.waitForAnyPress();	//debugging purposes only
 		//navigate to waypoint
 		nav.setWaypoints(x_0 * GRID_SIZE, y_0 * GRID_SIZE);
+		nav.start();
 		//wait for nav to end
 		while(nav.isNavigating()) {
 			try {
