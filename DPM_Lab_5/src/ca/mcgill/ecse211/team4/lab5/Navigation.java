@@ -32,7 +32,7 @@ public class Navigation extends Thread {
 				
 				//check if path needs to be recalculated
 				if(!isAvoiding && updateNeeded) {
-					travelTo(waypointX, waypointY);
+					travelTo(waypointX, waypointY, true);
 					isNavigating = true;
 					updateNeeded = false;
 				}
@@ -60,11 +60,7 @@ public class Navigation extends Thread {
 	 * @param x x-coordinate in cm
 	 * @param y y-coordinate in cm
 	 */
-	private void travelTo(double x, double y) {
-
-		// if currently navigating, don't change destination waypoint
-		waypointX = (isNavigating())? waypointX : x;
-		waypointY = (isNavigating())? waypointY : y;
+	public void travelTo(double x, double y, boolean immediateReturn) {
 
 		double dX = x - odo.getX();
 		double dY = y - odo.getY();
@@ -91,7 +87,7 @@ public class Navigation extends Thread {
 		leftMotor.setSpeed(ZipLineLab.FORWARD_SPEED);
 		rightMotor.setSpeed(ZipLineLab.FORWARD_SPEED);
 		leftMotor.rotate(rotateAngle, true);
-		rightMotor.rotate(rotateAngle, true);
+		rightMotor.rotate(rotateAngle, immediateReturn);
 	}
 
 	/**

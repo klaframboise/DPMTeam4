@@ -35,14 +35,14 @@ public class OdometryCorrection extends Thread {
 				gridY = odo.getY() / ZipLineLab.GRID_SIZE;
 				
 				// assuming odometer is accurate within +/- 3cm
-				if((gridX % 1 < 0.1 || gridX % 1 > 0.9) || (gridX % 1 < gridY % 1)) {
+				if(gridX % 1 < 0.05 || gridX % 1 > 0.95) {
 					odo.setX(Math.round(gridX) * ZipLineLab.GRID_SIZE);
 				}
 				// assuming odometer is accurate within +/- 3cm
-				if((gridY % 1 < 0.1 || gridY % 1 > 0.9) || (gridY % 1 < gridX % 1)) {
+				if(gridY % 1 < 0.05 || gridY % 1 > 0.95) {
 					odo.setY(Math.round(gridY) * ZipLineLab.GRID_SIZE);
 				}
-				ZipLineLab.getNav().update();
+				//ZipLineLab.getNav().update();
 			}
 
 			// this ensure the odometry correction occurs only once every period

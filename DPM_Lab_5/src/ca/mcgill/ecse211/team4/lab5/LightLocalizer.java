@@ -9,6 +9,7 @@ import lejos.robotics.SampleProvider;
 public class LightLocalizer {
 
 	private static final double LS_TO_CENTER = 8.9;
+	private static final double ANGLE_OFFSET = Math.toRadians(6.5);
 	private static SampleProvider colorSampler;
 	private static float[] lightData;
 	private EV3LargeRegulatedMotor leftMotor, rightMotor;
@@ -120,15 +121,18 @@ public class LightLocalizer {
 			if (initialLocalization) {
 				adjust('x');
 				adjust('y');
+				ZipLineLab.getNav().turnTo(0);
 			}
-			ZipLineLab.getNav().turnTo(0);
+			else  {
+				ZipLineLab.getNav().turnTo(7.0 * Math.PI / 4.0);
+			}
 			sweep();
 
 			// already in position to localize
 			if(counter == 4) {
-				dx = -LS_TO_CENTER * Math.cos((angles[2] - angles[0])/2);	//theta-y is difference in angle between the first and third line crossed
-				dy =  (-LS_TO_CENTER * Math.cos((angles[3] - angles[1])/2)) - LS_TO_CENTER;	//theta-x is difference in angle between the second and fourth line crossed
-				dTheta = -Math.PI/2.0 - (angles[2] - Math.PI) + (angles[2] - angles[0])/2.0;
+				dx = -LS_TO_CENTER * Math.cos(Math.abs(angles[2] - angles[0])/2);	//theta-y is difference in angle between the first and third line crossed
+				dy =  (-LS_TO_CENTER * Math.cos(Math.abs(angles[3] - angles[1])/2)) - LS_TO_CENTER;	//theta-x is difference in angle between the second and fourth line crossed
+				dTheta = -Math.PI/2.0 - (angles[2] - Math.PI) + Math.abs(angles[2] - angles[0])/2.0 - ANGLE_OFFSET;
 				break;
 			}
 			else if(counter == 2) {

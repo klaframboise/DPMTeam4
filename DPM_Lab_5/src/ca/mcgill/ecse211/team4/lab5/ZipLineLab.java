@@ -26,7 +26,7 @@ public class ZipLineLab {
 	private static final Port lightPort = LocalEV3.get().getPort("S4");
 	private static final EV3LargeRegulatedMotor leftMotor = new EV3LargeRegulatedMotor(LocalEV3.get().getPort("A"));
 	private static final EV3LargeRegulatedMotor rightMotor = new EV3LargeRegulatedMotor(LocalEV3.get().getPort("D"));
-	private static final EV3LargeRegulatedMotor lineMotor = new EV3LargeRegulatedMotor(LocalEV3.get().getPort("C"));
+	private static final EV3LargeRegulatedMotor lineMotor = new EV3LargeRegulatedMotor(LocalEV3.get().getPort("B"));
 	private static Odometer odo = new Odometer(leftMotor, rightMotor);
 	private static OdometryCorrection correction = new OdometryCorrection(odo);
 	private static Navigation nav = new Navigation(odo, leftMotor, rightMotor);
@@ -46,7 +46,6 @@ public class ZipLineLab {
 		UltrasonicLocalizer usLocalizer = new UltrasonicLocalizer(usSampler, usData, leftMotor, rightMotor);
 		LightLocalizer lightLocalizer = new LightLocalizer(colorSampler, lightData, leftMotor, rightMotor);
 		OdometryDisplay display = new OdometryDisplay(odo, t);
-		ZipLineTraversal lineTraversal = new ZipLineTraversal(lineMotor, leftMotor, rightMotor);
 		int buttonChoice;
 		int[] coords = {0,0};
 		int x_0 = 0;
@@ -65,6 +64,7 @@ public class ZipLineLab {
 		x_c = coords[0];
 		y_c = coords[1];
 		
+		ZipLineTraversal lineTraversal = new ZipLineTraversal(lineMotor, leftMotor, rightMotor, x_c * GRID_SIZE, y_c * GRID_SIZE);
 		//prompt for sc
 		while(true) {
 			//clear display
@@ -94,11 +94,12 @@ public class ZipLineLab {
 		
 		//start odometry and display
 		odo.start();
-		correction.start();
+		//correction.start();
 		display.start();
 		//localize
 		usLocalizer.localize();
 		lightLocalizer.localize(sc);
+		nav.turnTo(0);
 		//TODO check that localization corrects according to sc
 		Button.waitForAnyPress();	//debugging purposes only
 		//navigate to waypoint
