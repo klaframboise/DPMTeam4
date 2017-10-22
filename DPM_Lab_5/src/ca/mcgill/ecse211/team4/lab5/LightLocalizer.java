@@ -20,19 +20,24 @@ public class LightLocalizer {
 	double dx;
 	double dy;
 	double dTheta;
-
+	
 	// coordinates of the nearest cross section.
 	double x_sc;
 	double y_sc;
-
+	//coordinates of the start of the zipline
+	double x_c;
+	double y_c;
+	
 	public LightLocalizer(SampleProvider colorSampler, float[] lightData, EV3LargeRegulatedMotor leftMotor,
-			EV3LargeRegulatedMotor rightMotor) {
+			EV3LargeRegulatedMotor rightMotor, double x_c, double y_c) {
 		LightLocalizer.colorSampler = colorSampler;
 		LightLocalizer.lightData = lightData;
 		this.leftMotor = leftMotor;
 		this.rightMotor = rightMotor;
 		counter = 0;
 		angles = new double[4];
+		this.x_c = x_c;
+		this.y_c = y_c;
 	}
 
 	/**
@@ -84,6 +89,9 @@ public class LightLocalizer {
 			ZipLineLab.getOdo().setX(x_sc + dx);
 			ZipLineLab.getOdo().setY(y_sc + dy);
 			ZipLineLab.getOdo().setTheta(ZipLineLab.getOdo().getTheta() + dTheta);
+			ZipLineLab.getNav().travelTo(x_sc, y_sc, false);
+			ZipLineLab.getNav().turnTo(0);
+			ZipLineLab.getOdo().setTheta(0);
 			break;
 		case 1:
 			x_sc = 7 * ZipLineLab.GRID_SIZE;
@@ -91,6 +99,9 @@ public class LightLocalizer {
 			ZipLineLab.getOdo().setX(x_sc + dx);
 			ZipLineLab.getOdo().setY(y_sc + dy);
 			ZipLineLab.getOdo().setTheta(ZipLineLab.getOdo().getTheta() + dTheta);
+			ZipLineLab.getNav().travelTo(x_sc, y_sc, false);
+			ZipLineLab.getNav().turnTo(0);
+			ZipLineLab.getOdo().setTheta(3 * Math.PI/2);
 			break;
 		case 2:
 			x_sc = 7 * ZipLineLab.GRID_SIZE;
@@ -98,6 +109,9 @@ public class LightLocalizer {
 			ZipLineLab.getOdo().setX(x_sc + dx);
 			ZipLineLab.getOdo().setY(y_sc + dy);
 			ZipLineLab.getOdo().setTheta(ZipLineLab.getOdo().getTheta() + dTheta);
+			ZipLineLab.getNav().travelTo(x_sc, y_sc, false);
+			ZipLineLab.getNav().turnTo(0);
+			ZipLineLab.getOdo().setTheta(Math.PI);
 			break;
 		case 3:
 			x_sc = ZipLineLab.GRID_SIZE;
@@ -105,11 +119,12 @@ public class LightLocalizer {
 			ZipLineLab.getOdo().setX(x_sc + dx);
 			ZipLineLab.getOdo().setY(y_sc + dy);
 			ZipLineLab.getOdo().setTheta(ZipLineLab.getOdo().getTheta() + dTheta);
+			ZipLineLab.getNav().travelTo(x_sc, y_sc, false);
+			ZipLineLab.getNav().turnTo(0);
+			ZipLineLab.getOdo().setTheta(Math.PI/2);
 			break;
 		}
 
-		// TODO: travel to the nearest starting coordinate
-		ZipLineLab.getNav().travelTo(x_sc, y_sc, false);
 	}
 
 	/**
@@ -229,7 +244,8 @@ public class LightLocalizer {
 			return;
 		}
 
-		// go forward until axis is found
+		// go forward for 10cm until axis is found
+		// if no line is detected, reverse 15cm. 
 		while (getRedIntensity() > ZipLineLab.LINE_RED_INTENSITY) {
 			leftMotor.setSpeed(ZipLineLab.FORWARD_SPEED * ZipLineLab.SPEED_OFFSET);
 			rightMotor.setSpeed(ZipLineLab.FORWARD_SPEED);
@@ -268,6 +284,11 @@ public class LightLocalizer {
 		return (lightData[(lightData.length / 2) - 1] + lightData[lightData.length / 2]) / 2.0f;
 	}
 
+	/**
+	 * Do another light localization @ (x0, y0). fix the angle and adjust the location.
+	 * @param x_0
+	 * @param y_0
+	 */
 	public void lightLocalizeX0Y0(double x_0, double y_0) {
 		sweep();
 		while (true) {
@@ -287,10 +308,8 @@ public class LightLocalizer {
 									// to come across y-axis
 				}
 			}
-			// edge case, implement if necessary
-			else if (counter == 3 || counter == 1) {
-				Sound.buzz();
-			} else {
+			// TODO: edge case counter == 3, implement if necessary
+			 else {
 				// no lines were found, go in both positive x and y until axis
 				// found
 				adjust('x');
@@ -298,21 +317,31 @@ public class LightLocalizer {
 			}
 		}
 		
-		LocalEV3.get().getTextLCD().drawString(String.valueOf(dx), 0, 4);
-		LocalEV3.get().getTextLCD().drawString(String.valueOf(dy), 0, 5);
-		LocalEV3.get().getTextLCD().drawString(String.valueOf(" "), 4, 4);
-		LocalEV3.get().getTextLCD().drawString(String.valueOf(" "), 4, 5);
-		LocalEV3.get().getTextLCD().drawString(String.valueOf(ZipLineLab.getNav().getWaypointX()), 5, 4);
-		LocalEV3.get().getTextLCD().drawString(String.valueOf(ZipLineLab.getNav().getWaypointY()), 5, 5);
-		LocalEV3.get().getTextLCD().drawString(String.valueOf(" "), 9, 4);
-		LocalEV3.get().getTextLCD().drawString(String.valueOf(" "), 9, 5);
-		LocalEV3.get().getTextLCD().drawString(String.valueOf(ZipLineLab.getOdo().getX()), 10, 4);
-		LocalEV3.get().getTextLCD().drawString(String.valueOf(ZipLineLab.getOdo().getX()), 10, 5);
 		ZipLineLab.getOdo().setTheta(ZipLineLab.getOdo().getTheta() + dTheta);
 		ZipLineLab.getOdo().setX(ZipLineLab.getNav().getWaypointX() + dx);
-		ZipLineLab.getOdo().setY(ZipLineLab.getNav().getWaypointX() + dy);
+		ZipLineLab.getOdo().setY(ZipLineLab.getNav().getWaypointY() + dy);
 		
-		ZipLineLab.getNav().travelTo(ZipLineLab.getNav().getWaypointX(), ZipLineLab.getNav().getWaypointY(), false);
+		if(dx < 2 && dy < 2){
+			if(x_c > x_0)
+				ZipLineLab.getNav().turnTo(Math.PI/2);
+			else if(x_c < x_0)
+				ZipLineLab.getNav().turnTo(3*Math.PI/2);
+			else if(y_c > y_0)
+				ZipLineLab.getNav().turnTo(0);
+			else if(y_c < y_0)
+				ZipLineLab.getNav().turnTo(Math.PI);
+		}			
+		else{
+			ZipLineLab.getNav().travelTo(ZipLineLab.getNav().getWaypointX(), ZipLineLab.getNav().getWaypointY(), false);
+			if(x_c > x_0)
+				ZipLineLab.getNav().turnTo(Math.PI/2);
+			else if(x_c < x_0)
+				ZipLineLab.getNav().turnTo(3*Math.PI/2);
+			else if(y_c > y_0)
+				ZipLineLab.getNav().turnTo(0);
+			else if(y_c < y_0)
+				ZipLineLab.getNav().turnTo(Math.PI);
+		}
 		
 	}
 }

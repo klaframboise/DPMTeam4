@@ -56,7 +56,6 @@ public class ZipLineLab {
 		float[] lightData = new float[colorSampler.sampleSize() * SAMPLE_SIZE];
 		TextLCD t = LocalEV3.get().getTextLCD();
 		UltrasonicLocalizer usLocalizer = new UltrasonicLocalizer(usSampler, usData, leftMotor, rightMotor);
-		LightLocalizer lightLocalizer = new LightLocalizer(colorSampler, lightData, leftMotor, rightMotor);
 		OdometryDisplay display = new OdometryDisplay(odo, t);
 		ZipLineTraversal lineTraversal;
 		int buttonChoice;
@@ -114,6 +113,7 @@ public class ZipLineLab {
 
 		}
 
+		LightLocalizer lightLocalizer = new LightLocalizer(colorSampler, lightData, leftMotor, rightMotor, x_c, y_c);
 		// start odometry and display
 		odo.start();
 		// correction.start();
@@ -126,7 +126,6 @@ public class ZipLineLab {
 		
 		usLocalizer.localize();
 		lightLocalizer.localize(sc);
-		nav.turnTo(0);
 		// TODO check that localization corrects according to sc
 
 		// debugging purposes only
