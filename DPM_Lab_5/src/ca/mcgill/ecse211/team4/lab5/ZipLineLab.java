@@ -78,7 +78,8 @@ public class ZipLineLab {
 		x_c = coords[0];
 		y_c = coords[1];
 
-		lineTraversal = new ZipLineTraversal(lineMotor, leftMotor, rightMotor, x_c * GRID_SIZE, y_c * GRID_SIZE);
+		lineTraversal = new ZipLineTraversal(lineMotor, leftMotor, rightMotor, x_c * GRID_SIZE, y_c * GRID_SIZE
+				, x_0 * GRID_SIZE, y_0 * GRID_SIZE);
 
 		// prompt for sc
 		while (true) {
@@ -117,7 +118,12 @@ public class ZipLineLab {
 		odo.start();
 		// correction.start();
 		display.start();
+		//test the navigation
+//		nav.setWaypoints(2 * GRID_SIZE, 2 * GRID_SIZE);
+//		nav.travelTo(nav.getWaypointX(), nav.getWaypointY(), false);
 		// localize
+		
+		
 		usLocalizer.localize();
 		lightLocalizer.localize(sc);
 		nav.turnTo(0);
@@ -144,7 +150,10 @@ public class ZipLineLab {
 		if (Button.waitForAnyPress() == Button.ID_ESCAPE)
 			System.exit(0);
 		// localize
-		lightLocalizer.localize();
+		//turn clockwise a little bit to avoid missing the first line (edge case)
+		leftMotor.rotate(-130, true);
+		rightMotor.rotate(130, false);
+		lightLocalizer.lightLocalizeX0Y0(x_0, y_0);
 		// turn to face zipline
 		nav.turnTo(Math.PI / 2.0);
 		// wait for input per design requirements
