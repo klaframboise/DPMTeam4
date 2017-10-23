@@ -124,7 +124,6 @@ public class LightLocalizer {
 			ZipLineLab.getOdo().setTheta(Math.PI/2);
 			break;
 		}
-
 	}
 
 	/**
@@ -321,26 +320,29 @@ public class LightLocalizer {
 		ZipLineLab.getOdo().setX(ZipLineLab.getNav().getWaypointX() + dx);
 		ZipLineLab.getOdo().setY(ZipLineLab.getNav().getWaypointY() + dy);
 		
-		if(dx < 2 && dy < 2){
-			if(x_c > x_0)
+		LocalEV3.get().getTextLCD().drawString(String.valueOf(dx), 0, 5);
+		LocalEV3.get().getTextLCD().drawString(String.valueOf(dy), 0, 6);
+		if(dx < 1 && dy < 1){
+			if(x_c > x_0 && y_c == y_0)
 				ZipLineLab.getNav().turnTo(Math.PI/2);
-			else if(x_c < x_0)
+			else if(x_c < x_0 && y_c == y_0)
 				ZipLineLab.getNav().turnTo(3*Math.PI/2);
-			else if(y_c > y_0)
+			else if(y_c > y_0 && x_c == x_0)
 				ZipLineLab.getNav().turnTo(0);
-			else if(y_c < y_0)
-				ZipLineLab.getNav().turnTo(Math.PI);
-		}			
-		else{
+			else if(y_c < y_0 && x_c == x_0)
+				ZipLineLab.getNav().turnTo(Math.PI);			
+		}
+		else {
+			if(x_c > x_0 && y_c == y_0)
+				ZipLineLab.getNav().turnTo(Math.PI/2);
+			else if(x_c < x_0 && y_c == y_0)
+				ZipLineLab.getNav().turnTo(3*Math.PI/2);
+			else if(y_c > y_0 && x_c == x_0)
+				ZipLineLab.getNav().turnTo(0);
+			else if(y_c < y_0 && x_c == x_0)
+				ZipLineLab.getNav().turnTo(Math.PI);			
+			
 			ZipLineLab.getNav().travelTo(ZipLineLab.getNav().getWaypointX(), ZipLineLab.getNav().getWaypointY(), false);
-			if(x_c > x_0)
-				ZipLineLab.getNav().turnTo(Math.PI/2);
-			else if(x_c < x_0)
-				ZipLineLab.getNav().turnTo(3*Math.PI/2);
-			else if(y_c > y_0)
-				ZipLineLab.getNav().turnTo(0);
-			else if(y_c < y_0)
-				ZipLineLab.getNav().turnTo(Math.PI);
 		}
 		
 	}

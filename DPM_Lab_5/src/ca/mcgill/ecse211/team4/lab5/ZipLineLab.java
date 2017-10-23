@@ -132,6 +132,12 @@ public class ZipLineLab {
 		if (Button.waitForAnyPress() == Button.ID_ESCAPE)
 			System.exit(0);
 		// navigate to waypoint
+		
+		/**
+		 * If the robot is starting from SC 1 or SC 2 
+		 * Navigate itself to (1,1) or (1,7) first before navigating to (x_0, y_0)
+		 */
+		
 		nav.setWaypoints(x_0 * GRID_SIZE, y_0 * GRID_SIZE);
 		nav.start();
 		//TODO: Current Navigation Error is too big. this error will grow if it is to travel a longer distance
@@ -154,12 +160,20 @@ public class ZipLineLab {
 		rightMotor.rotate(130, false);
 		lightLocalizer.lightLocalizeX0Y0(x_0, y_0);
 		// turn to face zipline
-		nav.turnTo(Math.PI / 2.0);
+		if(x_c > x_0)
+			nav.turnTo(Math.PI / 2.0);
+		else if(x_c < x_0)
+			nav.turnTo(3* Math.PI/2);
+		else if(y_c > y_0)
+			nav.turnTo(0);
+		else if(y_c < y_0)
+			nav.turnTo(Math.PI);
+		
 		// wait for input per design requirements
 		if (Button.waitForAnyPress() == Button.ID_ESCAPE)
 			System.exit(0);
 		lineTraversal.traverse();
-
+		
 	}
 
 	/**
