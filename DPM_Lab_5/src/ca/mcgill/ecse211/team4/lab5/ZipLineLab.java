@@ -17,7 +17,7 @@ public class ZipLineLab {
 	public static final double TRACK = 13.5;
 	public static final double GRID_SIZE = 30.48;
 	public static final int FORWARD_SPEED = 175;
-	public static final int ROTATE_SPEED = 100;
+	public static final int ROTATE_SPEED = 120;
 	public static final float SPEED_OFFSET = 0.98f;
 	public static final float LINE_RED_INTENSITY = 0.30f;
 	private static final int SAMPLE_SIZE = 10;
@@ -77,8 +77,8 @@ public class ZipLineLab {
 		x_c = coords[0];
 		y_c = coords[1];
 
-		lineTraversal = new ZipLineTraversal(lineMotor, leftMotor, rightMotor, x_c * GRID_SIZE, y_c * GRID_SIZE
-				, x_0 * GRID_SIZE, y_0 * GRID_SIZE);
+		lineTraversal = new ZipLineTraversal(lineMotor, leftMotor, rightMotor, x_c * GRID_SIZE, y_c * GRID_SIZE,
+				x_0 * GRID_SIZE, y_0 * GRID_SIZE);
 
 		// prompt for sc
 		while (true) {
@@ -118,12 +118,11 @@ public class ZipLineLab {
 		odo.start();
 		// correction.start();
 		display.start();
-		//test the navigation
-//		nav.setWaypoints(2 * GRID_SIZE, 2 * GRID_SIZE);
-//		nav.travelTo(nav.getWaypointX(), nav.getWaypointY(), false);
+		// test the navigation
+		// nav.setWaypoints(2 * GRID_SIZE, 2 * GRID_SIZE);
+		// nav.travelTo(nav.getWaypointX(), nav.getWaypointY(), false);
 		// localize
-		
-		
+
 		usLocalizer.localize();
 		lightLocalizer.localize(sc);
 		// TODO check that localization corrects according to sc
@@ -132,16 +131,52 @@ public class ZipLineLab {
 		if (Button.waitForAnyPress() == Button.ID_ESCAPE)
 			System.exit(0);
 		// navigate to waypoint
-		
+
 		/**
-		 * If the robot is starting from SC 1 or SC 2 
-		 * Navigate itself to (1,1) or (1,7) first before navigating to (x_0, y_0)
+		 * Now figure out the logic to navigate from each SC while avoiding the
+		 * zipline
 		 */
-		
-		nav.setWaypoints(x_0 * GRID_SIZE, y_0 * GRID_SIZE);
-		nav.start();
-		//TODO: Current Navigation Error is too big. this error will grow if it is to travel a longer distance
-		//Try fix navigation first
+		if (sc == 1) {
+			nav.setWaypoints(1 * GRID_SIZE, 1 * GRID_SIZE);
+			nav.start();
+			while (nav.isNavigating()) {
+				try {
+					Thread.sleep(25);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+			try {
+				nav.setWaypoints(x_0 * GRID_SIZE, y_0 * GRID_SIZE);
+				nav.start();
+			} catch (Exception e) {
+
+			}
+		} else if (sc == 2) {
+			nav.setWaypoints(1 * GRID_SIZE, 7 * GRID_SIZE);
+			nav.start();
+			while (nav.isNavigating()) {
+				try {
+					Thread.sleep(25);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+			try {
+				nav.setWaypoints(x_0 * GRID_SIZE, y_0 * GRID_SIZE);
+				nav.start();
+			} catch (Exception e) {
+
+			}
+		} else {
+			nav.setWaypoints(x_0 * GRID_SIZE, y_0 * GRID_SIZE);
+			nav.start();
+		}
+		// TODO: Current Navigation Error is too big. this error will grow if it
+		// is to travel a longer distance
+		// Try fix navigation first
 		// wait for nav to end
 		while (nav.isNavigating()) {
 			try {
@@ -155,25 +190,33 @@ public class ZipLineLab {
 		if (Button.waitForAnyPress() == Button.ID_ESCAPE)
 			System.exit(0);
 		// localize
-		//turn clockwise a little bit to avoid missing the first line (edge case)
+		// turn clockwise a little bit to avoid missing the first line (edge
+		// case)
 		leftMotor.rotate(-130, true);
 		rightMotor.rotate(130, false);
 		lightLocalizer.lightLocalizeX0Y0(x_0, y_0);
 		// turn to face zipline
-		if(x_c > x_0)
+		LocalEV3.get().getTextLCD().drawString(String.valueOf(x_c), 0, 4);
+		LocalEV3.get().getTextLCD().drawString(String.valueOf(x_0), 0, 5);
+		LocalEV3.get().getTextLCD().drawString(String.valueOf(y_c), 5, 4);
+		LocalEV3.get().getTextLCD().drawString(String.valueOf(y_0), 5, 5);
+		if (x_c > x_0)
 			nav.turnTo(Math.PI / 2.0);
-		else if(x_c < x_0)
-			nav.turnTo(3* Math.PI/2);
-		else if(y_c > y_0)
+		else if (x_c < x_0)
+			nav.turnTo(3 * Math.PI / 2);
+		else if (y_c > y_0)
 			nav.turnTo(0);
-		else if(y_c < y_0)
+		else if (y_c < y_0)
 			nav.turnTo(Math.PI);
-		
+
 		// wait for input per design requirements
 		if (Button.waitForAnyPress() == Button.ID_ESCAPE)
 			System.exit(0);
 		lineTraversal.traverse();
-		
+		if (odo.getX() - x_c > 10 || odo.getY() - y_c > 10) {
+			leftMotor.stop(true);
+			rightMotor.stop();
+		}
 	}
 
 	/**

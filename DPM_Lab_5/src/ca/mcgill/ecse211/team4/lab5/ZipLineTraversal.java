@@ -8,8 +8,8 @@ public class ZipLineTraversal extends Thread{
 	// Class constants
 	private static final int FORWARD_SPEED = 250;
 	public static final double GRID_SIZE = 30.48;
-	public static final double WHEEL_RADIUS = 0.95;
-	public static final double DISTANCE = 30.48 * 5; //double check how long should it travel on the zipline
+	public static final double WHEEL_RADIUS = 1.95;
+	public static final double DISTANCE = 30.48 * 8.5; //double check how long should it travel on the zipline
 	// class variables
 	private EV3LargeRegulatedMotor leftMotor, rightMotor, lineMotor;
 	private double x_c;
@@ -65,14 +65,11 @@ public class ZipLineTraversal extends Thread{
 
 		LocalEV3.get().getTextLCD().drawString(String.valueOf(x_f), 5, 4);
 		LocalEV3.get().getTextLCD().drawString(String.valueOf(y_f), 5, 5);
-		ZipLineLab.getNav().travelTo(ZipLineLab.getNav().getWaypointX(), ZipLineLab.getNav().getWaypointY(), true);
+		//ZipLineLab.getNav().travelTo(ZipLineLab.getNav().getWaypointX(), ZipLineLab.getNav().getWaypointY(), true);
 		// after getting to point (0,1) travel to the point where the zip line
 		// is
 		lineMotor.rotate(-ZipLineLab.convertDistance(WHEEL_RADIUS, DISTANCE), false);
-		try{
-			ZipLineLab.getNav().sleep(2000);
-		} catch(Exception e) {			
-		}
+		
 //		leftMotor.stop(true);
 //		rightMotor.stop(false);
 		lineMotor.stop();

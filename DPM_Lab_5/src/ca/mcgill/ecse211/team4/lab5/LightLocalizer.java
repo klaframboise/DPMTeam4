@@ -292,8 +292,8 @@ public class LightLocalizer {
 		sweep();
 		while (true) {
 			if (counter == 4) {
-				dx = x_0 - LS_TO_CENTER * Math.cos(Math.abs(angles[2] - angles[0]) / 2); 
-				dy = y_0 - LS_TO_CENTER * Math.cos(Math.abs(angles[3] - angles[1]) / 2); 
+				dx = -LS_TO_CENTER * Math.cos(Math.abs(angles[2] - angles[0]) / 2); 
+				dy = (-LS_TO_CENTER * Math.cos(Math.abs(angles[3] - angles[1]) / 2)) - LS_TO_CENTER;
 				dTheta = -Math.PI / 2.0 - (angles[2] - Math.PI) + Math.abs(angles[2] - angles[0]) / 2.0 - ANGLE_OFFSET;
 				break;
 			} else if (counter == 2) {
@@ -322,7 +322,7 @@ public class LightLocalizer {
 		
 		LocalEV3.get().getTextLCD().drawString(String.valueOf(dx), 0, 5);
 		LocalEV3.get().getTextLCD().drawString(String.valueOf(dy), 0, 6);
-		if(dx < 1 && dy < 1){
+		if(dx < 1.5 && dy < 1.5){
 			if(x_c > x_0 && y_c == y_0)
 				ZipLineLab.getNav().turnTo(Math.PI/2);
 			else if(x_c < x_0 && y_c == y_0)

@@ -1,5 +1,6 @@
 package ca.mcgill.ecse211.team4.lab5;
 
+import lejos.hardware.ev3.LocalEV3;
 import lejos.hardware.motor.EV3LargeRegulatedMotor;
 
 public class Navigation extends Thread {
@@ -39,10 +40,10 @@ public class Navigation extends Thread {
 				
 				//check if navigation is done using euclidean distance
 				distance = Math.sqrt(Math.pow(waypointX - odo.getX(), 2) + Math.pow(waypointY - odo.getY(), 2));
-				if(distance < 1.0) {
+				if(distance < 4.0) {
 					isNavigating = false;
 				}
-				
+				//LocalEV3.get().getTextLCD().drawString(String.valueOf(isNavigating), 5, 4);
 				//wait 100ms before recalculating path
 				try {
 					Thread.sleep(100);
