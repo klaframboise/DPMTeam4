@@ -18,7 +18,7 @@ public class ZipLineLab {
 	public static final double GRID_SIZE = 30.48;
 	public static final int FORWARD_SPEED = 175;
 	public static final int ROTATE_SPEED = 150;
-	public static final float SPEED_OFFSET = 0.9825f;
+	public static final float SPEED_OFFSET = 0.9875f;
 	public static final float LINE_RED_INTENSITY = 0.30f;
 	private static final int SAMPLE_SIZE = 10;
 
@@ -58,6 +58,7 @@ public class ZipLineLab {
 		UltrasonicLocalizer usLocalizer = new UltrasonicLocalizer(usSampler, usData, leftMotor, rightMotor);
 		OdometryDisplay display = new OdometryDisplay(odo, t);
 		ZipLineTraversal lineTraversal;
+		LightLocalizer lightLocalizer;
 		int buttonChoice;
 		int[] coords = { 0, 0 };
 		int x_0 = 0;
@@ -112,17 +113,13 @@ public class ZipLineLab {
 				break;
 
 		}
-
-		LightLocalizer lightLocalizer = new LightLocalizer(colorSampler, lightData, leftMotor, rightMotor, x_c, y_c);
+		
+		//initialize light localizer with 
+		lightLocalizer = new LightLocalizer(colorSampler, lightData, leftMotor, rightMotor, x_c, y_c);
 		// start odometry and display
 		odo.start();
-		// correction.start();
 		display.start();
-		// test the navigation
-		// nav.setWaypoints(2 * GRID_SIZE, 2 * GRID_SIZE);
-		// nav.travelTo(nav.getWaypointX(), nav.getWaypointY(), false);
 		// localize
-
 		usLocalizer.localize();
 		lightLocalizer.localize(sc);
 		// TODO check that localization corrects according to sc
@@ -136,25 +133,9 @@ public class ZipLineLab {
 		 * Now figure out the logic to navigate from each SC while avoiding the
 		 * zipline
 		 */
+		//set nav priority to max
 		nav.setPriority(Thread.MAX_PRIORITY);
-		/*if (sc == 1) {
-			nav.setWaypoints(1 * GRID_SIZE, 1 * GRID_SIZE);
-			nav.start();
-			while (nav.isNavigating()) {
-				try {
-					Thread.sleep(25);
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			}
-			try {
-				nav.setWaypoints(x_0 * GRID_SIZE, y_0 * GRID_SIZE);
-				nav.start();
-			} catch (Exception e) {
-
-			}
-		} else*/ if (sc == 2) {
+		if (sc == 2) {
 			nav.setWaypoints(x_0 * GRID_SIZE, odo.getY() + 5);
 			nav.start();
 			while (nav.isNavigating()) {
@@ -190,9 +171,10 @@ public class ZipLineLab {
 		// localize
 		// turn counterclockwise a little bit to avoid missing the first line (edge
 		// case)
-		leftMotor.rotate(-130, true);
-		rightMotor.rotate(130, false);
+		leftMotor.rotate(-150, true);
+		rightMotor.rotate(150, false);
 		lightLocalizer.lightLocalizeX0Y0(x_0, y_0);
+
 		// turn to face zipline
 		LocalEV3.get().getTextLCD().drawString(String.valueOf(x_c), 0, 4);
 		LocalEV3.get().getTextLCD().drawString(String.valueOf(x_0), 0, 5);
@@ -201,21 +183,27 @@ public class ZipLineLab {
 		if (x_c > x_0)
 			nav.turnTo(Math.PI / 2.0);
 		else if (x_c < x_0)
-			nav.turnTo(3 * Math.PI / 2);
+			nav.turnTo(3 * Math.PI / 2); 
 		else if (y_c > y_0)
 			nav.turnTo(0);
 		else if (y_c < y_0)
 			nav.turnTo(Math.PI);
 
+		if(sc == 3) {
+			nav.turnTo(Math.PI/2.0);
+		}
 		// wait for input per design requirements
 		if (Button.waitForAnyPress() == Button.ID_ESCAPE)
 			System.exit(0);
-		leftMotor.rotate(-55, true);
-		rightMotor.rotate(55, false);
-		
-		if(sc == 3) {
+		if (sc == 0) {
+		leftMotor.rotate(0 , true);
+		rightMotor.rotate(0 , false);
+		}
+		else if(sc == 3) {
 			odo.setTheta(odo.getTheta() - Math.PI);
-			nav.turnTo(Math.PI/2.0);
+			leftMotor.rotate(120, true);
+			rightMotor.rotate(-120, false);
+			//nav.turnTo(Math.PI/2.0);
 		}
 		lineTraversal.traverse();
 		if (odo.getX() - x_c > 10 || odo.getY() - y_c > 10) {

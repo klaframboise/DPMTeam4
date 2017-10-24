@@ -1,6 +1,5 @@
 package ca.mcgill.ecse211.team4.lab5;
 
-import lejos.hardware.ev3.LocalEV3;
 import lejos.hardware.motor.EV3LargeRegulatedMotor;
 
 public class Navigation extends Thread {

@@ -90,7 +90,7 @@ public class LightLocalizer {
 			ZipLineLab.getOdo().setY(y_sc + dy);
 			ZipLineLab.getOdo().setTheta(ZipLineLab.getOdo().getTheta() + dTheta);
 			ZipLineLab.getNav().travelTo(x_sc, y_sc, false);
-			ZipLineLab.getNav().turnTo(0);
+			ZipLineLab.getNav().turnTo(Math.toRadians(1));
 			ZipLineLab.getOdo().setTheta(0);
 			break;
 		case 1:
@@ -322,7 +322,7 @@ public class LightLocalizer {
 		
 		LocalEV3.get().getTextLCD().drawString(String.valueOf(dx), 0, 5);
 		LocalEV3.get().getTextLCD().drawString(String.valueOf(dy), 0, 6);
-		if(dx < 1.5 && dy < 1.5){
+		if(dx < 3.5 && dy < 3.5){
 			if(x_c > x_0 && y_c == y_0)
 				ZipLineLab.getNav().turnTo(Math.PI/2);
 			else if(x_c < x_0 && y_c == y_0)
@@ -330,7 +330,7 @@ public class LightLocalizer {
 			else if(y_c > y_0 && x_c == x_0)
 				ZipLineLab.getNav().turnTo(0);
 			else if(y_c < y_0 && x_c == x_0)
-				ZipLineLab.getNav().turnTo(Math.PI);			
+				ZipLineLab.getNav().turnTo(Math.toRadians(90.5));			
 		}
 		else {
 			if(x_c > x_0 && y_c == y_0)
