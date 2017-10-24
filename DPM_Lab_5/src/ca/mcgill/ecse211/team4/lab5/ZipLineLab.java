@@ -17,8 +17,8 @@ public class ZipLineLab {
 	public static final double TRACK = 13.5;
 	public static final double GRID_SIZE = 30.48;
 	public static final int FORWARD_SPEED = 175;
-	public static final int ROTATE_SPEED = 120;
-	public static final float SPEED_OFFSET = 0.98f;
+	public static final int ROTATE_SPEED = 150;
+	public static final float SPEED_OFFSET = 0.9825f;
 	public static final float LINE_RED_INTENSITY = 0.30f;
 	private static final int SAMPLE_SIZE = 10;
 
@@ -36,20 +36,20 @@ public class ZipLineLab {
 		/* Local variables */
 		@SuppressWarnings("resource")
 		SensorModes usSensor = new EV3UltrasonicSensor(usPort); // usSensor is
-																// the instance
+		// the instance
 		SampleProvider usSampler = usSensor.getMode("Distance"); // usSampler
-																	// provides
-																	// samples
-																	// from this
-																	// instance
+		// provides
+		// samples
+		// from this
+		// instance
 		float[] usData = new float[usSampler.sampleSize() * SAMPLE_SIZE]; // usData
-																			// is
-																			// the
-																			// buffer
-																			// in
-																			// which
-																			// data
-																			// are
+		// is
+		// the
+		// buffer
+		// in
+		// which
+		// data
+		// are
 		@SuppressWarnings("resource")
 		SensorModes colorSensor = new EV3ColorSensor(lightPort);
 		SampleProvider colorSampler = colorSensor.getMode("Red");
@@ -66,8 +66,8 @@ public class ZipLineLab {
 		int y_c = 0;
 		int sc = 0;
 
-		leftMotor.setAcceleration(500);
-		rightMotor.setAcceleration(500);
+		leftMotor.setAcceleration(250);
+		rightMotor.setAcceleration(250);
 
 		// get zipline location from user
 		promptCoordInput(t, "x0", "y0", coords);
@@ -136,7 +136,8 @@ public class ZipLineLab {
 		 * Now figure out the logic to navigate from each SC while avoiding the
 		 * zipline
 		 */
-		if (sc == 1) {
+		nav.setPriority(Thread.MAX_PRIORITY);
+		/*if (sc == 1) {
 			nav.setWaypoints(1 * GRID_SIZE, 1 * GRID_SIZE);
 			nav.start();
 			while (nav.isNavigating()) {
@@ -153,8 +154,8 @@ public class ZipLineLab {
 			} catch (Exception e) {
 
 			}
-		} else if (sc == 2) {
-			nav.setWaypoints(1 * GRID_SIZE, 7 * GRID_SIZE);
+		} else*/ if (sc == 2) {
+			nav.setWaypoints(x_0 * GRID_SIZE, odo.getY() + 5);
 			nav.start();
 			while (nav.isNavigating()) {
 				try {
@@ -164,15 +165,11 @@ public class ZipLineLab {
 					e.printStackTrace();
 				}
 			}
-			try {
-				nav.setWaypoints(x_0 * GRID_SIZE, y_0 * GRID_SIZE);
-				nav.start();
-			} catch (Exception e) {
 
-			}
+			nav.setWaypoints(x_0 * GRID_SIZE, y_0 * GRID_SIZE);
+
 		} else {
 			nav.setWaypoints(x_0 * GRID_SIZE, y_0 * GRID_SIZE);
-			nav.start();
 		}
 		// TODO: Current Navigation Error is too big. this error will grow if it
 		// is to travel a longer distance
@@ -212,6 +209,7 @@ public class ZipLineLab {
 		// wait for input per design requirements
 		if (Button.waitForAnyPress() == Button.ID_ESCAPE)
 			System.exit(0);
+
 		lineTraversal.traverse();
 		if (odo.getX() - x_c > 10 || odo.getY() - y_c > 10) {
 			leftMotor.stop(true);

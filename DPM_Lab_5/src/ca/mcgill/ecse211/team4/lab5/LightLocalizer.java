@@ -289,6 +289,7 @@ public class LightLocalizer {
 	 * @param y_0
 	 */
 	public void lightLocalizeX0Y0(double x_0, double y_0) {
+		//ZipLineLab.getNav().turnTo(Math.toRadians(330));
 		sweep();
 		while (true) {
 			if (counter == 4) {
@@ -315,7 +316,6 @@ public class LightLocalizer {
 				adjust('y');
 			}
 		}
-		
 		ZipLineLab.getOdo().setTheta(ZipLineLab.getOdo().getTheta() + dTheta);
 		ZipLineLab.getOdo().setX(ZipLineLab.getNav().getWaypointX() + dx);
 		ZipLineLab.getOdo().setY(ZipLineLab.getNav().getWaypointY() + dy);
