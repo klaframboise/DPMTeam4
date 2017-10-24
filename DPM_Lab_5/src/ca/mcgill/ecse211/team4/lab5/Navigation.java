@@ -40,7 +40,7 @@ public class Navigation extends Thread {
 				
 				//check if navigation is done using euclidean distance
 				distance = Math.sqrt(Math.pow(waypointX - odo.getX(), 2) + Math.pow(waypointY - odo.getY(), 2));
-				if(distance < 4.0) {
+				if(distance < 5.0) {
 					isNavigating = false;
 				}
 				//LocalEV3.get().getTextLCD().drawString(String.valueOf(isNavigating), 5, 4);

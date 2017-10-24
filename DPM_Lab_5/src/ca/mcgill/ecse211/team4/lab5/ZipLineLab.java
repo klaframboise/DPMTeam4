@@ -66,7 +66,7 @@ public class ZipLineLab {
 		int y_c = 0;
 		int sc = 0;
 
-		leftMotor.setAcceleration(250);
+		leftMotor.setAcceleration((int) (250 * SPEED_OFFSET));
 		rightMotor.setAcceleration(250);
 
 		// get zipline location from user
@@ -170,6 +170,7 @@ public class ZipLineLab {
 
 		} else {
 			nav.setWaypoints(x_0 * GRID_SIZE, y_0 * GRID_SIZE);
+			nav.start();
 		}
 		// TODO: Current Navigation Error is too big. this error will grow if it
 		// is to travel a longer distance
@@ -187,7 +188,7 @@ public class ZipLineLab {
 		if (Button.waitForAnyPress() == Button.ID_ESCAPE)
 			System.exit(0);
 		// localize
-		// turn clockwise a little bit to avoid missing the first line (edge
+		// turn counterclockwise a little bit to avoid missing the first line (edge
 		// case)
 		leftMotor.rotate(-130, true);
 		rightMotor.rotate(130, false);
@@ -209,7 +210,13 @@ public class ZipLineLab {
 		// wait for input per design requirements
 		if (Button.waitForAnyPress() == Button.ID_ESCAPE)
 			System.exit(0);
-
+		leftMotor.rotate(-55, true);
+		rightMotor.rotate(55, false);
+		
+		if(sc == 3) {
+			odo.setTheta(odo.getTheta() - Math.PI);
+			nav.turnTo(Math.PI/2.0);
+		}
 		lineTraversal.traverse();
 		if (odo.getX() - x_c > 10 || odo.getY() - y_c > 10) {
 			leftMotor.stop(true);
