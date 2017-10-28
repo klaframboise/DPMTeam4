@@ -2,25 +2,77 @@ package ca.mcgill.ecse211.team4.localization;
 
 import java.util.Arrays;
 
+import ca.mcgill.ecse211.team4.robot.Helper;
 import ca.mcgill.ecse211.team4.robot.Robot;
 import lejos.hardware.Sound;
 import lejos.hardware.motor.EV3LargeRegulatedMotor;
 import lejos.robotics.SampleProvider;
 
+/**
+ * This class uses the color sensor to correct to odometer's x, y and theta by evaluating the distance
+ * of the robot to a cross-section in the grid.
+ * @author Kevin Laframboise & Wenjie Wei
+ *
+ */
 public class LightLocalizer {
 
+	/**
+	 * Distance between the light sensor and the center of rotation of the robot, in cm.
+	 */
 	private static final double LS_TO_CENTER = 8.9;
+	/**
+	 * Offset to compensate for consistent error in angle correction, in radian. 
+	 * Should be empirically determined.
+	 */
 	private static final double ANGLE_OFFSET = Math.toRadians(7);
+	
+	/**
+	 * Sample provider for the color sensor.
+	 */
 	private static SampleProvider colorSampler;
+	
+	/**
+	 * Buffer array for the color sensor data.
+	 */
 	private static float[] lightData;
+	
+	/**
+	 * Motors driving the robot, used in the sweep operation.
+	 */
 	private EV3LargeRegulatedMotor leftMotor, rightMotor;
-
+	
+	/**
+	 * Counts the number of lines detected during sweep operation.
+	 */
 	int counter;
+	
+	/**
+	 * Records the angle at which a line was detected.
+	 */
 	double[] angles;
+	
+	/**
+	 * Distance in x between the robot and the y-axis, in cm.
+	 */
 	double dx;
+	
+	/**
+	 * Distance in y between the robot and the x-axis, in cm.
+	 */
 	double dy;
+	
+	/**
+	 * Angle delta between the odometer's zero heading and true zero heading, in radians.
+	 */
 	double dTheta;
 
+	/**
+	 * Creates a LightLocalizer object with given properties.
+	 * @param colorSampler
+	 * @param lightData
+	 * @param leftMotor
+	 * @param rightMotor
+	 */
 	public LightLocalizer(SampleProvider colorSampler, float[] lightData, EV3LargeRegulatedMotor leftMotor,
 			EV3LargeRegulatedMotor rightMotor) {
 		LightLocalizer.colorSampler = colorSampler;
@@ -35,7 +87,7 @@ public class LightLocalizer {
 	 * Performs a 360 degrees sweep in order to detect grid lines.
 	 */
 	private void sweep() {
-		int rotationAngle = Robot.convertAngle(Robot.WHEEL_RADIUS, Robot.TRACK, 360);
+		int rotationAngle = Helper.convertAngle(Robot.WHEEL_RADIUS, Robot.TRACK, 360);
 		counter = 0;
 		angles = new double[4];
 
@@ -103,8 +155,8 @@ public class LightLocalizer {
 	}
 
 	/**
-	 * Performs light localization according to initial localization.
-	 * @param initialLocalization
+	 * Performs light localization according to whether this is the initial localization or not.
+	 * @param initialLocalization true if this is the first light localization performed.
 	 */
 	public void localize(boolean initialLocalization) {
 		
@@ -198,8 +250,8 @@ public class LightLocalizer {
 		}
 		
 		// go 4.5cm past the line
-		leftMotor.rotate(Robot.convertDistance(Robot.WHEEL_RADIUS, 4.5), true);
-		rightMotor.rotate(Robot.convertDistance(Robot.WHEEL_RADIUS, 4.5), false);
+		leftMotor.rotate(Helper.convertDistance(Robot.WHEEL_RADIUS, 4.5), true);
+		rightMotor.rotate(Helper.convertDistance(Robot.WHEEL_RADIUS, 4.5), false);
 
 	}
 

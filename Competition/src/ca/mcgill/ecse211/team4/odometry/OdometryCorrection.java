@@ -7,12 +7,27 @@ import ca.mcgill.ecse211.team4.localization.LightLocalizer;
 import ca.mcgill.ecse211.team4.robot.Robot;
 import lejos.hardware.Sound;
 
+/**
+ * This thread corrects the odometer's x, y and theta using the color sensor to detect grid lines.
+ * @author Kevin Laframboise
+ *
+ */
 public class OdometryCorrection extends Thread {
 
 	/* Constants */
+	/**
+	 * Sleeping time between each odometer correction, in ms.
+	 */
 	private static final long CORRECTION_PERIOD = 10;
 
+	/**
+	 * Odometer to correct.
+	 */
 	private Odometer odo;
+	
+	/**
+	 * Indicates whether the robot is currently performing localization.
+	 */
 	private boolean isLocalizing;
 
 	// constructor
@@ -20,7 +35,9 @@ public class OdometryCorrection extends Thread {
 		this.odo = odometer;
 	}
 
-	// run method (required for Thread)
+	/**
+	 * @see java.lang.Thread#run()
+	 */
 	public void run() {
 		long correctionStart, correctionEnd;
 		double gridX = 0;
@@ -62,10 +79,16 @@ public class OdometryCorrection extends Thread {
 		}
 	}
 	
+	/**
+	 * Pauses the correction.
+	 */
 	public void pauseCorrection() {
 		isLocalizing = true;
 	}
 	
+	/**
+	 * Resumes the correction.
+	 */
 	public void resumeCorrection() {
 		isLocalizing = false;
 	}

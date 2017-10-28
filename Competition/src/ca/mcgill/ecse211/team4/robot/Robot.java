@@ -19,16 +19,6 @@ public class Robot {
 
 	}
 
-	public static int convertAngle(double wheelRadius, double track2, double dTheta) {
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
-	public static int convertDistance(double wheelRadius, double d) {
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
 	public static OdometryCorrection getCorrection() {
 		// TODO Auto-generated method stub
 		return null;

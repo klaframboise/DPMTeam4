@@ -3,22 +3,63 @@ package ca.mcgill.ecse211.team4.odometry;
 import ca.mcgill.ecse211.team4.robot.Robot;
 import lejos.hardware.motor.EV3LargeRegulatedMotor;
 
+/**
+ * Tracks the movement of the robot using odometry principles. 
+ * @author Walid Chabchoub & Kevin Laframboise
+ *
+ */
 public class Odometer extends Thread {
-	//  position
+	/**
+	 * Current x coordinate, in cm.
+	 */
 	private double x;
+
+	/**
+	 * Current y coordinate, in cm.
+	 */
 	private double y;
+
+	/**
+	 * Current heading, in radians.
+	 */
 	private double theta;
+
+	/**
+	 * Current left motor tachometer count, in degrees.
+	 */
 	private int leftMotorTachoCount;
+
+	/**
+	 * Current right motor tachometer count, in degrees.
+	 */
 	private int rightMotorTachoCount;
+
+	/**
+	 * Left motor tracked by odometer.
+	 */
 	private EV3LargeRegulatedMotor leftMotor;
+
+	/**
+	 * Right motor tracked by odometer.
+	 */
 	private EV3LargeRegulatedMotor rightMotor;
 
-	private static final long ODOMETER_PERIOD = 25; /*odometer update period, in ms*/
-	public static final boolean[] UPDATE_ALL = {true, true, true}; 
+	/**
+	 * Lock object for mutual exvlusion.
+	 */
+	private Object lock; 
 
-	private Object lock; /*lock object for mutual exclusion*/
+	/**
+	 * Sleep period between odometer computations, in ms.
+	 */
+	private static final long ODOMETER_PERIOD = 25; 
 
-	// default constructor
+	/**
+	 * Creates an odometer object that, once the thread is started, will track the right
+	 * and left motor passed as argument.
+	 * @param leftMotor
+	 * @param rightMotor
+	 */
 	public Odometer(EV3LargeRegulatedMotor leftMotor, EV3LargeRegulatedMotor rightMotor) {
 		this.leftMotor = leftMotor;
 		this.rightMotor = rightMotor;
@@ -34,7 +75,9 @@ public class Odometer extends Thread {
 		rightMotor.resetTachoCount();
 	}
 
-	// run method (required for Thread)
+	/**
+	 * @see java.lang.Thread#run()
+	 */
 	public void run() {
 		long updateStart, updateEnd;
 
@@ -46,12 +89,7 @@ public class Odometer extends Thread {
 			updateStart = System.currentTimeMillis();
 
 			synchronized (lock) {
-				//System.out.println("\n\n\n odo running");
-				/**
-				 * Don't use the variables x, y, or theta anywhere but here! Only update the values of x, y,
-				 * and theta in this block. Do not perform complex math
-				 * 
-				 */
+
 				// keep last iteration's tacho counts
 				rightLastTachoCount = rightMotorTachoCount;
 				leftLastTachoCount = leftMotorTachoCount;
@@ -68,13 +106,14 @@ public class Odometer extends Thread {
 				deltaT = (dLeftWheel - dRightWheel)/Robot.TRACK; // change in heading
 				theta = (theta + deltaT) % (2*Math.PI); // update heading
 				theta = (theta < 0)? theta + 2 * Math.PI : theta;
-				dX = deltaD * Math.sin(theta); // displacement on x-axis
-				dY = deltaD * Math.cos(theta); // displacement on y-axis
-
-				// update coords
-				x += dX;
-				y += dY;
 			}
+			
+			dX = deltaD * Math.sin(theta); // displacement on x-axis
+			dY = deltaD * Math.cos(theta); // displacement on y-axis
+
+			// update coords
+			x += dX;
+			y += dY;
 
 			// this ensures that the odometer only runs once every period
 			updateEnd = System.currentTimeMillis();
@@ -90,6 +129,11 @@ public class Odometer extends Thread {
 		}
 	}
 
+	/**
+	 * Places the current x, y and theta in the position array.
+	 * @param position array to fill with x, y and theta. Element at index 0 is x, 1 is y and 2 is theta.
+	 * @param update dictates which coordinate to place in the array. Follows same indexing as position.
+	 */
 	public void getPosition(double[] position, boolean[] update) {
 		// ensure that the values don't change while the odometer is running
 		synchronized (lock) {
@@ -102,6 +146,9 @@ public class Odometer extends Thread {
 		}
 	}
 
+	/**
+	 * @return current x position, in cm.
+	 */
 	public double getX() {
 		double result;
 
@@ -112,6 +159,9 @@ public class Odometer extends Thread {
 		return result;
 	}
 
+	/**
+	 * @return current y position, in cm.
+	 */
 	public double getY() {
 		double result;
 
@@ -122,6 +172,10 @@ public class Odometer extends Thread {
 		return result;
 	}
 
+	/**
+	 * 
+	 * @return current heading, in radians.
+	 */
 	public double getTheta() {
 		double result;
 
@@ -132,7 +186,11 @@ public class Odometer extends Thread {
 		return result;
 	}
 
-	// mutators
+	/**
+	 * Changes the current x, y and theta in to the value in the position array.
+	 * @param position array containing new x, y and theta. Element at index 0 is x, 1 is y and 2 is theta.
+	 * @param update dictates which coordinate to update. Follows same indexing as position.
+	 */
 	public void setPosition(double[] position, boolean[] update) {
 		// ensure that the values don't change while the odometer is running
 		synchronized (lock) {
@@ -145,18 +203,30 @@ public class Odometer extends Thread {
 		}
 	}
 
+	/**
+	 * Changes the current x position.
+	 * @param x new x, in cm.
+	 */
 	public void setX(double x) {
 		synchronized (lock) {
 			this.x = x;
 		}
 	}
 
+	/**
+	 * Changes the current y position.
+	 * @param y new y, in cm.
+	 */
 	public void setY(double y) {
 		synchronized (lock) {
 			this.y = y;
 		}
 	}
 
+	/**
+	 * Changes the current heading.
+	 * @param theta new theta, in radians.
+	 */
 	public void setTheta(double theta) {
 		synchronized (lock) {
 			this.theta = theta;
@@ -164,19 +234,10 @@ public class Odometer extends Thread {
 	}
 
 	/**
-	 * @return the leftMotorTachoCount
+	 * @return leftMotorTachoCount
 	 */
 	public int getLeftMotorTachoCount() {
 		return leftMotorTachoCount;
-	}
-
-	/**
-	 * @param leftMotorTachoCount the leftMotorTachoCount to set
-	 */
-	public void setLeftMotorTachoCount(int leftMotorTachoCount) {
-		synchronized (lock) {
-			this.leftMotorTachoCount = leftMotorTachoCount;
-		}
 	}
 
 	/**
@@ -186,12 +247,4 @@ public class Odometer extends Thread {
 		return rightMotorTachoCount;
 	}
 
-	/**
-	 * @param rightMotorTachoCount the rightMotorTachoCount to set
-	 */
-	public void setRightMotorTachoCount(int rightMotorTachoCount) {
-		synchronized (lock) {
-			this.rightMotorTachoCount = rightMotorTachoCount;
-		}
-	}
 }
