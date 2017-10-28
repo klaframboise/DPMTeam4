@@ -27,7 +27,7 @@ public class LightLocalizer {
 	private static final double ANGLE_OFFSET = Math.toRadians(7);
 	
 	/**
-	 * Sample provider for the color sensor.
+	 * Sample provider for the color sensor. Sample Provider must be in red mode.
 	 */
 	private static SampleProvider colorSampler;
 	

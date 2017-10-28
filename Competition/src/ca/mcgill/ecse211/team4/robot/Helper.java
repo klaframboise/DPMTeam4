@@ -1,9 +1,13 @@
 package ca.mcgill.ecse211.team4.robot;
 
+import java.util.Arrays;
+
+import lejos.robotics.SampleProvider;
+
 /**
  * This class provides helpful methods that can be used throughout the project. All the methods in this are static.
  * This is to avoid code duplication and consolidate methods that are used often by different classes.
- * @author Kevin
+ * @author Kevin Laframboise
  *
  */
 public abstract class Helper {
@@ -29,6 +33,21 @@ public abstract class Helper {
 	 */
 	public static int convertDistance(double wheelRadius, double distance) {
 		return (int) ((180.0 * distance) / (Math.PI * wheelRadius));
+	}
+	
+	/**
+	 * Returns the median of a group of sample from the ultrasonic sensor.
+	 * @param us SampleProvider to be used by the method.
+	 * @param usData buffer array for sensor data.
+	 * @return distance from the wall, in cm.
+	 */
+	public static int getFilteredDistance(SampleProvider us, float[] usData) {
+
+		for(int i = 0; i < usData.length; i+= us.sampleSize()) {
+			us.fetchSample(usData, i * us.sampleSize()); // acquire data
+		}
+		Arrays.sort(usData);	// sort array
+		return (int) ((usData[(usData.length/2)-1] + usData[usData.length/2]) / 2.0 * 100.0); // return median
 	}
 
 }

@@ -2,6 +2,7 @@ package ca.mcgill.ecse211.team4.localization;
 
 import java.util.Arrays;
 
+import ca.mcgill.ecse211.team4.robot.Helper;
 import ca.mcgill.ecse211.team4.robot.Robot;
 import lejos.hardware.Sound;
 import lejos.hardware.motor.EV3LargeRegulatedMotor;
@@ -77,10 +78,10 @@ public class UltrasonicLocalizer {
 	public void localize() {
 		leftMotor.setSpeed(Robot.ROTATE_SPEED * Robot.SPEED_OFFSET);
 		rightMotor.setSpeed(Robot.ROTATE_SPEED);
-		currentDistance = getFilteredDistance();
+		currentDistance = Helper.getFilteredDistance(us, usData);
 		if(currentDistance < 30) { //in case we start facing the walls
 			while(currentDistance < 30) { //then move away from the walls in a clockwise manner
-				currentDistance = getFilteredDistance();
+				currentDistance = Helper.getFilteredDistance(us, usData);
 				leftMotor.forward();
 				rightMotor.backward();
 			}
@@ -89,9 +90,9 @@ public class UltrasonicLocalizer {
 			//			} catch (InterruptedException e) {
 			//				e.printStackTrace();
 			//			}
-			currentDistance = getFilteredDistance(); 
+			currentDistance = Helper.getFilteredDistance(us, usData); 
 			while(currentDistance > 30  && goingClockwise) { //now look for the closest wall clockwise
-				currentDistance = getFilteredDistance();
+				currentDistance = Helper.getFilteredDistance(us, usData);
 				//sweep(clockwise, 72);
 				leftMotor.forward();
 				rightMotor.backward();
@@ -110,9 +111,9 @@ public class UltrasonicLocalizer {
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
-			currentDistance = getFilteredDistance();
+			currentDistance = Helper.getFilteredDistance(us, usData);
 			while(currentDistance > 30 && !goingClockwise) { //we're now looking for another falling edge on the other side
-				currentDistance = getFilteredDistance();
+				currentDistance = Helper.getFilteredDistance(us, usData);
 				//sweep(clockwise, 72);
 				leftMotor.backward(); //we're going counterclockwise
 				rightMotor.forward();
@@ -122,7 +123,7 @@ public class UltrasonicLocalizer {
 			betaAngle = Robot.getOdo().getTheta();
 		} else { //this is in case we start away from the walls
 			while(currentDistance > 30  && goingClockwise) { //look for the closest wall clockwise
-				currentDistance = getFilteredDistance();
+				currentDistance = Helper.getFilteredDistance(us, usData);
 				//sweep(clockwise, 72);
 				leftMotor.forward();
 				rightMotor.backward();
@@ -142,9 +143,9 @@ public class UltrasonicLocalizer {
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
-			currentDistance = getFilteredDistance();
+			currentDistance = Helper.getFilteredDistance(us, usData);
 			while(currentDistance > 30 && !goingClockwise) { //we're now looking for another falling edge on the other side
-				currentDistance = getFilteredDistance();
+				currentDistance = Helper.getFilteredDistance(us, usData);
 				//sweep(clockwise, 72);
 				leftMotor.backward();
 				rightMotor.forward();
@@ -167,19 +168,5 @@ public class UltrasonicLocalizer {
 		Robot.getOdo().setTheta(currentTheta + deltaTheta); //correct the Odometer's theta value to the correct one
 
 		Robot.getNav().turnTo(0);
-	}
-
-
-	/**
-	 * Returns the median of a group of sample from the ultrasonic sensor.
-	 * @return distance from the wall, in cm.
-	 */
-	private int getFilteredDistance() {
-
-		for(int i = 0; i < usData.length; i+= us.sampleSize()) {
-			us.fetchSample(usData, i * us.sampleSize()); // acquire data
-		}
-		Arrays.sort(usData);	// sort array
-		return (int) ((usData[(usData.length/2)-1] + usData[usData.length/2]) / 2.0 * 100.0); // return median
 	}
 }

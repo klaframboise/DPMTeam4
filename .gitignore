@@ -75,6 +75,7 @@ local.properties
 
 # Package Files #
 *.jar
+!Competition/lib/*.jar
 *.war
 *.ear
 *.zip
