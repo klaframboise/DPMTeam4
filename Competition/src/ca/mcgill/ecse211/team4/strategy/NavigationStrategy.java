@@ -41,46 +41,46 @@ public class NavigationStrategy {
 	/**
 	 * Uses the navigation strategy dictated by team color to navigate to the objective.
 	 */
-	public void NavigateToObjectiveZone() {
+	public void navigateToObjectiveZone() {
 		
-		if(teamColor.equals("green")) NavToObjectiveByZip();
-		else NavToObjectiveByCrossing();
+		if(teamColor.equals("Green")) navToObjectiveByZip();
+		else navToObjectiveByCrossing();
 	}
 	
 	/**
 	 * Uses the navigation strategy dictated by team color to navigate back to the starting point.
 	 */
-	public void NavigateBack() {
+	public void navigateBack() {
 		
-		if(teamColor.equals("green")) NavBackByCrossing();
-		else NavBackByZip();
+		if(teamColor.equals("Green")) navBackByCrossing();
+		else navBackByZip();
 	}
 	
 	/**
 	 * Navigates to the objective using the zipline.
 	 */
-	private void NavToObjectiveByZip() {
+	private void navToObjectiveByZip() {
 		
 	}
 	
 	/**
 	 * Navigates to the objective using the shallow crossing.
 	 */
-	private void NavToObjectiveByCrossing() {
+	private void navToObjectiveByCrossing() {
 		
 	}
 	
 	/**
 	 * Navigates back to the start using the zipline.
 	 */
-	private void NavBackByZip() {
+	private void navBackByZip() {
 		
 	}
 	
 	/**
 	 * Navigates back to the start using the shallow crossing.
 	 */
-	private void NavBackByCrossing() {
+	private void navBackByCrossing() {
 		
 	}
 	
