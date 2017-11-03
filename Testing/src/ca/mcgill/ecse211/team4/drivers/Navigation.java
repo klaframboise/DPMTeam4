@@ -54,7 +54,6 @@ public class Navigation extends Thread {
 				}
 			}
 		}
-
 	}
 
 	/**
@@ -87,10 +86,11 @@ public class Navigation extends Thread {
 
 		//travel to x,y
 		int rotateAngle = Robot.convertDistance(Robot.WHEEL_RADIUS, distance);
+		//TODO: double check if Robot.OFFSET is needed here
 		leftMotor.setSpeed(Robot.FORWARD_SPEED * Robot.SPEED_OFFSET);
 		rightMotor.setSpeed(Robot.FORWARD_SPEED);
 		leftMotor.rotate(rotateAngle, true);
-		rightMotor.rotate(rotateAngle, immediateReturn);
+		rightMotor.rotate((int) (rotateAngle / Robot.ANGLE_OFFSET), immediateReturn);
 	}
 
 	/**
@@ -142,7 +142,7 @@ public class Navigation extends Thread {
 	 * 
 	 * @return isNavigating
 	 */
-	boolean isNavigating() {
+	public boolean isNavigating() {
 		return isNavigating;
 	}
 	
