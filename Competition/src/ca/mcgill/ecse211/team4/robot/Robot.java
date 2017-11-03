@@ -164,7 +164,7 @@ public class Robot {
 		NavigationStrategy navStrat = new NavigationStrategy(teamColor, gameParameters, nav);
 		
 		/* Initialize flag detection */
-		FlagDetection flagDetection = new FlagDetection(colorSampler, colorData, gameParameters.get("O" + teamColor.charAt(0)), gameParameters);
+		FlagDetection flagDetection = new FlagDetection(colorSampler, colorData, gameParameters.get("O" + teamColor.charAt(0)), gameParameters, teamColor);
 				
 		/* Start game */
 		odo.start();
