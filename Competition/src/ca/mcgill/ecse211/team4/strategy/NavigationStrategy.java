@@ -12,7 +12,7 @@ import ca.mcgill.ecse211.team4.drivers.Navigation;
 public class NavigationStrategy {
 
 	/**
-	 * Must be "red" or "green". This will change the strategy used.
+	 * Must be "Red" or "Green". This will change the strategy used.
 	 */
 	private String teamColor;
 	
