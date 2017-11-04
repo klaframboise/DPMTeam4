@@ -164,7 +164,7 @@ public class Robot {
 		NavigationStrategy navStrat = new NavigationStrategy(teamColor, gameParameters, nav);
 		
 		/* Initialize flag detection */
-		FlagDetection flagDetection = new FlagDetection(colorSampler, colorData, gameParameters.get("O" + teamColor.charAt(0)), gameParameters, teamColor);
+		FlagDetection flagDetection = new FlagDetection(colorSampler, colorData, gameParameters.get("O" + teamColor.charAt(0)).intValue(), gameParameters);
 				
 		/* Start game */
 		odo.start();
@@ -173,9 +173,9 @@ public class Robot {
 		usLocalizer.localize();
 		lightLocalizer.localize(gameParameters.get(teamColor + "Corner").intValue());
 		
-		navStrat.navigateToObjectiveZone();		//navigate to objective
-		flagDetection.searchAndDetect();		//detect flag
-		navStrat.navigateBack();				//navigate back to start
+		navStrat.navigateToObjectiveZone();						//navigate to objective
+		flagDetection.searchAndDetect();						//detect flag
+		navStrat.navigateBack();								//navigate back to start
 		Sound.playNote(Sound.FLUTE, Sound.DOUBLE_BEEP, 500);	//celebrate
 	}
 	
