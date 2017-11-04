@@ -114,6 +114,7 @@ public class Robot {
 	 * Initialize components and sets up game. 
 	 * @param args
 	 */
+	@SuppressWarnings("resource")	//resources are used for the full life cycle of the program, no need to close
 	public void main(String[] args) {
 		
 		/* Initialize components */
