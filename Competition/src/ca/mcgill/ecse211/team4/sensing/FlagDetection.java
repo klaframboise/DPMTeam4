@@ -10,7 +10,7 @@ import lejos.robotics.SampleProvider;
 /**
  * This class searches and detects the objective flag.
  * 
- * @author Kevin Laframboise, Anna Bieber
+ * @author Anna Bieber & Kevin Laframboise
  *
  */
 public class FlagDetection {
@@ -67,10 +67,6 @@ public class FlagDetection {
 	private float[] usData;
 
 	/**
-	 * Motors driving the robot, used in the sweep operation.
-	 */
-
-	/**
 	 * Creates a FlagDetection object with given parameter
 	 * 
 	 * @param colorSampler
@@ -81,7 +77,6 @@ public class FlagDetection {
 	 *            zone.
 	 * @param Robot.getTeamColor() 
 	 */
-
 	public FlagDetection(SampleProvider colorSampler, float[] colorData, int objectiveColorID,
 			Map<String, Integer> gameParameters) {
 		super();
@@ -155,7 +150,7 @@ public class FlagDetection {
 	/**
 	 * This method allows us to choose which set of coordinates to use to
 	 * travel across the rectangle of coordinates
-	 * 
+	 * @return a bidimensional array containing the waypoints to travel to
 	 */	
 	public int[][] points(){
 		//get all the points of the rectangle
