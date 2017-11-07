@@ -118,10 +118,10 @@ public class Navigation extends Thread {
 		double heading = 0; 
 
 		//compute heading
-		if (dY >= 0) { //ok
-			heading = Math.atan(dX/dY); //isn't it dX/dY ?
+		if (dY >= 0) { 
+			heading = Math.atan(dX/dY); 
 		}
-		else if (dY < 0) { //ok
+		else if (dY < 0) { 
 			heading = Math.PI + Math.atan(dX/dY);
 		}
 
