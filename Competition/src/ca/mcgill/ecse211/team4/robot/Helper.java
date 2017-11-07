@@ -49,5 +49,29 @@ public abstract class Helper {
 		Arrays.sort(usData);	// sort array
 		return (int) ((usData[(usData.length/2)-1] + usData[usData.length/2]) / 2.0 * 100.0); // return median
 	}
+	
+	/**
+	 * Converts a pair of "upper right-lower left" coordinates to a list of coordinates representing
+	 * the four corners of a rectangular area.
+	 * @param upperRightX
+	 * @param upperRightY
+	 * @param lowerLeftX
+	 * @param lowerLeftY
+	 * @return a bidimensional array containing the coordinates of the four corners of a rectangular area.
+	 * 		   The array is structured as follows: coords[i][j], i cycles corners from upper right, to lower right,
+	 * 		   to lower left, to upper left. j = 0 is the x coordinate, j = 1, the y.
+	 */
+	public static int[][] convertToFourCorners(int upperRightX, int upperRightY, int lowerLeftX, int lowerLeftY) {
+		int coords[][] = new int[4][2];
+		coords[0][0] = upperRightX;
+		coords[0][1] = upperRightY;
+		coords[1][0] = upperRightX;
+		coords[1][1] = lowerLeftY;
+		coords[2][0] = lowerLeftX;
+		coords[2][1] = lowerLeftY;
+		coords[3][0] = lowerLeftX;
+		coords[3][1] = upperRightY;
+		return coords;
+	}
 
 }

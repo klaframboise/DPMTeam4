@@ -81,6 +81,11 @@ public class Robot {
 	private static OdometryCorrection correction;
 	
 	/**
+	 * The robot's light localizer.
+	 */
+	private static LightLocalizer lightLocalizer;
+	
+	/**
 	 * Map containing the game parameters.
 	 */
 	private static Map<String, Integer> gameParameters;
@@ -134,7 +139,7 @@ public class Robot {
 		/* Initialize localization color sensor */
 		float[] lightData = new float[10];
 		SampleProvider lightSampler = new EV3ColorSensor(LocalEV3.get().getPort("S4")).getMode("Red");
-		LightLocalizer lightLocalizer = new LightLocalizer(lightSampler, lightData, leftMotor, rightMotor);
+		lightLocalizer = new LightLocalizer(lightSampler, lightData, leftMotor, rightMotor);
 		
 		/* Initialize flag detection color sensor */
 		float[] colorData = new float[10];
@@ -204,6 +209,14 @@ public class Robot {
 		return odo;
 	}
 	
+	/**
+	 * 
+	 * @return {@link Robot#lightLocalizer}
+	 */
+	public static LightLocalizer getLightLocalizer() {
+		return lightLocalizer;
+	}
+
 	/**
 	 * 
 	 * @return gameParameters

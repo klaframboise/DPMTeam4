@@ -188,7 +188,7 @@ public class Navigation extends Thread {
 	/**
 	 * @return isNavigating
 	 */
-	boolean isNavigating() {
+	public boolean isNavigating() {
 		return isNavigating;
 	}
 	
@@ -196,7 +196,7 @@ public class Navigation extends Thread {
 	 * Stops the motors and signals the Navigation algorithm that another process is taking over 
 	 * the driving of the robot by setting isAvoiding to true. 
 	 */
-	void pause() {
+	public void pause() {
 		leftMotor.stop(true);
 		rightMotor.stop(true);
 
@@ -206,7 +206,7 @@ public class Navigation extends Thread {
 	/**
 	 * Resumes the navigation by setting isAvoiding to false.
 	 */
-	void resumeNav() {
+	public void resumeNav() {
 		isAvoiding = false;
 	}
 	
