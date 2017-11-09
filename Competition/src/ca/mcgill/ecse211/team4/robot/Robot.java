@@ -58,7 +58,7 @@ public class Robot {
 	/**
 	 * Track width of the robot.
 	 */
-	public static final double TRACK = 15.5;
+	public static final double TRACK = 15.9;
 	
 	/**
 	 * Radius of the robot's wheels.
