@@ -1,21 +1,65 @@
 package ca.mcgill.ecse211.team4.localization;
 
-import java.util.Arrays;
-
+import ca.mcgill.ecse211.team4.robot.Helper;
 import ca.mcgill.ecse211.team4.robot.Robot;
 import lejos.hardware.Sound;
 import lejos.hardware.motor.EV3LargeRegulatedMotor;
 import lejos.robotics.SampleProvider;
 
+/**
+ * This class uses the ultrasonic sensor to correct to odometer's theta by taking the average of 
+ * two angles at which wall edges are detected.
+ * @author Walid Chabchoub & Kevin Laframboise
+ */
 public class UltrasonicLocalizer {
 
+	/**
+	 * Sample provider for the ultrasonic localizer.
+	 */
 	private SampleProvider us;
+
+	/**
+	 * Buffer array for ultrasonic data.
+	 */
 	private float[] usData;
+
+	/**
+	 * Motors driving the robot, used in the sweep operation.
+	 */
 	private EV3LargeRegulatedMotor leftMotor, rightMotor;
-	private double alphaAngle, betaAngle, deltaTheta;
+
+	/**
+	 * Angle at which first wall edge is detected.
+	 */
+	private double alphaAngle; 
+
+	/**
+	 * Angle at which second wall edge is detected.
+	 */
+	private double betaAngle;
+
+	/**
+	 * Angle delta between odometer's zero heading and corrected zero heading.
+	 */
+	private double deltaTheta;
+
+	/**
+	 * Indicates whether the robot is sweeping clockwise.
+	 */
 	private boolean goingClockwise;
+
+	/**
+	 * Distance in cm, as measured by the ultrasonic sensor.
+	 */
 	private float currentDistance;
 
+	/**
+	 * Creates an UltrasonicLocalizer object with given properties.
+	 * @param us 
+	 * @param usData
+	 * @param leftMotor
+	 * @param rightMotor
+	 */
 	public UltrasonicLocalizer(SampleProvider us, float[] usData, EV3LargeRegulatedMotor leftMotor,
 			EV3LargeRegulatedMotor rightMotor) {
 		this.us = us;
@@ -32,21 +76,21 @@ public class UltrasonicLocalizer {
 	public void localize() {
 		leftMotor.setSpeed(Robot.ROTATE_SPEED * Robot.SPEED_OFFSET);
 		rightMotor.setSpeed(Robot.ROTATE_SPEED);
-		currentDistance = getFilteredDistance();
+		currentDistance = Helper.getFilteredDistance(us, usData);
 		if(currentDistance < 30) { //in case we start facing the walls
 			while(currentDistance < 30) { //then move away from the walls in a clockwise manner
-				currentDistance = getFilteredDistance();
+				currentDistance = Helper.getFilteredDistance(us, usData);
 				leftMotor.forward();
 				rightMotor.backward();
 			}
-//			try {
-//				Thread.sleep(3000); //leave some time for the robot to move away so not to disturb the sensor
-//			} catch (InterruptedException e) {
-//				e.printStackTrace();
-//			}
-			currentDistance = getFilteredDistance(); 
+			//			try {
+			//				Thread.sleep(3000); //leave some time for the robot to move away so not to disturb the sensor
+			//			} catch (InterruptedException e) {
+			//				e.printStackTrace();
+			//			}
+			currentDistance = Helper.getFilteredDistance(us, usData); 
 			while(currentDistance > 30  && goingClockwise) { //now look for the closest wall clockwise
-				currentDistance = getFilteredDistance();
+				currentDistance = Helper.getFilteredDistance(us, usData);
 				//sweep(clockwise, 72);
 				leftMotor.forward();
 				rightMotor.backward();
@@ -65,9 +109,9 @@ public class UltrasonicLocalizer {
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
-			currentDistance = getFilteredDistance();
+			currentDistance = Helper.getFilteredDistance(us, usData);
 			while(currentDistance > 30 && !goingClockwise) { //we're now looking for another falling edge on the other side
-				currentDistance = getFilteredDistance();
+				currentDistance = Helper.getFilteredDistance(us, usData);
 				//sweep(clockwise, 72);
 				leftMotor.backward(); //we're going counterclockwise
 				rightMotor.forward();
@@ -77,7 +121,7 @@ public class UltrasonicLocalizer {
 			betaAngle = Robot.getOdo().getTheta();
 		} else { //this is in case we start away from the walls
 			while(currentDistance > 30  && goingClockwise) { //look for the closest wall clockwise
-				currentDistance = getFilteredDistance();
+				currentDistance = Helper.getFilteredDistance(us, usData);
 				//sweep(clockwise, 72);
 				leftMotor.forward();
 				rightMotor.backward();
@@ -97,9 +141,9 @@ public class UltrasonicLocalizer {
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
-			currentDistance = getFilteredDistance();
+			currentDistance = Helper.getFilteredDistance(us, usData);
 			while(currentDistance > 30 && !goingClockwise) { //we're now looking for another falling edge on the other side
-				currentDistance = getFilteredDistance();
+				currentDistance = Helper.getFilteredDistance(us, usData);
 				//sweep(clockwise, 72);
 				leftMotor.backward();
 				rightMotor.forward();
@@ -120,25 +164,7 @@ public class UltrasonicLocalizer {
 		} //0.1 used for offset
 		double currentTheta = Robot.getOdo().getTheta();
 		Robot.getOdo().setTheta(currentTheta + deltaTheta); //correct the Odometer's theta value to the correct one
-		
+
 		Robot.getNav().turnTo(0);
-	}
-
-
-	/*
-	 * Sensors now return floats using a uniform protocol. Need to convert US result to an integer
-	 * [0,255] (non-Javadoc)
-	 * 
-	 * Sensor data is filtered. Will return the median of a set of samples
-	 * 
-	 * @see java.lang.Thread#run()
-	 */
-	private int getFilteredDistance() {
-
-		for(int i = 0; i < usData.length; i+= us.sampleSize()) {
-			us.fetchSample(usData, i * us.sampleSize()); // acquire data
-		}
-		Arrays.sort(usData);	// sort array
-		return (int) ((usData[(usData.length/2)-1] + usData[usData.length/2]) / 2.0 * 100.0); // return median
 	}
 }

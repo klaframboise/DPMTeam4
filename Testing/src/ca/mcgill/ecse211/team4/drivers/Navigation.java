@@ -1,20 +1,64 @@
 package ca.mcgill.ecse211.team4.drivers;
 
 import ca.mcgill.ecse211.team4.odometry.Odometer;
+import ca.mcgill.ecse211.team4.robot.Helper;
 import ca.mcgill.ecse211.team4.robot.Robot;
 import lejos.hardware.motor.EV3LargeRegulatedMotor;
 
+/**
+ * Drives the robot to given waypoints using the shortest path.
+ * @author Walid Chabchoub & Kevin Laframboise
+ *
+ */
 public class Navigation extends Thread {
 
+	/**
+	 * Odometer tracking the robot's movement.
+	 */
 	private Odometer odo;
+	
+	/**
+	 * Motors driven by navigation.
+	 */
 	private EV3LargeRegulatedMotor leftMotor, rightMotor;
+	
+	/**
+	 * Indicates whether the robot ios currently navigating to a waypoint.
+	 */
 	private boolean isNavigating;
-	private double waypointX;
-	private double waypointY;
+	
+	/**
+	 * Indicates whether the robot is currently avoiding an obstacle.
+	 */
 	private boolean isAvoiding;
+	
+	/**
+	 * Indicates whether the path should be recalculated.
+	 */
 	private boolean updateNeeded;
+	
+	/**
+	 * Destination waypoint x coordinate, in cm.
+	 */
+	private double waypointX;
+	
+	/**
+	 * Destination waypoint y coordinate, in cm.
+	 */
+	private double waypointY;
+	
+	/**
+	 * Lock object for mutual exclusion.
+	 */
 	private Object lock;
 
+	/**
+	 * Creates a Navigation object that will drive the given motors to a waypoint, according to the position
+	 * of the robot reported by the odometer.
+	 * @param odo odometer tracking the robot's movements.
+	 * @param leftMotor to be driven by Navigation.
+	 * @param rightMotor to be driven by Navigation.
+	 */
 	public Navigation(Odometer odo, EV3LargeRegulatedMotor leftMotor, EV3LargeRegulatedMotor rightMotor){
 		this.odo = odo;
 		this.leftMotor = leftMotor;
@@ -25,6 +69,9 @@ public class Navigation extends Thread {
 		lock = new Object();
 	}
 
+	/**
+	 * @see java.lang.Thread#run()
+	 */
 	public void run() {
 
 		double distance; 
@@ -54,13 +101,14 @@ public class Navigation extends Thread {
 				}
 			}
 		}
+
 	}
 
 	/**
-	 * Travels to the given way point.
-	 * @param x x-coordinate in cm
-	 * @param y y-coordinate in cm
-	 * @param immediateReturn
+	 * Travels to the given waypoint.
+	 * @param x x-coordinate in cm.
+	 * @param y y-coordinate in cm.
+	 * @param immediateReturn dictates whether the method should return immediately or wait for the motor movements to finish.
 	 */
 	public void travelTo(double x, double y, boolean immediateReturn) {
 
@@ -70,10 +118,10 @@ public class Navigation extends Thread {
 		double heading = 0; 
 
 		//compute heading
-		if (dY >= 0) { //ok
-			heading = Math.atan(dX/dY); //isn't it dX/dY ?
+		if (dY >= 0) { 
+			heading = Math.atan(dX/dY); 
 		}
-		else if (dY < 0) { //ok
+		else if (dY < 0) { 
 			heading = Math.PI + Math.atan(dX/dY);
 		}
 
@@ -85,17 +133,16 @@ public class Navigation extends Thread {
 		isNavigating = true;
 
 		//travel to x,y
-		int rotateAngle = Robot.convertDistance(Robot.WHEEL_RADIUS, distance);
-		//TODO: double check if Robot.OFFSET is needed here
+		int rotateAngle = Helper.convertDistance(Robot.WHEEL_RADIUS, distance);
 		leftMotor.setSpeed(Robot.FORWARD_SPEED * Robot.SPEED_OFFSET);
 		rightMotor.setSpeed(Robot.FORWARD_SPEED);
 		leftMotor.rotate(rotateAngle, true);
-		rightMotor.rotate((int) (rotateAngle / Robot.ANGLE_OFFSET), immediateReturn);
+		rightMotor.rotate(rotateAngle, immediateReturn);
 	}
 
 	/**
 	 * Turns to given heading using the minimum angle.
-	 * @param theta heading in radians
+	 * @param theta heading in radians.
 	 */
 	public void turnTo(double theta) {
 
@@ -115,12 +162,12 @@ public class Navigation extends Thread {
 
 	/**
 	 * Turns in given direction.
-	 * @param dTheta change in heading wanted, in degrees
-	 * @param direction left or right
+	 * @param dTheta change in heading wanted, in degrees.
+	 * @param direction left or right.
 	 */
 	public void turn(double dTheta, String direction) {
 
-		int distance = Robot.convertAngle(Robot.WHEEL_RADIUS, Robot.TRACK, dTheta);
+		int distance = Helper.convertAngle(Robot.WHEEL_RADIUS, Robot.TRACK, dTheta);
 
 		// set motor speed
 		leftMotor.setSpeed(Robot.ROTATE_SPEED * Robot.SPEED_OFFSET);
@@ -129,17 +176,16 @@ public class Navigation extends Thread {
 		switch (direction) {
 		case "left" :
 			leftMotor.rotate(-distance, true);
-			rightMotor.rotate(distance, false);
+			rightMotor.rotate((int) (distance / Robot.ANGLE_OFFSET), false);
 			break;
 		case "right" :
 			leftMotor.rotate(distance, true);
-			rightMotor.rotate(-distance, false);
+			rightMotor.rotate((int) (-distance / Robot.ANGLE_OFFSET), false);
 			break;
 		}
 	}
 
 	/**
-	 * 
 	 * @return isNavigating
 	 */
 	public boolean isNavigating() {
@@ -148,9 +194,9 @@ public class Navigation extends Thread {
 	
 	/**
 	 * Stops the motors and signals the Navigation algorithm that another process is taking over 
-	 * the driving of the 
+	 * the driving of the robot by setting isAvoiding to true. 
 	 */
-	void pause() {
+	public void pause() {
 		leftMotor.stop(true);
 		rightMotor.stop(true);
 
@@ -158,9 +204,9 @@ public class Navigation extends Thread {
 	}
 
 	/**
-	 * Resumes the navigation.
+	 * Resumes the navigation by setting isAvoiding to false.
 	 */
-	void resumeNav() {
+	public void resumeNav() {
 		isAvoiding = false;
 	}
 	
@@ -173,7 +219,7 @@ public class Navigation extends Thread {
 
 	/**
 	 * 
-	 * @return current x waypoint
+	 * @return current x waypoint.
 	 */
 	public double getWaypointX() {
 		return waypointX;
@@ -181,7 +227,7 @@ public class Navigation extends Thread {
 
 	/**
 	 * 
-	 * @return current y waypoint
+	 * @return current y waypoint.
 	 */
 	public double getWaypointY() {
 		return waypointY;
@@ -200,7 +246,6 @@ public class Navigation extends Thread {
 	}
 
 	/**
-	 * 
 	 * @return isAvoiding
 	 */
 	public boolean isAvoiding() {
