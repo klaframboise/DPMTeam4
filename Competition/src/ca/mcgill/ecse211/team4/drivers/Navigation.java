@@ -89,6 +89,7 @@ public class Navigation extends Thread {
 				//check if navigation is done using euclidean distance
 				distance = Math.sqrt(Math.pow(waypointX - odo.getX(), 2) + Math.pow(waypointY - odo.getY(), 2));
 				if(distance < 1.0) {
+		
 					isNavigating = false;
 				}
 				

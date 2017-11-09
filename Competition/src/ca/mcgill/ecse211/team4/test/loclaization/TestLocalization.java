@@ -10,7 +10,9 @@ import ca.mcgill.ecse211.team4.localization.UltrasonicLocalizer;
 import ca.mcgill.ecse211.team4.localization.LightLocalizer;
 import ca.mcgill.ecse211.team4.odometry.Odometer;
 import ca.mcgill.ecse211.team4.odometry.OdometryCorrection;
+import ca.mcgill.ecse211.team4.robot.Display;
 import ca.mcgill.ecse211.team4.robot.GameSetup;
+import ca.mcgill.ecse211.team4.robot.Robot;
 import ca.mcgill.ecse211.team4.sensing.FlagDetection;
 import ca.mcgill.ecse211.team4.strategy.NavigationStrategy;
 import lejos.hardware.Button;
@@ -124,29 +126,31 @@ public class TestLocalization {
 	@SuppressWarnings("resource")	//resources are used for the full life cycle of the program, no need to close
 	public static void main(String[] args) {
 		
-		/* Initialize components */
-		leftMotor = new EV3LargeRegulatedMotor(LocalEV3.get().getPort("A"));
-		rightMotor = new EV3LargeRegulatedMotor(LocalEV3.get().getPort("D"));
-		lineMotor = new EV3LargeRegulatedMotor(LocalEV3.get().getPort("B"));
-		servo = new EV3LargeRegulatedMotor(LocalEV3.get().getPort("C"));
-		odo = new Odometer(leftMotor, rightMotor);
-		correction = new OdometryCorrection(odo);
-		nav = new Navigation(odo, leftMotor, rightMotor);
-		
-		/* Initialize ultrasonic sensor */
-		float[] usData = new float[10];
-		SampleProvider us = new EV3UltrasonicSensor(LocalEV3.get().getPort("S1")).getMode("Distance");
-		UltrasonicLocalizer usLocalizer = new UltrasonicLocalizer(us, usData, leftMotor, rightMotor);
-		
-		/* Initialize localization color sensor */
-		float[] lightData = new float[10];
-		SampleProvider lightSampler = new EV3ColorSensor(LocalEV3.get().getPort("S4")).getMode("Red");
-		lightLocalizer = new LightLocalizer(lightSampler, lightData, leftMotor, rightMotor);
-		
-		/* Initialize flag detection color sensor */
-		float[] colorData = new float[10];
-		SampleProvider colorSampler = new EV3ColorSensor(LocalEV3.get().getPort("S3")).getMode("ColorID");
-		
+		Robot robot = new Robot();
+//		/* Initialize components */
+////		leftMotor = new EV3LargeRegulatedMotor(LocalEV3.get().getPort("A"));
+////		rightMotor = new EV3LargeRegulatedMotor(LocalEV3.get().getPort("D"));
+////		lineMotor = new EV3LargeRegulatedMotor(LocalEV3.get().getPort("C"));
+////		servo = new EV3LargeRegulatedMotor(LocalEV3.get().getPort("B"));
+////		odo = new Odometer(leftMotor, rightMotor);
+////		correction = new OdometryCorrection(odo);
+////		nav = new Navigation(odo, leftMotor, rightMotor);
+//		
+//		
+//		/* Initialize ultrasonic sensor */
+//		float[] usData = new float[10];
+//		SampleProvider us = new EV3UltrasonicSensor(LocalEV3.get().getPort("S1")).getMode("Distance");
+//		UltrasonicLocalizer usLocalizer = new UltrasonicLocalizer(us, usData, leftMotor, rightMotor);
+//		
+//		/* Initialize localization color sensor */
+//		float[] lightData = new float[10];
+//		SampleProvider lightSampler = new EV3ColorSensor(LocalEV3.get().getPort("S4")).getMode("Red");
+//		lightLocalizer = new LightLocalizer(lightSampler, lightData, leftMotor, rightMotor, true);
+//		
+//		/* Initialize flag detection color sensor */
+//		float[] colorData = new float[10];
+//		SampleProvider colorSampler = new EV3ColorSensor(LocalEV3.get().getPort("S2")).getMode("ColorID");
+//		
 //		/* Initialize display */
 //		Display display = new Display();
 //		display.start();
@@ -158,16 +162,21 @@ public class TestLocalization {
 //		FlagDetection flagDetection = new FlagDetection(colorSampler, colorData, gameParameters.get("O" + teamColor.charAt(0)).intValue(), gameParameters);*/
 //				
 		/* Start game */
-		odo.start();
-		nav.start();
+		Robot.getOdo().start();
+		Robot.getNav().start();
+		Display display = new Display(Robot.getOdo());
+		display.start();
 		/* Localize */
 		Button.waitForAnyPress();
-		usLocalizer.localize();
-		lightLocalizer.localize(1);
+		Robot.getUSLocalizer().localize();
+		Robot.getLightLocalizer().localize(1);
 		
-		nav.setWaypoints(30.48, 30.48);
-		nav.turnTo(0);
+		Robot.getNav().travelTo(30.48, 30.48, false);
+		Robot.getNav().turnTo(0);
 		
+		System.out.println("x: " + Robot.getOdo().getX());
+		System.out.println("y: " + Robot.getOdo().getY());
+		System.out.println("theta: " + Robot.getOdo().getTheta());
 		/*navStrat.navigateToObjectiveZone();						//navigate to objective
 		flagDetection.searchAndDetect();						//detect flag
 		navStrat.navigateBack();								//navigate back to start

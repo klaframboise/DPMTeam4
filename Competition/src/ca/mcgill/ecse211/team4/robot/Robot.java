@@ -58,7 +58,7 @@ public class Robot {
 	/**
 	 * Track width of the robot.
 	 */
-	public static final double TRACK = 13.5;
+	public static final double TRACK = 15.5;
 	
 	/**
 	 * Radius of the robot's wheels.
@@ -84,6 +84,11 @@ public class Robot {
 	 * The robot's light localizer.
 	 */
 	private static LightLocalizer lightLocalizer;
+	
+	/**
+	 * 
+	 */
+	private static UltrasonicLocalizer usLocalizer;
 	
 	/**
 	 * Map containing the game parameters.
@@ -114,6 +119,35 @@ public class Robot {
 	 * Instance of the servo motor.
 	 */
 	private static EV3LargeRegulatedMotor servo;
+	
+	@SuppressWarnings("resource")
+	public Robot() {
+		/* Initialize components */
+		leftMotor = new EV3LargeRegulatedMotor(LocalEV3.get().getPort("A"));
+		rightMotor = new EV3LargeRegulatedMotor(LocalEV3.get().getPort("D"));
+		lineMotor = new EV3LargeRegulatedMotor(LocalEV3.get().getPort("C"));
+		servo = new EV3LargeRegulatedMotor(LocalEV3.get().getPort("B"));
+		odo = new Odometer(leftMotor, rightMotor);
+		correction = new OdometryCorrection(odo);
+		nav = new Navigation(odo, leftMotor, rightMotor);
+		
+		/* Initialize ultrasonic sensor */
+		float[] usData = new float[10];
+		SampleProvider us = new EV3UltrasonicSensor(LocalEV3.get().getPort("S1")).getMode("Distance");
+		usLocalizer = new UltrasonicLocalizer(us, usData, leftMotor, rightMotor);
+		
+		/* Initialize localization color sensor */
+		float[] lightData = new float[10];
+		SampleProvider lightSampler = new EV3ColorSensor(LocalEV3.get().getPort("S4")).getMode("Red");
+		lightLocalizer = new LightLocalizer(lightSampler, lightData, leftMotor, rightMotor, true);
+		
+		/* Initialize flag detection color sensor */
+		float[] colorData = new float[10];
+		SampleProvider colorSampler = new EV3ColorSensor(LocalEV3.get().getPort("S2")).getMode("ColorID");
+		
+		leftMotor.setAcceleration(500);
+		rightMotor.setAcceleration(500);
+	}
 
 	/**
 	 * Initialize components and sets up game. 
@@ -134,7 +168,7 @@ public class Robot {
 		/* Initialize ultrasonic sensor */
 		float[] usData = new float[10];
 		SampleProvider us = new EV3UltrasonicSensor(LocalEV3.get().getPort("S1")).getMode("Distance");
-		UltrasonicLocalizer usLocalizer = new UltrasonicLocalizer(us, usData, leftMotor, rightMotor);
+		usLocalizer = new UltrasonicLocalizer(us, usData, leftMotor, rightMotor);
 		
 		/* Initialize localization color sensor */
 		float[] lightData = new float[10];
@@ -146,7 +180,7 @@ public class Robot {
 		SampleProvider colorSampler = new EV3ColorSensor(LocalEV3.get().getPort("S3")).getMode("ColorID");
 		
 		/* Initialize display */
-		Display display = new Display();
+		Display display = new Display(odo);
 		display.start();
 		
 		/* Get game parameters */
@@ -215,6 +249,14 @@ public class Robot {
 	 */
 	public static LightLocalizer getLightLocalizer() {
 		return lightLocalizer;
+	}
+	
+	/**
+	 * 
+	 * @return {@link Robot#usLocalizer}
+	 */
+	public static UltrasonicLocalizer getUSLocalizer() {
+		return usLocalizer;
 	}
 
 	/**

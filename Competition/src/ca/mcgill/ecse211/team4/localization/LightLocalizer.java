@@ -20,7 +20,7 @@ public class LightLocalizer {
 	/**
 	 * Distance between the light sensor and the center of rotation of the robot, in cm.
 	 */
-	private static final double LS_TO_CENTER = 8.9;
+	private static final double LS_TO_CENTER = 16.5;
 
 	/**
 	 * Offset to compensate for consistent error in angle correction, in radian. 
@@ -41,7 +41,7 @@ public class LightLocalizer {
 	/**
 	 * Motors driving the robot, used in the sweep operation.
 	 */
-	private EV3LargeRegulatedMotor leftMotor, rightMotor;
+	private static EV3LargeRegulatedMotor leftMotor, rightMotor;
 
 	/**
 	 * Counts the number of lines detected during sweep operation.
@@ -85,8 +85,8 @@ public class LightLocalizer {
 			EV3LargeRegulatedMotor rightMotor, boolean debug) {
 		LightLocalizer.colorSampler = colorSampler;
 		LightLocalizer.lightData = lightData;
-		this.leftMotor = leftMotor;
-		this.rightMotor = rightMotor;
+		LightLocalizer.leftMotor = Robot.getDrivingMotors()[0];
+		LightLocalizer.rightMotor = Robot.getDrivingMotors()[1];
 		this.debug = debug;
 		counter = 0;
 		angles = new double[4];
@@ -152,9 +152,15 @@ public class LightLocalizer {
 		
 		switch(startingCorner) {
 		case 1:
+			if(debug) {
+				System.out.println("Setting x to: " + (Robot.GRID_SIZE + dx));
+				System.out.println("Setting y to: " + (Robot.GRID_SIZE + dy));
+				System.out.println("Setting theta to: " + (Robot.getOdo().getTheta() + dTheta - Math.PI));
+				Button.waitForAnyPress();
+			}
 			Robot.getOdo().setX(Robot.GRID_SIZE + dx);
 			Robot.getOdo().setY(Robot.GRID_SIZE + dy);
-			Robot.getOdo().setTheta(Robot.getOdo().getTheta() + dTheta);
+			Robot.getOdo().setTheta(Robot.getOdo().getTheta() + dTheta - Math.PI);
 			break;
 		case 2:
 			Robot.getOdo().setX(11 * Robot.GRID_SIZE + dy);
@@ -218,11 +224,14 @@ public class LightLocalizer {
 		/* Compute real position */
 		if(counter == 4) {
 			dx = -LS_TO_CENTER * Math.cos(Math.abs(angles[3] - angles[1])/2);	//theta-y is difference in angle between the second and fourth line crossed
-			dy =  (-LS_TO_CENTER * Math.cos(Math.abs(angles[0] - angles[2])/2)) + LS_TO_CENTER;	//theta-x is difference in angle between the first and third line crossed
+			dy =  -LS_TO_CENTER * Math.cos(Math.abs(angles[0] - angles[2])/2);	//theta-x is difference in angle between the first and third line crossed
 			dTheta = -Math.PI/2.0 - (angles[3] - Math.PI) + Math.abs(angles[3] - angles[1])/2.0 - ANGLE_OFFSET;
 			
 			/* Print debug info */
 			if(debug) {
+				System.out.println("x: " + Robot.getOdo().getX());
+				System.out.println("y: " + Robot.getOdo().getY());
+				System.out.println("Theta: " + Robot.getOdo().getTheta());
 				System.out.println("dx: " + dx);
 				System.out.println("dy: " + dy);
 				System.out.println("dTheta: " + dTheta);
@@ -275,7 +284,7 @@ public class LightLocalizer {
 
 		/* go forward until axis is found */
 		while(getRedIntensity() > Robot.LINE_RED_INTENSITY) {
-			leftMotor.setSpeed(Robot.FORWARD_SPEED * Robot.SPEED_OFFSET);
+			leftMotor.setSpeed(Robot.FORWARD_SPEED);
 			rightMotor.setSpeed(Robot.FORWARD_SPEED);
 
 			leftMotor.forward();
@@ -290,8 +299,8 @@ public class LightLocalizer {
 		}
 
 		/* go back 4.5cm so that color sensor is in 3rd quadrant */
-		leftMotor.rotate(-Helper.convertDistance(Robot.WHEEL_RADIUS, 4.5), true);
-		rightMotor.rotate(-Helper.convertDistance(Robot.WHEEL_RADIUS, 4.5), false);
+		leftMotor.rotate(-Helper.convertDistance(Robot.WHEEL_RADIUS, 21), true);
+		rightMotor.rotate(-Helper.convertDistance(Robot.WHEEL_RADIUS, 21), false);
 
 	}
 
