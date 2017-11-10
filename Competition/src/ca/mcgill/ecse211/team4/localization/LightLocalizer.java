@@ -99,10 +99,10 @@ public class LightLocalizer {
 	 * @param leftMotor
 	 * @param rightMotor
 	 */
-//	public LightLocalizer(SampleProvider colorSampler, float[] lightData, EV3LargeRegulatedMotor leftMotor,
-//			EV3LargeRegulatedMotor rightMotor) {
-//		new LightLocalizer(colorSampler, lightData, leftMotor, rightMotor, false);
-//	}
+	public LightLocalizer(SampleProvider colorSampler, float[] lightData, EV3LargeRegulatedMotor leftMotor,
+			EV3LargeRegulatedMotor rightMotor) {
+		new LightLocalizer(colorSampler, lightData, leftMotor, rightMotor, false);
+	}
 
 	/**
 	 * Performs a 360 degrees sweep in order to detect grid lines.
