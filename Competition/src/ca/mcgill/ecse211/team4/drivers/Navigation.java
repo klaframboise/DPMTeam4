@@ -136,9 +136,11 @@ public class Navigation extends Thread {
 		//travel to x,y
 		int rotateAngle = Helper.convertDistance(Robot.WHEEL_RADIUS, distance);
 		leftMotor.setSpeed(Robot.FORWARD_SPEED * Robot.SPEED_OFFSET);
+		//TODO: double check if the speed offset is still needed.
+//		leftMotor.setSpeed(Robot.FORWARD_SPEED);
 		rightMotor.setSpeed(Robot.FORWARD_SPEED);
 		leftMotor.rotate(rotateAngle, true);
-		rightMotor.rotate(rotateAngle, immediateReturn);
+		rightMotor.rotate((int) (rotateAngle / Robot.SPEED_OFFSET), immediateReturn);
 	}
 
 	/**

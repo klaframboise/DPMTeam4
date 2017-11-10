@@ -96,7 +96,9 @@ public class Odometer extends Thread {
 
 				// get new tacho counts
 				rightMotorTachoCount = rightMotor.getTachoCount();
-				leftMotorTachoCount = (int) (leftMotor.getTachoCount() / Robot.SPEED_OFFSET);
+				//leftMotorTachoCount = (int) (leftMotor.getTachoCount() / Robot.SPEED_OFFSET);
+				//TODO: check if SPEED_OFFSET is needed here.
+				leftMotorTachoCount = leftMotor.getTachoCount();
 
 				// find each wheel's displacement
 				dLeftWheel = Math.PI * Robot.WHEEL_RADIUS * (leftMotorTachoCount - leftLastTachoCount) / 180;

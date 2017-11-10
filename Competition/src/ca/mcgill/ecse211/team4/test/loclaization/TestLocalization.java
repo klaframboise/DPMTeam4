@@ -48,7 +48,7 @@ public class TestLocalization {
 	/**
 	 * Offset to compensate for mechanical design weight imbalance.
 	 */
-	public static final float SPEED_OFFSET = 0.9875f;
+	public static final float SPEED_OFFSET = 0.997f;
 	
 	/**
 	 * Size of the grid.
@@ -63,7 +63,7 @@ public class TestLocalization {
 	/**
 	 * Track width of the robot.
 	 */
-	public static final double TRACK = 13.85;
+	public static final double TRACK = 13.6;
 	
 	/**
 	 * Radius of the robot's wheels.
@@ -128,66 +128,49 @@ public class TestLocalization {
 	public static void main(String[] args) {
 		
 		Robot robot = new Robot();
-//		/* Initialize components */
-////		leftMotor = new EV3LargeRegulatedMotor(LocalEV3.get().getPort("A"));
-////		rightMotor = new EV3LargeRegulatedMotor(LocalEV3.get().getPort("D"));
-////		lineMotor = new EV3LargeRegulatedMotor(LocalEV3.get().getPort("C"));
-////		servo = new EV3LargeRegulatedMotor(LocalEV3.get().getPort("B"));
-////		odo = new Odometer(leftMotor, rightMotor);
-////		correction = new OdometryCorrection(odo);
-////		nav = new Navigation(odo, leftMotor, rightMotor);
-//		
-//		
-//		/* Initialize ultrasonic sensor */
-//		float[] usData = new float[10];
-//		SampleProvider us = new EV3UltrasonicSensor(LocalEV3.get().getPort("S1")).getMode("Distance");
-//		UltrasonicLocalizer usLocalizer = new UltrasonicLocalizer(us, usData, leftMotor, rightMotor);
-//		
-//		/* Initialize localization color sensor */
-//		float[] lightData = new float[10];
-//		SampleProvider lightSampler = new EV3ColorSensor(LocalEV3.get().getPort("S4")).getMode("Red");
-//		lightLocalizer = new LightLocalizer(lightSampler, lightData, leftMotor, rightMotor, true);
-//		
-//		/* Initialize flag detection color sensor */
-//		float[] colorData = new float[10];
-//		SampleProvider colorSampler = new EV3ColorSensor(LocalEV3.get().getPort("S2")).getMode("ColorID");
-//		
-//		/* Initialize display */
-//		Display display = new Display();
-//		display.start();
-//		
-//		/* Initialize navigation strategy */
+		
+		/* Initialize navigation strategy */
 //		NavigationStrategy navStrat = new NavigationStrategy(teamColor, gameParameters, nav);
-//		
-//		/* Initialize flag detection */
+		
+		/* Initialize flag detection */
 //		FlagDetection flagDetection = new FlagDetection(colorSampler, colorData, gameParameters.get("O" + teamColor.charAt(0)).intValue(), gameParameters);*/
-//				
-		/* Start game */
+				
+		/* Start testing */
+		LocalEV3.get().getTextLCD().drawString("This is the tester.", 0, 0);
+		LocalEV3.get().getTextLCD().drawString("Press Enter to continue.", 0, 1);
+		Button.waitForAnyPress();
+		
 		Robot.getOdo().start();
 		Robot.getNav().start();
 		Display display = new Display(Robot.getOdo());
 		display.start();
-		/* Localize */
 		Button.waitForAnyPress();
-		int rotateAmount = Helper.convertAngle(WHEEL_RADIUS, TRACK, 1800);
-		System.out.println("rotation amount: " + rotateAmount);
-		Robot.getDrivingMotors()[0].setSpeed(150);
-		Robot.getDrivingMotors()[1].setSpeed(150);
-		Robot.getDrivingMotors()[0].rotate(rotateAmount, true);
-		Robot.getDrivingMotors()[1].rotate(-rotateAmount, false);
-//		Robot.getUSLocalizer().localize();
-//		Robot.getLightLocalizer().localize(1);
-//		
-//		Robot.getNav().travelTo(30.48, 30.48, false);
-//		Robot.getNav().turnTo(0);
-//		
-//		System.out.println("x: " + Robot.getOdo().getX());
-//		System.out.println("y: " + Robot.getOdo().getY());
-//		System.out.println("theta: " + Robot.getOdo().getTheta());
+		/* The following section commands the robot to turn 1800 degrees. */
+//		int rotateAmount = Helper.convertAngle(WHEEL_RADIUS, TRACK, 1800);
+//		LocalEV3.get().getTextLCD().drawString(String.valueOf(rotateAmount), 0, 4);
+//		Robot.getDrivingMotors()[0].setSpeed(100 * SPEED_OFFSET);
+//		Robot.getDrivingMotors()[1].setSpeed(100);
+//		Robot.getDrivingMotors()[0].rotate(rotateAmount, true);
+//		Robot.getDrivingMotors()[1].rotate((int) (-rotateAmount / SPEED_OFFSET), false);
+		
+		/* Localize */
+		Robot.getUSLocalizer().localize();
+		Robot.getLightLocalizer().localize(1);
+		
+		Robot.getNav().travelTo(30.48, 30.48, false);
+		Robot.getNav().turnTo(Math.PI/2);
+		
+		LocalEV3.get().getTextLCD().drawString(String.valueOf(Robot.getOdo().getX()), 0, 5);
+		LocalEV3.get().getTextLCD().drawString(String.valueOf(Robot.getOdo().getY()), 0, 6);
+		
+		Button.waitForAnyPress();
+		Robot.getNav().setWaypoints(2 * GRID_SIZE, 1 * GRID_SIZE);
 		/*navStrat.navigateToObjectiveZone();						//navigate to objective
 		flagDetection.searchAndDetect();						//detect flag
 		navStrat.navigateBack();								//navigate back to start
 		Sound.playNote(Sound.FLUTE, Sound.DOUBLE_BEEP, 500);*/	//celebrate
+		
+		
 	}
 	
 	/**

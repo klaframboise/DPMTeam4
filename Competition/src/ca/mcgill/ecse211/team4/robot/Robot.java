@@ -43,7 +43,7 @@ public class Robot {
 	/**
 	 * Offset to compensate for mechanical design weight imbalance.
 	 */
-	public static final float SPEED_OFFSET = 0.9875f;
+	public static final float SPEED_OFFSET = 0.997f;
 	
 	/**
 	 * Size of the grid.
@@ -58,7 +58,7 @@ public class Robot {
 	/**
 	 * Track width of the robot.
 	 */
-	public static final double TRACK = 15.9;
+	public static final double TRACK = 13.6;
 	
 	/**
 	 * Radius of the robot's wheels.
@@ -139,7 +139,7 @@ public class Robot {
 		/* Initialize localization color sensor */
 		float[] lightData = new float[10];
 		SampleProvider lightSampler = new EV3ColorSensor(LocalEV3.get().getPort("S4")).getMode("Red");
-		lightLocalizer = new LightLocalizer(lightSampler, lightData, leftMotor, rightMotor, true);
+		lightLocalizer = new LightLocalizer(lightSampler, lightData, leftMotor, rightMotor, false);
 		
 		/* Initialize flag detection color sensor */
 		float[] colorData = new float[10];
@@ -173,7 +173,7 @@ public class Robot {
 		/* Initialize localization color sensor */
 		float[] lightData = new float[10];
 		SampleProvider lightSampler = new EV3ColorSensor(LocalEV3.get().getPort("S4")).getMode("Red");
-		lightLocalizer = new LightLocalizer(lightSampler, lightData, leftMotor, rightMotor);
+		lightLocalizer = new LightLocalizer(lightSampler, lightData, leftMotor, rightMotor, false);
 		
 		/* Initialize flag detection color sensor */
 		float[] colorData = new float[10];
