@@ -93,7 +93,7 @@ public class Robot {
 	/**
 	 * Map containing the game parameters.
 	 */
-	private static Map<String, Integer> gameParameters;
+	private static Map<String, Long> gameParameters;
 	
 	/**
 	 * Can either be "Green" or "Red". This will affect strategies.

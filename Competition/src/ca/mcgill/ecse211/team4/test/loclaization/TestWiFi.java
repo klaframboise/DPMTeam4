@@ -23,7 +23,7 @@ public class TestWiFi {
 	
 	public static void main(String[] args) {
 		Robot robot = new Robot();
-		Map<String, Integer> params = null;
+		Map<String, Long> params = null;
 		
 		/*The following code writes the received data to a file,
 		 * which I am not sure is supported in LeJOS. Delete if causing

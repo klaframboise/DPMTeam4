@@ -78,7 +78,7 @@ public class FlagDetection {
 	 * @param Robot.getTeamColor() 
 	 */
 	public FlagDetection(SampleProvider colorSampler, float[] colorData, int objectiveColorID,
-			Map<String, Integer> gameParameters) {
+			Map<String, Long> gameParameters) {
 		super();
 		this.colorSampler = colorSampler;
 		this.colorData = colorData;

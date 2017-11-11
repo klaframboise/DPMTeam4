@@ -22,7 +22,7 @@ public class NavigationStrategy {
 	/**
 	 * Map containing the game parameters.
 	 */
-	private Map<String, Integer> gameParameters;
+	private Map<String, Long> gameParameters;
 	
 	/**
 	 * Navigation object used by strategy.
@@ -45,7 +45,7 @@ public class NavigationStrategy {
 	 * @param gameParameters
 	 * @param nav
 	 */
-	public NavigationStrategy(String teamColor, Map<String, Integer> gameParameters, Navigation nav) {
+	public NavigationStrategy(String teamColor, Map<String, Long> gameParameters, Navigation nav) {
 		this.teamColor = teamColor;
 		this.gameParameters = gameParameters;
 		this.nav = nav;
