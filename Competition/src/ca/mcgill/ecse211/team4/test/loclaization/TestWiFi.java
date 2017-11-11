@@ -3,6 +3,7 @@ package ca.mcgill.ecse211.team4.test.loclaization;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -29,7 +30,7 @@ public class TestWiFi {
 		 * problems.
 		 */
 		File file = new File("server_data.txt");
-		PrintWriter out;
+		PrintWriter out = null;
 		if(file.exists()) file.delete();
 		try {
 			file.createNewFile();
@@ -37,6 +38,8 @@ public class TestWiFi {
 		} catch (IOException e1) {
 			e1.printStackTrace();
 		}
+		out.println("Wifi test " + new Date(System.currentTimeMillis()));
+		out.println("Data received: ");
 		/* End of code to comments if problems with File or IO. */
 		
 		/* Get server data */
@@ -53,7 +56,7 @@ public class TestWiFi {
 		String line;
 		while(it.hasNext()) {
 			key = it.next();
-			line = "Key: " + key + ", Value: " + params.get(key).intValue());
+			line = "Key: " + key + ", Value: " + params.get(key).intValue();
 			System.out.println(line);
 			out.println(line);	//also comment this if problems with IO
 		}
