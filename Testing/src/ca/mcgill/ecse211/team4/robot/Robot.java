@@ -175,59 +175,64 @@ public class Robot {
 //		else {
 //			teamColor = "Green";
 //		}
-		int[] coords = { 0, 0 };
-		int x_0 = 0;
-		int y_0 = 0;
-		int x_c = 0;
-		int y_c = 0;
-		int sc = 0;
-		t.drawString("This is a tester", 0, 0);
-		
-		buttonChoice = Button.waitForAnyPress();
-		promptCoordInput(t, "x0", "y0", coords);
-		x_0 = coords[0];
-		y_0 = coords[1];
-		promptCoordInput(t, "xc", "yc", coords);
-		x_c = coords[0];
-		y_c = coords[1];
-
-		// prompt for sc
-		while (true) {
-			// clear display
-			t.clear();
-			
-			// prompt user for input
-			t.drawString("SC: Up & Down", 0, 0);
-			t.drawString(String.valueOf(sc), 0, 2);
-
-			// wait for button press
-			buttonChoice = Button.waitForAnyPress();
-
-			// act on user input
-			switch (buttonChoice) {
-			case Button.ID_UP:
-				sc++;
-				break;
-			case Button.ID_DOWN:
-				sc--;
-				break;
-			default:
-				break;
-			}
-
-			// wrap around [0,3]
-			sc = (sc < 0) ? 3 : sc % 4;
-
-			// break out of loop if enter was pressed
-			if (buttonChoice == Button.ID_ENTER)
-				break;
-
-		}
-		
+//		int[] coords = { 0, 0 };
+//		int x_0 = 0;
+//		int y_0 = 0;
+//		int x_c = 0;
+//		int y_c = 0;
+//		int sc = 0;
+//		t.drawString("This is a tester", 0, 0);
+//		
+//		buttonChoice = Button.waitForAnyPress();
+//		promptCoordInput(t, "x0", "y0", coords);
+//		x_0 = coords[0];
+//		y_0 = coords[1];
+//		promptCoordInput(t, "xc", "yc", coords);
+//		x_c = coords[0];
+//		y_c = coords[1];
+//
+//		// prompt for sc
+//		while (true) {
+//			// clear display
+//			t.clear();
+//			
+//			// prompt user for input
+//			t.drawString("SC: Up & Down", 0, 0);
+//			t.drawString(String.valueOf(sc), 0, 2);
+//
+//			// wait for button press
+//			buttonChoice = Button.waitForAnyPress();
+//
+//			// act on user input
+//			switch (buttonChoice) {
+//			case Button.ID_UP:
+//				sc++;
+//				break;
+//			case Button.ID_DOWN:
+//				sc--;
+//				break;
+//			default:
+//				break;
+//			}
+//
+//			// wrap around [0,3]
+//			sc = (sc < 0) ? 3 : sc % 4;
+//
+//			// break out of loop if enter was pressed
+//			if (buttonChoice == Button.ID_ENTER)
+//				break;
+//
+//		}
+//		
 		odo.start();
 		display.start();
-		usLocalizer.localize();
-		lightLocalizer.localize(sc);
+		
+		nav.setWaypoints(0 * GRID_SIZE, 8 * GRID_SIZE);
+		nav.start();
+		lineMotor.setSpeed(250);
+		lineMotor.rotate(Helper.convertDistance(WHEEL_RADIUS, 8*GRID_SIZE), false);
+//		usLocalizer.localize();
+//		lightLocalizer.localize(sc);
 		/* Initialize navigation strategy */
 //		NavigationStrategy navStrat = new NavigationStrategy(teamColor, gameParameters, nav);
 		

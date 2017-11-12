@@ -6,6 +6,7 @@ import ca.mcgill.ecse211.team4.robot.Helper;
 import ca.mcgill.ecse211.team4.robot.Robot;
 import lejos.hardware.Button;
 import lejos.hardware.Sound;
+import lejos.hardware.ev3.LocalEV3;
 import lejos.hardware.motor.EV3LargeRegulatedMotor;
 import lejos.robotics.SampleProvider;
 
@@ -72,6 +73,16 @@ public class LightLocalizer {
 	 * Debugging flag.
 	 */
 	private boolean debug;
+	
+	/**
+	 * X coordinate somewhere on the board used for localization after navigation
+	 */
+	private double gridX;
+	
+	/**
+	 * Y coordinate somewhere on the board used for localization after navigation
+	 */
+	private double gridY;
 	
 	/**
 	 * Creates a LightLocalizer object with given properties.
@@ -228,15 +239,15 @@ public class LightLocalizer {
 			dTheta = -Math.PI/2.0 - (angles[3] - Math.PI) + Math.abs(angles[3] - angles[1])/2.0 - ANGLE_OFFSET;
 			
 			/* Print debug info */
-			if(debug) {
-				System.out.println("x: " + Robot.getOdo().getX());
-				System.out.println("y: " + Robot.getOdo().getY());
-				System.out.println("Theta: " + Robot.getOdo().getTheta());
-				System.out.println("dx: " + dx);
-				System.out.println("dy: " + dy);
-				System.out.println("dTheta: " + dTheta);
-				Button.waitForAnyPress();
-			}
+//			if(debug) {
+//				System.out.println("x: " + Robot.getOdo().getX());
+//				System.out.println("y: " + Robot.getOdo().getY());
+//				System.out.println("Theta: " + Robot.getOdo().getTheta());
+//				System.out.println("dx: " + dx);
+//				System.out.println("dy: " + dy);
+//				System.out.println("dTheta: " + dTheta);
+//				Button.waitForAnyPress();
+//			}
 		}
 		else {
 			return false;	//at least one axis was not detected, cannot perform localization
@@ -248,17 +259,26 @@ public class LightLocalizer {
 		if(!initialLocalization) {
 			
 			/* Figure out current x,y position w.r.t. the grid */
-			int gridX = (int) Math.round(Robot.getOdo().getX()/Robot.GRID_SIZE);
-			int gridY = (int) Math.round(Robot.getOdo().getY()/Robot.GRID_SIZE);
+			gridX = Math.round(Robot.getOdo().getX()/Robot.GRID_SIZE) * Robot.GRID_SIZE;
+			gridY = Math.round(Robot.getOdo().getY()/Robot.GRID_SIZE) * Robot.GRID_SIZE;
 			
 			/* Print debug info */
 			if(debug) {
 				System.out.println("gridX: " + gridX);
 				System.out.println("gridY: " + gridY);
+				System.out.println("dx: " + dx);
+				System.out.println("dy: " + dy);
+				System.out.println("dtheta: " + dTheta);
+				System.out.println("Odo theta reading before reset: " + Robot.getOdo().getTheta());
 				Button.waitForAnyPress();
 			}
 			
 			/* Correct odometer */
+			if(debug) {
+				System.out.println("Setting X to : " + (gridX + dx));
+				System.out.println("Setting Y to : " + (gridY + dy));
+				System.out.println("Setting Theta to : " + (Robot.getOdo().getTheta() + dTheta));
+			}
 			Robot.getOdo().setTheta(Robot.getOdo().getTheta() + dTheta);
 			Robot.getOdo().setX(gridX + dx);
 			Robot.getOdo().setY(gridY + dy);
@@ -302,7 +322,7 @@ public class LightLocalizer {
 		leftMotor.rotate(-Helper.convertDistance(Robot.WHEEL_RADIUS, 21), true);
 		rightMotor.rotate(-Helper.convertDistance(Robot.WHEEL_RADIUS, 21), false);
 
-	}
+	}	
 
 	/**
 	 * Returns the median of a group of sample from the color sensor as the detected color.
@@ -317,5 +337,19 @@ public class LightLocalizer {
 		Arrays.sort(lightData);
 
 		return (lightData[(lightData.length/2) - 1] + lightData[lightData.length/2]) / 2.0f;
+	}
+	
+	/**
+	 * Returns gridX
+	 */
+	public double getGridX(){
+		return gridX;
+	}
+	
+	/**
+	 * Returns gridY
+	 */
+	public double getGridY(){
+		return gridY;
 	}
 }

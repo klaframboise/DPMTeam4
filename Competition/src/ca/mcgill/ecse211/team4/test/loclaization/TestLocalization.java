@@ -144,7 +144,6 @@ public class TestLocalization {
 		Robot.getNav().start();
 		Display display = new Display(Robot.getOdo());
 		display.start();
-		Button.waitForAnyPress();
 		/* The following section commands the robot to turn 1800 degrees. */
 //		int rotateAmount = Helper.convertAngle(WHEEL_RADIUS, TRACK, 1800);
 //		LocalEV3.get().getTextLCD().drawString(String.valueOf(rotateAmount), 0, 4);
@@ -156,15 +155,36 @@ public class TestLocalization {
 		/* Localize */
 		Robot.getUSLocalizer().localize();
 		Robot.getLightLocalizer().localize(1);
-		
-		Robot.getNav().travelTo(30.48, 30.48, false);
-		Robot.getNav().turnTo(Math.PI/2);
-		
-		LocalEV3.get().getTextLCD().drawString(String.valueOf(Robot.getOdo().getX()), 0, 5);
-		LocalEV3.get().getTextLCD().drawString(String.valueOf(Robot.getOdo().getY()), 0, 6);
-		
+		Robot.getNav().travelTo(GRID_SIZE, GRID_SIZE, false);
+		Robot.getNav().turnTo(0);
 		Button.waitForAnyPress();
-		Robot.getNav().setWaypoints(2 * GRID_SIZE, 1 * GRID_SIZE);
+		
+		Robot.getNav().travelTo(1 * GRID_SIZE, 6 * GRID_SIZE, false);
+		LocalEV3.get().getTextLCD().drawString("Navigation to (x0, y0) completed", 0, 4);
+		System.out.println("Nav completed");
+		Robot.getLightLocalizer().localize(false);
+		System.out.println("Loc complete");
+		System.out.println();
+//		LocalEV3.get().getTextLCD().drawString("Localization @ (x0, y0) completed", 0, 4);
+//		LocalEV3.get().getTextLCD().drawString(String.valueOf(Math.round(Robot.getOdo().getX()/Robot.GRID_SIZE) * Robot.GRID_SIZE), 0, 5);
+//		LocalEV3.get().getTextLCD().drawString(String.valueOf(Math.round(Robot.getOdo().getY()/Robot.GRID_SIZE) * Robot.GRID_SIZE), 0, 6);
+		Button.waitForAnyPress();
+//		Robot.getNav().setWaypoints(Robot.getLightLocalizer().getGridX(), Robot.getLightLocalizer().getGridY());
+		System.out.println("Now we need to travel to " + "(" + Robot.getLightLocalizer().getGridX() + ", " 
+				+ Robot.getLightLocalizer().getGridY() + ")");
+		Robot.getNav().travelTo(Robot.getLightLocalizer().getGridX(), Robot.getLightLocalizer().getGridY(), false);
+		System.out.println("Current X: "+Robot.getOdo().getX());
+		System.out.println("Current Y: " +Robot.getOdo().getY());
+		System.out.println("Current T: " + Robot.getOdo().getTheta());
+//		Robot.getNav().turnTo(Math.PI/2);
+//		Robot.getLineMotor().setSpeed(100);
+//		Robot.getLineMotor().rotate(Helper.convertDistance(WHEEL_RADIUS, 7 * GRID_SIZE), false);
+//		
+//		LocalEV3.get().getTextLCD().drawString(String.valueOf(Robot.getOdo().getX()), 0, 5);
+//		LocalEV3.get().getTextLCD().drawString(String.valueOf(Robot.getOdo().getY()), 0, 6);
+//		
+//		Button.waitForAnyPress();
+//		Robot.getNav().setWaypoints(2 * GRID_SIZE, 1 * GRID_SIZE);
 		/*navStrat.navigateToObjectiveZone();						//navigate to objective
 		flagDetection.searchAndDetect();						//detect flag
 		navStrat.navigateBack();								//navigate back to start

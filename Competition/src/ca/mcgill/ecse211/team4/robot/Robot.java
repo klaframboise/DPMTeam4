@@ -139,7 +139,7 @@ public class Robot {
 		/* Initialize localization color sensor */
 		float[] lightData = new float[10];
 		SampleProvider lightSampler = new EV3ColorSensor(LocalEV3.get().getPort("S4")).getMode("Red");
-		lightLocalizer = new LightLocalizer(lightSampler, lightData, leftMotor, rightMotor, false);
+		lightLocalizer = new LightLocalizer(lightSampler, lightData, leftMotor, rightMotor, true);
 		
 		/* Initialize flag detection color sensor */
 		float[] colorData = new float[10];
