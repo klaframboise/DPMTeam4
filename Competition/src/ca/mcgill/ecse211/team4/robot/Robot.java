@@ -6,6 +6,7 @@ import java.util.Map;
 import org.json.simple.parser.ParseException;
 
 import ca.mcgill.ecse211.team4.drivers.Navigation;
+import ca.mcgill.ecse211.team4.drivers.ZipLineTraversal;
 import ca.mcgill.ecse211.team4.localization.UltrasonicLocalizer;
 import ca.mcgill.ecse211.team4.localization.LightLocalizer;
 import ca.mcgill.ecse211.team4.odometry.Odometer;
@@ -56,9 +57,14 @@ public class Robot {
 	public static final float LINE_RED_INTENSITY = 0.30f;
 	
 	/**
+	 * Red intensity when the sensor almost sticks to the platform
+	 */
+	public static final float PLATFORM_RED_INTENSITY = 0.1f;
+	
+	/**
 	 * Track width of the robot.
 	 */
-	public static final double TRACK = 13.6;
+	public static final double TRACK = 13.85;
 	
 	/**
 	 * Radius of the robot's wheels.
@@ -120,6 +126,11 @@ public class Robot {
 	 */
 	private static EV3LargeRegulatedMotor servo;
 	
+	/**
+	 * Instance of ZipLineTraversal
+	 */
+	private static ZipLineTraversal ziplineTraversal;
+	
 	@SuppressWarnings("resource")
 	public Robot() {
 		/* Initialize components */
@@ -144,6 +155,19 @@ public class Robot {
 		/* Initialize flag detection color sensor */
 		float[] colorData = new float[10];
 		SampleProvider colorSampler = new EV3ColorSensor(LocalEV3.get().getPort("S2")).getMode("ColorID");
+		
+		/* Initialize zipline traversal */
+		//TODO: I assumed that we have the correct data imported from wifi here.
+		//Do check this to see if this is going to work well after implementing the wifi
+		double x_c = 2.0;
+		double y_c = 6.0;
+		double x_fc = 6.0;
+		double y_fc = 6.0;
+		double x_f0 = x_fc + 1;
+		double y_f0 = y_fc;
+		ziplineTraversal = new ZipLineTraversal(leftMotor, rightMotor, lineMotor, x_c, y_c, 
+				x_fc, y_fc, x_f0, y_f0);
+				
 		
 		leftMotor.setAcceleration(500);
 		rightMotor.setAcceleration(500);
@@ -299,5 +323,12 @@ public class Robot {
 	public static EV3LargeRegulatedMotor getServo() {
 		return servo;
 	}
-
+	
+	/**
+	 * 
+	 * @return ziplineTraversal
+	 */
+	public static ZipLineTraversal getZipLineTraversal(){
+		return ziplineTraversal;
+	}
 }

@@ -19,7 +19,7 @@ public class ZipLineTraversal {
 	/**
 	 * Speed at which the zip line wheel turns, in degrees/sec.
 	 */
-	private static final int FORWARD_SPEED = 250;
+	private static final int FORWARD_SPEED = 200;
 	/**
 	 * Radius of the zip line wheel, in cm.
 	 */
@@ -28,6 +28,7 @@ public class ZipLineTraversal {
 	 * Length of the zip line, in cm.
 	 */
 	public static final double  DISTANCE = 49.5;
+	
 	//class variables
 	/**
 	 * Motors to be driven by this class.
@@ -89,14 +90,14 @@ public class ZipLineTraversal {
 	 */
 	public void traverse() {
 		/* Initialize local variable */
-		final float FLOOR_RED_INTENSITY = 0.5f;	//TODO measure
+		final float FLOOR_RED_INTENSITY = 0.1f;	//TODO measure
 		
 		/* Start the line motor */
 		lineMotor.setSpeed(FORWARD_SPEED);
-		lineMotor.backward();
+		lineMotor.forward();
 		
-		/* Navigate to start of zip line */
-		Robot.getNav().setWaypoints(x_c, y_c);
+		/* Navigate to start of zipline */
+		Robot.getNav().setWaypoints(x_c * Robot.GRID_SIZE, y_c * Robot.GRID_SIZE);
 		while(Robot.getNav().isNavigating()) {
 			try {
 				Thread.sleep(25);
@@ -108,6 +109,8 @@ public class ZipLineTraversal {
 		
 		/* Keep wheels turning while on the ground */
 		while(LightLocalizer.getRedIntensity() > FLOOR_RED_INTENSITY) {
+			leftMotor.setSpeed(150);
+			rightMotor.setSpeed(150);
 			leftMotor.forward();
 			rightMotor.forward();
 			try {
@@ -119,8 +122,8 @@ public class ZipLineTraversal {
 		}
 		
 		/* Stop motors once no longer on the ground */
-		leftMotor.stop();
-		rightMotor.stop();
+		leftMotor.stop(true);
+		rightMotor.stop(false);
 		
 		/* Keep line motor turning while not on the ground */
 		while(LightLocalizer.getRedIntensity() < FLOOR_RED_INTENSITY) {
@@ -130,17 +133,16 @@ public class ZipLineTraversal {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-		}
-		
-		lineMotor.stop();	// stop line motor once back on ground
+		}		
 		
 		/* Update odometer */
-		Robot.getOdo().setX(x_fc);
-		Robot.getOdo().setY(y_fc);
+		Robot.getOdo().setX(x_fc * Robot.GRID_SIZE);
+		Robot.getOdo().setY(y_fc * Robot.GRID_SIZE);
+		System.out.println(Robot.getOdo().getX());
+		System.out.println(Robot.getOdo().getY());
+		Robot.getNav().setWaypoints(x_f0 * Robot.GRID_SIZE, y_f0 * Robot.GRID_SIZE);	// navigate to nex grid intersection
 		
-		Robot.getNav().setWaypoints(x_f0, y_f0);	// navigate to nex grid intersection
-		
-		Robot.getLightLocalizer().localize();	// localize
+		Robot.getLightLocalizer().localize(false);	// localize
 
 	}
 
