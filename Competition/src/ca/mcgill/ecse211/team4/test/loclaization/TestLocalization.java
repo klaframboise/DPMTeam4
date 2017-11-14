@@ -129,6 +129,7 @@ public class TestLocalization {
 		
 		Robot robot = new Robot();
 		
+		int x_0, y_0;
 		/* Initialize navigation strategy */
 //		NavigationStrategy navStrat = new NavigationStrategy(teamColor, gameParameters, nav);
 		
@@ -153,47 +154,34 @@ public class TestLocalization {
 //		Robot.getDrivingMotors()[1].rotate((int) (-rotateAmount / SPEED_OFFSET), false);
 		
 		/* Localize */
-//		Robot.getUSLocalizer().localize();
-//		Robot.getLightLocalizer().localize(4);
-//		System.out.println(Robot.getOdo().getX());
-//		System.out.println(Robot.getOdo().getY());
-//		System.out.println(Math.toDegrees(Robot.getOdo().getTheta()));
-//		Button.waitForAnyPress();
+		Robot.getUSLocalizer().localize();
+		Robot.getLightLocalizer().localize(1);
+		System.out.println(Robot.getOdo().getX());
+		System.out.println(Robot.getOdo().getY());
+		System.out.println(Math.toDegrees(Robot.getOdo().getTheta()));
 		
-//		Robot.getNav().travelTo(7 * GRID_SIZE, 7 * GRID_SIZE, false);
-//		LocalEV3.get().getTextLCD().drawString("Navigation to (x0, y0) completed", 0, 4);
-//		System.out.println("Nav completed");
-//		Robot.getLightLocalizer().localize(false);
-//		System.out.println("Loc complete");
-//		System.out.println();
-////		LocalEV3.get().getTextLCD().drawString("Localization @ (x0, y0) completed", 0, 4);
-////		LocalEV3.get().getTextLCD().drawString(String.valueOf(Math.round(Robot.getOdo().getX()/Robot.GRID_SIZE) * Robot.GRID_SIZE), 0, 5);
-////		LocalEV3.get().getTextLCD().drawString(String.valueOf(Math.round(Robot.getOdo().getY()/Robot.GRID_SIZE) * Robot.GRID_SIZE), 0, 6);
-//		Button.waitForAnyPress();
-////		Robot.getNav().setWaypoints(Robot.getLightLocalizer().getGridX(), Robot.getLightLocalizer().getGridY());
-//		System.out.println("Now we need to travel to " + "(" + Robot.getLightLocalizer().getGridX() + ", " 
-//				+ Robot.getLightLocalizer().getGridY() + ")");
-//		Robot.getNav().travelTo(Robot.getLightLocalizer().getGridX(), Robot.getLightLocalizer().getGridY(), false);
-//		System.out.println("Current X: "+Robot.getOdo().getX());
-//		System.out.println("Current Y: " +Robot.getOdo().getY());
-//		System.out.println("Current T: " + Math.toDegrees(Robot.getOdo().getTheta()));
-//		//Robot.getNav().turnTo(Math.PI/2);
-//		
-//		System.out.println("Current X: "+Robot.getOdo().getX());
-//		System.out.println("Current Y: " +Robot.getOdo().getY());
-//		System.out.println("Current T: " + Math.toDegrees(Robot.getOdo().getTheta()));
+		x_0 = 2;
+		y_0 = 1;
+		/* Tester of some navigation strategy to avoid the zipline */
+		
+		
+		
+		
+		Robot.getNav().travelTo((x_0-0.2) * GRID_SIZE, (y_0-0.2) * GRID_SIZE, false);
+		Robot.getLightLocalizer().localize(false);
+		Robot.getNav().travelTo(Robot.getLightLocalizer().getGridX(), Robot.getLightLocalizer().getGridY(), false);
+		//Robot.getNav().turnTo(Math.PI/2);
 		
 		//go mount the zipline
 		
-//		Robot.getNav().turnTo(Math.PI/2);
-//		Robot.getLineMotor().setSpeed(100);
-//		Robot.getLineMotor().rotate(Helper.convertDistance(WHEEL_RADIUS, 7 * GRID_SIZE), false);
-//		
+//		Robot.getLineMotor().setSpeed(250);
+//		Robot.getLineMotor().forward();
+		
 //		LocalEV3.get().getTextLCD().drawString(String.valueOf(Robot.getOdo().getX()), 0, 5);
 //		LocalEV3.get().getTextLCD().drawString(String.valueOf(Robot.getOdo().getY()), 0, 6);
-//		
+		
 //		Button.waitForAnyPress();
-//		Robot.getNav().setWaypoints(2 * GRID_SIZE, 1 * GRID_SIZE);
+//		Robot.getNav().setWaypoints(2 * GRID_SIZE, 3 * GRID_SIZE);
 		/*navStrat.navigateToObjectiveZone();						//navigate to objective
 		flagDetection.searchAndDetect();						//detect flag
 		navStrat.navigateBack();								//navigate back to start
@@ -201,9 +189,9 @@ public class TestLocalization {
 		
 		/* Test for localization after dismounting from the zipline */
 		//first set coordinates that odometer thinks we are @ (x_0, y_0).
-		Robot.getOdo().setX(1 * Robot.GRID_SIZE);
-		Robot.getOdo().setY(6 * Robot.GRID_SIZE);
-		Robot.getOdo().setTheta(Math.PI/2);
+//		Robot.getOdo().setX(1 * Robot.GRID_SIZE);
+//		Robot.getOdo().setY(6 * Robot.GRID_SIZE);
+//		Robot.getOdo().setTheta(Math.PI/2);
 		Robot.getZipLineTraversal().traverse();
 		
 	}
