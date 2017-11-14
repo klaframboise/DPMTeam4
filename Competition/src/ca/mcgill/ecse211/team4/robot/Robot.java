@@ -150,21 +150,29 @@ public class Robot {
 		/* Initialize localization color sensor */
 		float[] lightData = new float[10];
 		SampleProvider lightSampler = new EV3ColorSensor(LocalEV3.get().getPort("S4")).getMode("Red");
-		lightLocalizer = new LightLocalizer(lightSampler, lightData, leftMotor, rightMotor, true);
+		lightLocalizer = new LightLocalizer(lightSampler, lightData, leftMotor, rightMotor, false);
 		
 		/* Initialize flag detection color sensor */
 		float[] colorData = new float[10];
 		SampleProvider colorSampler = new EV3ColorSensor(LocalEV3.get().getPort("S2")).getMode("ColorID");
 		
+		try {
+			gameParameters = GameSetup.getGameParameters(true);
+		} catch (IOException | ParseException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			gameParameters = null;
+		}
+		
 		/* Initialize zipline traversal */
 		//TODO: I assumed that we have the correct data imported from wifi here.
 		//Do check this to see if this is going to work well after implementing the wifi
-		double x_c = 3.0;
-		double y_c = 3.0;
-		double x_fc = 6.0;
-		double y_fc = 3.0;
-		double x_f0 = x_fc + 1;
-		double y_f0 = y_fc;
+		double x_c = gameParameters.get("ZC_R_x").intValue();
+		double y_c = gameParameters.get("ZC_R_y").intValue();
+		double x_fc = gameParameters.get("ZC_G_x").intValue();
+		double y_fc = gameParameters.get("ZC_G_y").intValue();
+		double x_f0 = gameParameters.get("ZO_G_x").intValue();
+		double y_f0 = gameParameters.get("ZO_G_y").intValue();
 		ziplineTraversal = new ZipLineTraversal(leftMotor, rightMotor, lineMotor, x_c, y_c, 
 				x_fc, y_fc, x_f0, y_f0);
 				
@@ -287,7 +295,7 @@ public class Robot {
 	 * 
 	 * @return gameParameters
 	 */
-	public static Map getGameParameters() {
+	public static Map<String, Long> getGameParameters() {
 		return gameParameters; 
 	}
 

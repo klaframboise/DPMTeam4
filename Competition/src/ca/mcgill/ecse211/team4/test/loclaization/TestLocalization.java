@@ -129,7 +129,7 @@ public class TestLocalization {
 		
 		Robot robot = new Robot();
 		
-		int x_0, y_0;
+		int x_0, y_0, x_d, y_d;
 		/* Initialize navigation strategy */
 //		NavigationStrategy navStrat = new NavigationStrategy(teamColor, gameParameters, nav);
 		
@@ -137,10 +137,6 @@ public class TestLocalization {
 //		FlagDetection flagDetection = new FlagDetection(colorSampler, colorData, gameParameters.get("O" + teamColor.charAt(0)).intValue(), gameParameters);*/
 				
 		/* Start testing */
-		LocalEV3.get().getTextLCD().drawString("This is the tester.", 0, 0);
-		LocalEV3.get().getTextLCD().drawString("Press Enter to continue.", 0, 1);
-		Button.waitForAnyPress();
-		
 		Robot.getOdo().start();
 		Robot.getNav().start();
 		Display display = new Display(Robot.getOdo());
@@ -155,44 +151,29 @@ public class TestLocalization {
 		
 		/* Localize */
 		Robot.getUSLocalizer().localize();
-		Robot.getLightLocalizer().localize(1);
-		System.out.println(Robot.getOdo().getX());
-		System.out.println(Robot.getOdo().getY());
-		System.out.println(Math.toDegrees(Robot.getOdo().getTheta()));
+		Robot.getLightLocalizer().localize(Robot.getGameParameters().get("RedCorner").intValue());
 		
-		x_0 = 2;
-		y_0 = 2;
+		x_0 = Robot.getGameParameters().get("ZO_R_x").intValue();
+		y_0 = Robot.getGameParameters().get("ZO_R_y").intValue();
+		x_d = Robot.getGameParameters().get("SG_LL_x").intValue();
+		y_d = Robot.getGameParameters().get("SG_LL_y").intValue();
 		/* Tester of some navigation strategy to avoid the zipline */
-		
-		Robot.getNav().travelTo((x_0-0.2) * GRID_SIZE, (y_0-0.2) * GRID_SIZE, false);
+		if(Math.abs((y_0 * GRID_SIZE - Robot.getOdo().getY())) > Math.abs((x_0 * GRID_SIZE - Robot.getOdo().getX()))){
+			Robot.getNav().travelTo(Robot.getOdo().getX(), y_0 * GRID_SIZE, false);
+			Robot.getLightLocalizer().localize(false);
+			Robot.getNav().travelTo((x_0 - 0.1) * GRID_SIZE, (y_0 - 0.1) * GRID_SIZE, false);
+		} else { 
+			Robot.getNav().travelTo(x_0 * GRID_SIZE, Robot.getOdo().getY(), false);
+			Robot.getLightLocalizer().localize(false);
+			Robot.getNav().travelTo((x_0 - 0.1) * GRID_SIZE, (y_0 - 0.1) * GRID_SIZE, false);
+		}
 		Robot.getLightLocalizer().localize(false);
 		Robot.getNav().travelTo(Robot.getLightLocalizer().getGridX(), Robot.getLightLocalizer().getGridY(), false);
-		//Robot.getNav().turnTo(Math.PI/2);
 		
-		//go mount the zipline
-		
-//		Robot.getLineMotor().setSpeed(250);
-//		Robot.getLineMotor().forward();
-		
-//		LocalEV3.get().getTextLCD().drawString(String.valueOf(Robot.getOdo().getX()), 0, 5);
-//		LocalEV3.get().getTextLCD().drawString(String.valueOf(Robot.getOdo().getY()), 0, 6);
-		
-//		Button.waitForAnyPress();
-//		Robot.getNav().setWaypoints(2 * GRID_SIZE, 3 * GRID_SIZE);
-		/*navStrat.navigateToObjectiveZone();						//navigate to objective
-		flagDetection.searchAndDetect();						//detect flag
-		navStrat.navigateBack();								//navigate back to start
-		Sound.playNote(Sound.FLUTE, Sound.DOUBLE_BEEP, 500);*/	//celebrate
-		
-		/* Test for localization after dismounting from the zipline */
-		//first set coordinates that odometer thinks we are @ (x_0, y_0).
-//		Robot.getOdo().setX(1 * Robot.GRID_SIZE);
-//		Robot.getOdo().setY(6 * Robot.GRID_SIZE);
-//		Robot.getOdo().setTheta(Math.PI/2);
 		Robot.getZipLineTraversal().traverse();
-		
-		Robot.getNav().travelTo(5 * Robot.GRID_SIZE, Robot.GRID_SIZE, false);
-		
+		Robot.getNav().travelTo(x_d * Robot.GRID_SIZE, y_d * Robot.GRID_SIZE, false);
+		Robot.getLightLocalizer().localize(false);
+		Robot.getNav().travelTo(x_d * GRID_SIZE, y_d * GRID_SIZE, false);	
 	}
 	
 	/**

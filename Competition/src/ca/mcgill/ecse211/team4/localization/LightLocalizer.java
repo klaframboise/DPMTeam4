@@ -269,7 +269,7 @@ public class LightLocalizer {
 		/* Make sure robot is in 3rd quadrant of a grid intersection. */
 		adjust('x');
 		adjust('y');
-		Robot.getNav().turnTo(0);
+		//Robot.getNav().turnTo(0);
 
 		/* Acquire angle difference between axes */
 		sweep();

@@ -102,12 +102,14 @@ public class ZipLineTraversal {
 		lineMotor.forward();
 		Robot.getNav().travelTo(x_c * Robot.GRID_SIZE, y_c * Robot.GRID_SIZE, false);
 		
-		leftMotor.rotate(1440);
-		rightMotor.rotate(1440);
+		leftMotor.setSpeed(250);
+		rightMotor.setSpeed(250);
+		leftMotor.rotate(1440, true);
+		rightMotor.rotate(1440, false);
 
 		/* By now we are on the zip line */
 		
-		lineMotor.rotate(Helper.convertDistance(WHEEL_RADIUS, 2.5 * Robot.GRID_SIZE));
+		lineMotor.rotate(Helper.convertDistance(WHEEL_RADIUS, 1.5 * Robot.GRID_SIZE));
 
 		/* Keep wheels turning while on the ground */
 		//		while(LightLocalizer.getRedIntensity() > FLOOR_RED_INTENSITY) {
@@ -139,16 +141,16 @@ public class ZipLineTraversal {
 		//		
 		//		
 		/* Update odometer */
-		Robot.getOdo().setX(x_fc * Robot.GRID_SIZE);
-		Robot.getOdo().setY(y_fc * Robot.GRID_SIZE);
 		leftMotor.setSpeed(250);
 		rightMotor.setSpeed(250);
-		leftMotor.rotate(Helper.convertDistance(Robot.WHEEL_RADIUS, 50), true);
-		rightMotor.rotate(Helper.convertDistance(Robot.WHEEL_RADIUS, 50), false);
-		System.out.println(Robot.getOdo().getX());
-		System.out.println(Robot.getOdo().getY());
-		//		Robot.getNav().setWaypoints(x_f0 * Robot.GRID_SIZE, y_f0 * Robot.GRID_SIZE);	// navigate to nex grid intersection
-
+		leftMotor.rotate(Helper.convertDistance(Robot.WHEEL_RADIUS, 25), true);
+		rightMotor.rotate(Helper.convertDistance(Robot.WHEEL_RADIUS, 25), false);
+		leftMotor.rotate(- Helper.convertAngle(Robot.WHEEL_RADIUS, Robot.TRACK, 20), true);
+		rightMotor.rotate(Helper.convertAngle(Robot.WHEEL_RADIUS, Robot.TRACK, 20), false);
+		leftMotor.rotate(Helper.convertDistance(Robot.WHEEL_RADIUS, 20), true);
+		rightMotor.rotate(Helper.convertDistance(Robot.WHEEL_RADIUS, 20), false);
+		Robot.getOdo().setX(x_f0 * Robot.GRID_SIZE);
+		Robot.getOdo().setY(y_f0 * Robot.GRID_SIZE);
 		Robot.getLightLocalizer().localize(false);	// localize
 
 	}
