@@ -29,7 +29,7 @@ public class ZipLineTraversal {
 	 * Length of the zip line, in cm.
 	 */
 	public static final double  DISTANCE = 49.5;
-	
+
 	//class variables
 	/**
 	 * Motors to be driven by this class.
@@ -59,7 +59,7 @@ public class ZipLineTraversal {
 	 * y-coordinate of the next grid line intersection in the direction of the zip line.
 	 */
 	private double y_f0;
-	
+
 	/**
 	 * Creates a zip line traversal object.
 	 * @param lineMotor zip line motor.
@@ -92,69 +92,63 @@ public class ZipLineTraversal {
 	public void traverse() {
 		/* Initialize local variable */
 		final float FLOOR_RED_INTENSITY = 0.1f;	//TODO measure
-		
+
 		/* Start the line motor */
 		lineMotor.setSpeed(FORWARD_SPEED);
-//		lineMotor.forward();
-		
-		
+		//		lineMotor.forward();
+
+
 		/* Navigate to start of zipline */
-		lineMotor.rotate(Helper.convertDistance(WHEEL_RADIUS, 5 * Robot.GRID_SIZE), true);
-		Robot.getNav().setWaypoints(x_c * Robot.GRID_SIZE, (y_c + 1) * Robot.GRID_SIZE);
-		Robot.getNav().travelTo(Robot.getNav().getWaypointX(), Robot.getNav().getWaypointY(), false);
-		while(Robot.getNav().isNavigating()) {
-			try {
-				Thread.sleep(25);
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			if(Math.sqrt(Math.pow((Robot.getOdo().getX() - x_c), 2) + Math.pow((Robot.getOdo().getY() - y_c), 2)) < 1.0){
-				leftMotor.stop(true);
-				rightMotor.stop(false);
-				break;
-			}
-		}
+		lineMotor.forward();
+		Robot.getNav().travelTo(x_c * Robot.GRID_SIZE, y_c * Robot.GRID_SIZE, false);
 		
+		leftMotor.rotate(1440);
+		rightMotor.rotate(1440);
+
+		/* By now we are on the zip line */
+		
+		lineMotor.rotate(Helper.convertDistance(WHEEL_RADIUS, 2.5 * Robot.GRID_SIZE));
+
 		/* Keep wheels turning while on the ground */
-//		while(LightLocalizer.getRedIntensity() > FLOOR_RED_INTENSITY) {
-//			leftMotor.setSpeed(150);
-//			rightMotor.setSpeed(150);
-//			leftMotor.forward();
-//			rightMotor.forward();
-//			try {
-//				Thread.sleep(100);
-//			} catch (InterruptedException e) {
-//				// TODO Auto-generated catch block
-//				e.printStackTrace();
-//			}
-//		}
-		
+		//		while(LightLocalizer.getRedIntensity() > FLOOR_RED_INTENSITY) {
+		//			leftMotor.setSpeed(150);
+		//			rightMotor.setSpeed(150);
+		//			leftMotor.forward();
+		//			rightMotor.forward();
+		//			try {
+		//				Thread.sleep(100);
+		//			} catch (InterruptedException e) {
+		//				// TODO Auto-generated catch block
+		//				e.printStackTrace();
+		//			}
+		//		}
+
 		/* Stop motors once no longer on the ground */
-//		leftMotor.stop(true);
-//		rightMotor.stop(false);
-		
+		//		leftMotor.stop(true);
+		//		rightMotor.stop(false);
+
 		/* Keep line motor turning while not on the ground */
-//		while(LightLocalizer.getRedIntensity() < FLOOR_RED_INTENSITY) {
-//			try {
-//				Thread.sleep(100);
-//			} catch (InterruptedException e) {
-//				// TODO Auto-generated catch block
-//				e.printStackTrace();
-//			}
-//		}		
-//		
-//		/* Update odometer */
+		//		while(LightLocalizer.getRedIntensity() < FLOOR_RED_INTENSITY) {
+		//			try {
+		//				Thread.sleep(100);
+		//			} catch (InterruptedException e) {
+		//				// TODO Auto-generated catch block
+		//				e.printStackTrace();
+		//			}
+		//		}		
+		//		
+		//		
+		/* Update odometer */
 		Robot.getOdo().setX(x_fc * Robot.GRID_SIZE);
 		Robot.getOdo().setY(y_fc * Robot.GRID_SIZE);
-		leftMotor.setSpeed(50);
-		rightMotor.setSpeed(50);
-		leftMotor.rotate(Helper.convertDistance(Robot.WHEEL_RADIUS, 25), true);
-		rightMotor.rotate(Helper.convertDistance(Robot.WHEEL_RADIUS, 25), false);
+		leftMotor.setSpeed(250);
+		rightMotor.setSpeed(250);
+		leftMotor.rotate(Helper.convertDistance(Robot.WHEEL_RADIUS, 50), true);
+		rightMotor.rotate(Helper.convertDistance(Robot.WHEEL_RADIUS, 50), false);
 		System.out.println(Robot.getOdo().getX());
 		System.out.println(Robot.getOdo().getY());
-//		Robot.getNav().setWaypoints(x_f0 * Robot.GRID_SIZE, y_f0 * Robot.GRID_SIZE);	// navigate to nex grid intersection
-		
+		//		Robot.getNav().setWaypoints(x_f0 * Robot.GRID_SIZE, y_f0 * Robot.GRID_SIZE);	// navigate to nex grid intersection
+
 		Robot.getLightLocalizer().localize(false);	// localize
 
 	}

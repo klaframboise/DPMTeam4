@@ -161,11 +161,8 @@ public class TestLocalization {
 		System.out.println(Math.toDegrees(Robot.getOdo().getTheta()));
 		
 		x_0 = 2;
-		y_0 = 1;
+		y_0 = 2;
 		/* Tester of some navigation strategy to avoid the zipline */
-		
-		
-		
 		
 		Robot.getNav().travelTo((x_0-0.2) * GRID_SIZE, (y_0-0.2) * GRID_SIZE, false);
 		Robot.getLightLocalizer().localize(false);
@@ -193,6 +190,8 @@ public class TestLocalization {
 //		Robot.getOdo().setY(6 * Robot.GRID_SIZE);
 //		Robot.getOdo().setTheta(Math.PI/2);
 		Robot.getZipLineTraversal().traverse();
+		
+		Robot.getNav().travelTo(5 * Robot.GRID_SIZE, Robot.GRID_SIZE, false);
 		
 	}
 	

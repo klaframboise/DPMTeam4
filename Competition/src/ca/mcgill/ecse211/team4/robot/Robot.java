@@ -159,7 +159,7 @@ public class Robot {
 		/* Initialize zipline traversal */
 		//TODO: I assumed that we have the correct data imported from wifi here.
 		//Do check this to see if this is going to work well after implementing the wifi
-		double x_c = 2.0;
+		double x_c = 3.0;
 		double y_c = 3.0;
 		double x_fc = 6.0;
 		double y_fc = 3.0;
