@@ -174,7 +174,7 @@ public class LightLocalizer {
 			return isSuccessful;
 
 		switch (startingCorner) {
-		case 1:
+		case 0:
 			if (debug) {
 				System.out.println("Setting x to: " + (Robot.GRID_SIZE + dx));
 				System.out.println("Setting y to: " + (Robot.GRID_SIZE + dy));
@@ -187,7 +187,7 @@ public class LightLocalizer {
 			Robot.getNav().travelTo(Robot.GRID_SIZE, Robot.GRID_SIZE, false);
 			Robot.getNav().turnTo(0);
 			break;
-		case 2:
+		case 1:
 			// Robot.getOdo().setX(11 * Robot.GRID_SIZE + dy);
 			// set x to 7 for beta demo.
 			Robot.getOdo().setX(Robot.GRID_SIZE + dx);
@@ -205,7 +205,7 @@ public class LightLocalizer {
 				Button.waitForAnyPress();
 			}
 			break;
-		case 3:
+		case 2:
 			// Robot.getOdo().setX(11 * Robot.GRID_SIZE - dx);
 			// Robot.getOdo().setY(11 * Robot.GRID_SIZE - dy);
 			Robot.getOdo().setX(Robot.GRID_SIZE + dx);
@@ -217,7 +217,7 @@ public class LightLocalizer {
 			Robot.getOdo().setY(7 * Robot.GRID_SIZE);
 			Robot.getOdo().setTheta(Math.PI);
 			break;
-		case 4:
+		case 3:
 			Robot.getOdo().setX(Robot.GRID_SIZE + dx);
 			Robot.getOdo().setY(Robot.GRID_SIZE + dy);
 			Robot.getOdo().setTheta(Robot.getOdo().getTheta() + dTheta - Math.PI);
@@ -267,9 +267,13 @@ public class LightLocalizer {
 		}
 
 		/* Make sure robot is in 3rd quadrant of a grid intersection. */
-		adjust('x');
-		adjust('y');
-		//Robot.getNav().turnTo(0);
+		/* Remove adjust step if initialLocalization */
+		if(!initialLocalization){
+			adjust('x');
+			adjust('y');
+		} else if (initialLocalization){
+			adjust('o');
+		}
 
 		/* Acquire angle difference between axes */
 		sweep();
@@ -354,6 +358,9 @@ public class LightLocalizer {
 		case 'x':
 			Robot.getNav().turnTo(0);
 			break; // x-axis is in positive x direction
+		case 'o':
+			Robot.getNav().turnTo(Math.PI / 4.0);
+			break; // Origin is to the upper right corner
 		default:
 			return;
 		}

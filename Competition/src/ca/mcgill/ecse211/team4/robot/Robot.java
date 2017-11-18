@@ -34,12 +34,12 @@ public class Robot {
 	/**
 	 * Speed at which the robot is driven when going straight.
 	 */
-	public static final int FORWARD_SPEED = 200;
+	public static final int FORWARD_SPEED = 300;
 	
 	/**
 	 * Speed at which the robot is driven when rotating.
 	 */
-	public static final int ROTATE_SPEED = 150;
+	public static final int ROTATE_SPEED = 250;
 	
 	/**
 	 * Offset to compensate for mechanical design weight imbalance.
@@ -167,12 +167,12 @@ public class Robot {
 		/* Initialize zipline traversal */
 		//TODO: I assumed that we have the correct data imported from wifi here.
 		//Do check this to see if this is going to work well after implementing the wifi
-		double x_c = gameParameters.get("ZC_R_x").intValue();
-		double y_c = gameParameters.get("ZC_R_y").intValue();
-		double x_fc = gameParameters.get("ZC_G_x").intValue();
-		double y_fc = gameParameters.get("ZC_G_y").intValue();
-		double x_f0 = gameParameters.get("ZO_G_x").intValue();
-		double y_f0 = gameParameters.get("ZO_G_y").intValue();
+		double x_c = gameParameters.get("ZC_G_x").intValue();
+		double y_c = gameParameters.get("ZC_G_y").intValue();
+		double x_fc = gameParameters.get("ZC_R_x").intValue();
+		double y_fc = gameParameters.get("ZC_R_y").intValue();
+		double x_f0 = gameParameters.get("ZO_R_x").intValue();
+		double y_f0 = gameParameters.get("ZO_R_y").intValue();
 		ziplineTraversal = new ZipLineTraversal(leftMotor, rightMotor, lineMotor, x_c, y_c, 
 				x_fc, y_fc, x_f0, y_f0);
 				

@@ -109,6 +109,8 @@ public class FlagDetection {
 		
 		//first we rotate 90 degrees to the right and then to the left
 		//to see if we can detect the flag right away
+		//is the servo motor able to turn 90 degrees? 
+		//for hardware version 1.2, wiring is a problem and the max angle it can turn is 40 degrees. 
 		Robot.getServo().rotateTo(270);
 		Robot.getServo().rotateTo(90);
 		while (Robot.getServo().isMoving()) {
