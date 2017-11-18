@@ -1,5 +1,8 @@
 package ca.mcgill.ecse211.team4.sensing;
 
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
 import ca.mcgill.ecse211.team4.robot.Helper;
@@ -15,6 +18,10 @@ import lejos.robotics.SampleProvider;
  */
 public class FlagDetection {
 
+	/**
+	 * Color mapping from sensor return values (index) to server color values (element).
+	 */
+	private static final int[] colorMapping = {0,1,2,3,0,0,4,0};
 	/**
 	 * Sample provider for the color sensor. Sample Provider must be in color ID
 	 * mode.
@@ -71,18 +78,22 @@ public class FlagDetection {
 	 * 
 	 * @param colorSampler
 	 * @param colorData
+	 * @param us
+	 * @param usData
 	 * @param objectiveColorID
 	 * @param gameParameters
 	 *            Map containing the game parameters. Used to determine the search
 	 *            zone.
 	 * @param Robot.getTeamColor() 
 	 */
-	public FlagDetection(SampleProvider colorSampler, float[] colorData, int objectiveColorID,
+	public FlagDetection(SampleProvider colorSampler, float[] colorData, SampleProvider us, float[] usData, int objectiveColorID,
 			Map<String, Long> gameParameters) {
 		super();
 		this.colorSampler = colorSampler;
 		this.colorData = colorData;
 		this.objectiveColorID = objectiveColorID;
+		this.us = us;
+		this.usData = usData;
 		Robot.getDrivingMotors()[0] = Robot.getDrivingMotors()[0];
 		Robot.getDrivingMotors()[1] = Robot.getDrivingMotors()[1];
 
@@ -97,6 +108,8 @@ public class FlagDetection {
 			zone_UR_x = gameParameters.get("SG_UR_x").intValue();
 			zone_UR_y = gameParameters.get("SG_UR_y").intValue();
 		}
+		
+		Robot.getServo().setSpeed(45);
 	}
 
 
@@ -107,47 +120,143 @@ public class FlagDetection {
 	 */
 	public void searchAndDetect() {
 		
-		//first we rotate 90 degrees to the right and then to the left
-		//to see if we can detect the flag right away
-		//is the servo motor able to turn 90 degrees? 
-		//for hardware version 1.2, wiring is a problem and the max angle it can turn is 40 degrees. 
-		Robot.getServo().rotateTo(270);
-		Robot.getServo().rotateTo(90);
-		while (Robot.getServo().isMoving()) {
-			checkForObject();
-		}
-
-		/* Travel to the four corners of the rectangle where the block is located
-		 * While traveling the the light and ultrasonic sensors are set to an angle 
-		 * of 70 degrees so it can detect the flag within the area of search
+		/* Initializing local variables */
+		int currentDistance;
+		int coordinates[][] = points();
+		
+		System.out.println("Corner coords: \n"
+				+ coordinates[0][0] + ", " + coordinates[0][1] + "\n"
+				+ coordinates[1][0] + ", " + coordinates[1][1] + "\n"
+				+ coordinates[2][0] + ", " + coordinates[2][1] + "\n"
+				+ coordinates[3][0] + ", " + coordinates[3][1]);		//debug
+		
+		
+		Robot.getServo().rotateTo(45, false); //set servo speed
+		
+		/* Travel to the four corners of the rectangle where the block is located of the search zone 
+		 * while checking ultrasonic for close by object
 		 */
-		for (int i = 4; i < 4; i++) {
-			Robot.getServo().rotateTo(70);
-			int coordinates[][] = points();
-			Robot.getNav().travelTo(coordinates[i][0], coordinates[i][1], true);
-			while (Robot.getDrivingMotors()[0].isMoving() && Robot.getDrivingMotors()[1].isMoving()) {
-				checkForObject();
+		for (int i = 0; i < 4; i++) {
+			/* Start navigating around search zone and return immediately */
+			Robot.getNav().travelTo(coordinates[i][0] * Robot.GRID_SIZE, coordinates[i][1] * Robot.GRID_SIZE, true);
+			System.out.println("Travelling to " + coordinates[i][0] + ", " + coordinates[i][1]);
+			
+			/* Poll ultrasonic sensor */
+			currentDistance = Helper.getFilteredDistance(us, usData);
+			while (currentDistance > 30 && Robot.getDrivingMotors()[0].isMoving()) {
+				currentDistance = Helper.getFilteredDistance(us, usData);
+				try {
+					Thread.sleep(25);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+			
+			/* Check if loop broke because object was detected */
+			if(currentDistance < 30) {
+				/* Stop motors */
+				Robot.getDrivingMotors()[0].stop(true);
+				Robot.getDrivingMotors()[1].stop(true);
+				Robot.getServo().rotateTo(0);
+				
+				locateFlag();
 			}
 		}
+
 	}
 	
-	
-	 /**
-	  * This method checks for the flag when the motors are moving 
-	  */
-	public void checkForObject() {
-		colorSampler.fetchSample(colorData, 0); // get's the light value from the sensor
-		float reading = colorData[0];
-		currentDistance = Helper.getFilteredDistance(us, usData);
+	/**
+	 * This method will locate the flag by sweeping the ultrasonic sensor. The angle at which
+	 * the measured distance is smallest is the heading towards which the object is. It will then
+	 * drive the robot twoards the flag and poll the color sensor to see if the color of the falg
+	 * is the one we are looking for.
+	 * @return	true if our flag is located
+	 */
+	private boolean locateFlag() {
 		
-		//check if there is an object near by that has the correct color
-		if (currentDistance < 20 && reading == objectiveColorID) {
+		/* Initialize local variable */
+		double relHeadingToObject = getHeadingToObject();
+		int colorReading = getColorId(colorSampler, colorData);
+		System.out.println("Heading to object: " + relHeadingToObject);	//debug
+		
+		/* Turn towards the detected object */
+		Robot.getNav().turn(relHeadingToObject, "left");
+		Robot.getServo().rotateTo(0, false);
+		
+		/* Set the motor speed very slow so as to not push the blocks out of the box */
+		Robot.getDrivingMotors()[0].setSpeed(60);
+		Robot.getDrivingMotors()[1].setSpeed(60);
+		
+		/* Drive robot forward until one of the four colors are detected.
+		 * This will happen when the color sensor is very close to the flag
+		 */
+		while(true) {
+			Robot.getDrivingMotors()[0].forward();
+			Robot.getDrivingMotors()[1].forward();
+			colorReading = getColorId(colorSampler, colorData);
+			if(colorReading >= 0 && colorReading <= 7) {
+				if(colorMapping[colorReading] != 0) {
+					Robot.getDrivingMotors()[0].stop(true);
+					Robot.getDrivingMotors()[1].stop(true);
+					break;
+				}
+			}
+		}
+		
+		/* Testing if blue is detected */
+		if(colorMapping[colorReading] == 2) {
 			Sound.beep();
 			Sound.beep();
 			Sound.beep();
-		}		
+			
+		}
+		
+		return true;
+		
 	}
 	
+	/**
+	 * This method returns, in degrees, the angle, as reported by the getPosition() method of the servo motor
+	 * at which the smallest distance was detected. This angle should be the heading required to go towards the object.
+	 * @return heading to the object, relative to the current heading of the robot, in degrees.
+	 */
+	private double getHeadingToObject() {
+		
+		Map<Float, Integer> sweepResults = new HashMap<Float, Integer>();
+		Iterator<Float> it;
+		int minDistance = Integer.MAX_VALUE;
+		int tmpDistance;
+		float angleToMinDistance = 0;
+		Float tmpAngle;
+	
+		Robot.getServo().rotateTo(0, false);
+		Robot.getServo().setSpeed(10); //set a slow speed for distance reading to occur
+		
+		/* Get data */
+		for(int i = 0; i < 7; i++) {
+			sweepResults.put(Robot.getServo().getPosition(), Helper.getFilteredDistance(us, usData));
+			Robot.getServo().rotate(10);
+		}
+		
+		
+		/* Find minimum distance */
+		it = sweepResults.keySet().iterator();
+		while(it.hasNext()) {
+			tmpAngle = it.next();
+			tmpDistance = sweepResults.get(tmpAngle).intValue();
+			System.out.println("Distance at: " + tmpAngle.floatValue() + " is " + tmpDistance);
+			if(tmpDistance < minDistance) {
+				minDistance = tmpDistance;
+				angleToMinDistance = tmpAngle.floatValue();
+			}
+		}
+		
+		Robot.getServo().setSpeed(45);
+		Robot.getServo().rotateTo(0);
+		
+		return angleToMinDistance;
+	}
 	
 	/**
 	 * This method allows us to choose which set of coordinates to use to
@@ -191,5 +300,14 @@ public class FlagDetection {
 				{ zone_UL_x, zone_UL_y }};
 		return coordinates;
 
+	}
+	
+	public static int getColorId(SampleProvider colorSampler, float[] colorData) {
+
+		for(int i = 0; i < colorData.length; i+= colorSampler.sampleSize()) {
+			colorSampler.fetchSample(colorData, i * colorSampler.sampleSize()); // acquire data
+		}
+		Arrays.sort(colorData);	// sort array
+		return (int)colorData[colorData.length/2]; // return median
 	}
 }

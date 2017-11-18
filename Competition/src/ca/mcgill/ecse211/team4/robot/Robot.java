@@ -127,9 +127,14 @@ public class Robot {
 	private static EV3LargeRegulatedMotor servo;
 	
 	/**
-	 * Instance of ZipLineTraversal
+	 * Instance of the zip line driver.
 	 */
 	private static ZipLineTraversal ziplineTraversal;
+	
+	/**
+	 * Instance of the flag detection.
+	 */
+	private static FlagDetection flagDetection;
 	
 	@SuppressWarnings("resource")
 	public Robot() {
@@ -153,7 +158,7 @@ public class Robot {
 		lightLocalizer = new LightLocalizer(lightSampler, lightData, leftMotor, rightMotor, false);
 		
 		/* Initialize flag detection color sensor */
-		float[] colorData = new float[10];
+		float[] colorData = new float[9];
 		SampleProvider colorSampler = new EV3ColorSensor(LocalEV3.get().getPort("S2")).getMode("ColorID");
 		
 		try {
@@ -163,6 +168,12 @@ public class Robot {
 			e.printStackTrace();
 			gameParameters = null;
 		}
+		
+		/* Initialize team color */
+		teamColor = (gameParameters.get("RedTeam").intValue() == TEAM_NUMBER)? "Red" : "Green";
+		
+		/* Initialize flag detection */
+		flagDetection = new FlagDetection(colorSampler, colorData, us, usData, gameParameters.get("O" + teamColor.charAt(0)).intValue(), gameParameters);
 		
 		/* Initialize zipline traversal */
 		//TODO: I assumed that we have the correct data imported from wifi here.
@@ -208,7 +219,7 @@ public class Robot {
 		lightLocalizer = new LightLocalizer(lightSampler, lightData, leftMotor, rightMotor, false);
 		
 		/* Initialize flag detection color sensor */
-		float[] colorData = new float[10];
+		float[] colorData = new float[9];	//using a size of 9 (odd) to avoid non integer when taking median
 		SampleProvider colorSampler = new EV3ColorSensor(LocalEV3.get().getPort("S3")).getMode("ColorID");
 		
 		/* Initialize display */
@@ -236,7 +247,7 @@ public class Robot {
 		NavigationStrategy navStrat = new NavigationStrategy(teamColor, gameParameters, nav);
 		
 		/* Initialize flag detection */
-		FlagDetection flagDetection = new FlagDetection(colorSampler, colorData, gameParameters.get("O" + teamColor.charAt(0)).intValue(), gameParameters);
+		FlagDetection flagDetection = new FlagDetection(colorSampler, colorData, us, usData, gameParameters.get("O" + teamColor.charAt(0)).intValue(), gameParameters);
 				
 		/* Start game */
 		odo.start();
@@ -338,5 +349,13 @@ public class Robot {
 	 */
 	public static ZipLineTraversal getZipLineTraversal(){
 		return ziplineTraversal;
+	}
+
+	/**
+	 * 
+	 * @return {@link Robot#flagDetection}
+	 */
+	public static FlagDetection getFlagDetection() {
+		return flagDetection;
 	}
 }
