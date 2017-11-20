@@ -9,7 +9,6 @@ import ca.mcgill.ecse211.team4.drivers.Navigation;
 import ca.mcgill.ecse211.team4.localization.UltrasonicLocalizer;
 import ca.mcgill.ecse211.team4.localization.LightLocalizer;
 import ca.mcgill.ecse211.team4.odometry.Odometer;
-import ca.mcgill.ecse211.team4.odometry.OdometryCorrection;
 import ca.mcgill.ecse211.team4.robot.Display;
 import ca.mcgill.ecse211.team4.robot.GameSetup;
 import ca.mcgill.ecse211.team4.robot.Helper;
@@ -81,11 +80,6 @@ public class TestLocalization {
 	private static Odometer odo;
 	
 	/**
-	 * The robot's odometry correction.
-	 */
-	private static OdometryCorrection correction;
-	
-	/**
 	 * The robot's light localizer.
 	 */
 	private static LightLocalizer lightLocalizer;
@@ -153,35 +147,27 @@ public class TestLocalization {
 		Robot.getUSLocalizer().localize();
 		Robot.getLightLocalizer().localize(Robot.getGameParameters().get("GreenCorner").intValue());
 		
-//		x_0 = Robot.getGameParameters().get("ZO_G_x").intValue();
-//		y_0 = Robot.getGameParameters().get("ZO_G_y").intValue();
-//		x_d = Robot.getGameParameters().get("SR_LL_x").intValue();
-//		y_d = Robot.getGameParameters().get("SR_LL_y").intValue();
+		x_0 = Robot.getGameParameters().get("ZO_G_x").intValue();
+		y_0 = Robot.getGameParameters().get("ZO_G_y").intValue();
+		x_d = Robot.getGameParameters().get("SR_LL_x").intValue();
+		y_d = Robot.getGameParameters().get("SR_LL_y").intValue();
 		/* Tester of some navigation strategy to avoid the zipline */
-//		if(Math.abs((y_0 * GRID_SIZE - Robot.getOdo().getY())) > Math.abs((x_0 * GRID_SIZE - Robot.getOdo().getX()))){
-//			Robot.getNav().travelTo(Robot.getOdo().getX(), y_0 * GRID_SIZE, false);
-//			Robot.getLightLocalizer().localize(false);
-//			Robot.getNav().travelTo((x_0 - 0.1) * GRID_SIZE, (y_0 - 0.1) * GRID_SIZE, false);
-//		} else { 
-//			Robot.getNav().travelTo(x_0 * GRID_SIZE, Robot.getOdo().getY(), false);
-//			Robot.getLightLocalizer().localize(false);
-//			Robot.getNav().travelTo((x_0 - 0.1) * GRID_SIZE, (y_0 - 0.1) * GRID_SIZE, false);
-//		}
-//		Robot.getLightLocalizer().localize(false);
-//		Robot.getNav().travelTo(Robot.getLightLocalizer().getGridX(), Robot.getLightLocalizer().getGridY(), false);
-//		
-//		Robot.getZipLineTraversal().traverse();
-//		Robot.getNav().travelTo(x_d * Robot.GRID_SIZE, y_d * Robot.GRID_SIZE, false);
-//		Robot.getLightLocalizer().localize(false);
-//		Robot.getNav().travelTo(x_d * GRID_SIZE, y_d * GRID_SIZE, false);	
-	}
-	
-	/**
-	 * 
-	 * @return odometry correction
-	 */
-	public static OdometryCorrection getCorrection() {
-		return correction;
+		if(Math.abs((y_0 * GRID_SIZE - Robot.getOdo().getY())) > Math.abs((x_0 * GRID_SIZE - Robot.getOdo().getX()))){
+			Robot.getNav().travelTo(Robot.getOdo().getX(), y_0 * GRID_SIZE, false);
+			Robot.getLightLocalizer().localize(false);
+			Robot.getNav().travelTo((x_0 - 0.1) * GRID_SIZE, (y_0 - 0.1) * GRID_SIZE, false);
+		} else { 
+			Robot.getNav().travelTo(x_0 * GRID_SIZE, Robot.getOdo().getY(), false);
+			Robot.getLightLocalizer().localize(false);
+			Robot.getNav().travelTo((x_0 - 0.1) * GRID_SIZE, (y_0 - 0.1) * GRID_SIZE, false);
+		}
+		Robot.getLightLocalizer().localize(false);
+		Robot.getNav().travelTo(Robot.getLightLocalizer().getGridX(), Robot.getLightLocalizer().getGridY(), false);
+		
+		Robot.getZipLineTraversal().traverse();
+		Robot.getNav().travelTo(x_d * Robot.GRID_SIZE, y_d * Robot.GRID_SIZE, false);
+		Robot.getLightLocalizer().localize(false);
+		Robot.getNav().travelTo(x_d * GRID_SIZE, y_d * GRID_SIZE, false);	
 	}
 
 	/**

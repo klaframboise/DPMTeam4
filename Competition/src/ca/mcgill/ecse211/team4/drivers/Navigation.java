@@ -7,252 +7,278 @@ import lejos.hardware.motor.EV3LargeRegulatedMotor;
 
 /**
  * Drives the robot to given waypoints using the shortest path.
+ * 
  * @author Walid Chabchoub & Kevin Laframboise
  *
  */
 public class Navigation extends Thread {
 
-	/**
-	 * Odometer tracking the robot's movement.
-	 */
-	private Odometer odo;
-	
-	/**
-	 * Motors driven by navigation.
-	 */
-	private EV3LargeRegulatedMotor leftMotor, rightMotor;
-	
-	/**
-	 * Indicates whether the robot ios currently navigating to a waypoint.
-	 */
-	private boolean isNavigating;
-	
-	/**
-	 * Indicates whether the robot is currently avoiding an obstacle.
-	 */
-	private boolean isAvoiding;
-	
-	/**
-	 * Indicates whether the path should be recalculated.
-	 */
-	private boolean updateNeeded;
-	
-	/**
-	 * Destination waypoint x coordinate, in cm.
-	 */
-	private double waypointX;
-	
-	/**
-	 * Destination waypoint y coordinate, in cm.
-	 */
-	private double waypointY;
-	
-	/**
-	 * Lock object for mutual exclusion.
-	 */
-	private Object lock;
+  /**
+   * Odometer tracking the robot's movement.
+   */
+  private Odometer odo;
 
-	/**
-	 * Creates a Navigation object that will drive the given motors to a waypoint, according to the position
-	 * of the robot reported by the odometer.
-	 * @param odo odometer tracking the robot's movements.
-	 * @param leftMotor to be driven by Navigation.
-	 * @param rightMotor to be driven by Navigation.
-	 */
-	public Navigation(Odometer odo, EV3LargeRegulatedMotor leftMotor, EV3LargeRegulatedMotor rightMotor){
-		this.odo = odo;
-		this.leftMotor = leftMotor;
-		this.rightMotor = rightMotor;
-		isNavigating = false;
-		waypointX = 0;
-		waypointY = 0;
-		lock = new Object();
-	}
+  /**
+   * Left motor driven by navigation.
+   */
+  private EV3LargeRegulatedMotor leftMotor;
 
-	/**
-	 * @see java.lang.Thread#run()
-	 */
-	public void run() {
+  /**
+   * Right motor driven by navigation.
+   */
+  private EV3LargeRegulatedMotor rightMotor;
 
-		double distance; 
-		
-		while(true) {
-			synchronized(lock) {
-				
-				//check if path needs to be recalculated
-				if(!isAvoiding && updateNeeded) {
-					travelTo(waypointX, waypointY, true);
-					isNavigating = true;
-					updateNeeded = false;
-				}
-				
-				//check if navigation is done using euclidean distance
-				distance = Math.sqrt(Math.pow(waypointX - odo.getX(), 2) + Math.pow(waypointY - odo.getY(), 2));
-				if(distance < 1.0) {
-		
-					isNavigating = false;
-				}
-				
-				//wait 100ms before recalculating path
-				try {
-					Thread.sleep(100);
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			}
-		}
+  /**
+   * Indicates whether the robot is currently navigating to a waypoint.
+   */
+  private boolean isNavigating;
 
-	}
+  /**
+   * Indicates whether the robot is currently avoiding an obstacle.
+   */
+  private boolean isAvoiding;
 
-	/**
-	 * Travels to the given waypoint.
-	 * @param x x-coordinate in cm.
-	 * @param y y-coordinate in cm.
-	 * @param immediateReturn dictates whether the method should return immediately or wait for the motor movements to finish.
-	 */
-	public void travelTo(double x, double y, boolean immediateReturn) {
+  /**
+   * Indicates whether the path should be recalculated.
+   */
+  private boolean updateNeeded;
 
-		double dX = x - odo.getX();
-		double dY = y - odo.getY();
-		double distance = Math.sqrt(Math.pow(dX, 2) + Math.pow(dY, 2));
-		double heading = 0; 
+  /**
+   * Destination waypoint x coordinate, in cm.
+   */
+  private double waypointX;
 
-		//compute heading
-		if (dY >= 0) { 
-			heading = Math.atan(dX/dY); 
-		}
-		else if (dY < 0) { 
-			heading = Math.PI + Math.atan(dX/dY);
-		}
+  /**
+   * Destination waypoint y coordinate, in cm.
+   */
+  private double waypointY;
 
-		// wrap around 2pi
-		if(heading > 2 * Math.PI) heading -= 2 * Math.PI;
+  /**
+   * Lock object for mutual exclusion.
+   */
+  private Object lock;
 
-		//turn robot to wanted heading 
-		turnTo(heading);
-		isNavigating = true;
+  /**
+   * Creates a Navigation object that will drive the given motors to waypoints, according to the
+   * position of the robot reported by the odometer.
+   * 
+   * @param odo odometer tracking the robot's movements.
+   * @param leftMotor to be driven by Navigation.
+   * @param rightMotor to be driven by Navigation.
+   */
+  public Navigation(Odometer odo, EV3LargeRegulatedMotor leftMotor,
+      EV3LargeRegulatedMotor rightMotor) {
+    this.odo = odo;
+    this.leftMotor = leftMotor;
+    this.rightMotor = rightMotor;
+    isNavigating = false;
+    waypointX = 0;
+    waypointY = 0;
+    lock = new Object();
+  }
 
-		//travel to x,y
-		int rotateAngle = Helper.convertDistance(Robot.WHEEL_RADIUS, distance);
-		leftMotor.setSpeed(Robot.FORWARD_SPEED * Robot.SPEED_OFFSET);
-		//TODO: double check if the speed offset is still needed.
-//		leftMotor.setSpeed(Robot.FORWARD_SPEED);
-		rightMotor.setSpeed(Robot.FORWARD_SPEED);
-		leftMotor.rotate(rotateAngle, true);
-		rightMotor.rotate((int) (rotateAngle / Robot.SPEED_OFFSET), immediateReturn);
-	}
+  /**
+   * @see java.lang.Thread#run()
+   */
+  public void run() {
 
-	/**
-	 * Turns to given heading using the minimum angle.
-	 * @param theta heading in radians.
-	 */
-	public void turnTo(double theta) {
+    double distance;
 
-		double dTheta = theta - odo.getTheta();
-		if(dTheta < 0) dTheta += 2 * Math.PI;
-		//System.out.println("\n\n\n\n\n\ndtheta: " + dTheta);
+    while (true) {
 
-		if (dTheta > Math.PI) {
-			dTheta = 2* Math.PI - dTheta;
-			turn(Math.toDegrees(dTheta), "left");
-		}
-		else {
-			turn(Math.toDegrees(dTheta), "right");
-		}
+      /* Check if path needs to be recalculated */
+      if (!isAvoiding && updateNeeded) {
+        travelTo(waypointX, waypointY, true);
+        synchronized (lock) {
+          isNavigating = true;
+          updateNeeded = false;
+        }
+      }
 
-	}
+      /* Check if navigation is done, using euclidean distance */
+      distance =
+          Math.sqrt(Math.pow(waypointX - odo.getX(), 2) + Math.pow(waypointY - odo.getY(), 2));
+      if (distance < 1.0) {
+        synchronized (lock) {
+          isNavigating = false;
+        }
+      }
 
-	/**
-	 * Turns in given direction.
-	 * @param dTheta change in heading wanted, in degrees.
-	 * @param direction left or right.
-	 */
-	public void turn(double dTheta, String direction) {
+      /* Wait 100ms before recalculating path */
+      try {
+        Thread.sleep(100);
+      } catch (InterruptedException e) {
+        // TODO Auto-generated catch block
+        e.printStackTrace();
+      }
+    }
+  }
 
-		int distance = Helper.convertAngle(Robot.WHEEL_RADIUS, Robot.TRACK, dTheta);
+  /**
+   * Travels to the given waypoint.
+   * 
+   * @param x x-coordinate in cm.
+   * @param y y-coordinate in cm.
+   * @param immediateReturn dictates whether the method should return immediately or wait for the
+   *        motor movements to finish.
+   */
+  public void travelTo(double x, double y, boolean immediateReturn) {
 
-		// set motor speed
-		leftMotor.setSpeed(Robot.ROTATE_SPEED * Robot.SPEED_OFFSET);
-		rightMotor.setSpeed(Robot.ROTATE_SPEED);
+    /* Initialize local variable */
+    double dX = x - odo.getX();
+    double dY = y - odo.getY();
+    double distance = Math.sqrt(Math.pow(dX, 2) + Math.pow(dY, 2));
+    double heading = 0;
 
-		switch (direction) {
-		case "left" :
-			leftMotor.rotate(-distance, true);
-			rightMotor.rotate(distance, false);
-			break;
-		case "right" :
-			leftMotor.rotate(distance, true);
-			rightMotor.rotate(-distance, false);
-			break;
-		}
-	}
+    /* Compute heading */
+    if (dY >= 0) {
+      heading = Math.atan(dX / dY);
+    } else if (dY < 0) {
+      heading = Math.PI + Math.atan(dX / dY);
+    }
 
-	/**
-	 * @return isNavigating
-	 */
-	public boolean isNavigating() {
-		return isNavigating;
-	}
-	
-	/**
-	 * Stops the motors and signals the Navigation algorithm that another process is taking over 
-	 * the driving of the robot by setting isAvoiding to true. 
-	 */
-	public void pause() {
-		leftMotor.stop(true);
-		rightMotor.stop(true);
+    /* Wrap heading around 2pi */
+    if (heading > 2 * Math.PI)
+      heading -= 2 * Math.PI;
 
-		isAvoiding = true;
-	}
+    /* Turn robot to wanted heading */
+    turnTo(heading);
+    synchronized (lock) {
+      isNavigating = true;
+    }
 
-	/**
-	 * Resumes the navigation by setting isAvoiding to false.
-	 */
-	public void resumeNav() {
-		isAvoiding = false;
-	}
-	
-	/**
-	 * Indicates to navigation that a recalculation of the path is required.
-	 */
-	public void update() {
-		updateNeeded = true;
-	}
+    /* Travel to x,y */
+    int rotateAngle = Helper.convertDistance(Robot.WHEEL_RADIUS, distance);
+    leftMotor.setSpeed(Robot.FORWARD_SPEED * Robot.SPEED_OFFSET);
+    rightMotor.setSpeed(Robot.FORWARD_SPEED);
+    leftMotor.rotate(rotateAngle, true);
+    rightMotor.rotate((int) (rotateAngle / Robot.SPEED_OFFSET), immediateReturn);
+  }
 
-	/**
-	 * 
-	 * @return current x waypoint.
-	 */
-	public double getWaypointX() {
-		return waypointX;
-	}
+  /**
+   * Turns to given heading using the minimum angle.
+   * 
+   * @param theta heading in radians.
+   */
+  public void turnTo(double theta) {
 
-	/**
-	 * 
-	 * @return current y waypoint.
-	 */
-	public double getWaypointY() {
-		return waypointY;
-	}
-	
-	/**
-	 * Sets the destination of the navigation.
-	 * This overwrites the previous destination.
-	 * @param x in cm
-	 * @param y in cm
-	 */
-	public void setWaypoints(double x, double y) {
-		waypointX = x;
-		waypointY = y;
-		updateNeeded = true;
-	}
+    double dTheta = theta - odo.getTheta(); // compute change in heading
 
-	/**
-	 * @return isAvoiding
-	 */
-	public boolean isAvoiding() {
-		return isAvoiding;
-	}
+    /* Convert negative change in heading to positive equivalent */
+    if (dTheta < 0) {
+      dTheta += 2 * Math.PI;
+    }
+
+    /* Determine which direction to turn in */
+    if (dTheta > Math.PI) {
+      dTheta = 2 * Math.PI - dTheta; // adjust dtheta when turning in negative theta direction
+      turn(Math.toDegrees(dTheta), "left");
+    } else {
+      turn(Math.toDegrees(dTheta), "right");
+    }
+
+  }
+
+  /**
+   * Turns in given direction.
+   * 
+   * @param dTheta change in heading wanted, in degrees.
+   * @param direction left or right.
+   */
+  public void turn(double dTheta, String direction) {
+
+
+    int distance = Helper.convertAngle(Robot.WHEEL_RADIUS, Robot.TRACK, dTheta); // convert angle to
+                                                                                 // rotation amount
+
+    /* Set motor speed */
+    leftMotor.setSpeed(Robot.ROTATE_SPEED * Robot.SPEED_OFFSET);
+    rightMotor.setSpeed(Robot.ROTATE_SPEED);
+
+    /* Turn according to given direction */
+    switch (direction) {
+      case "left":
+        leftMotor.rotate(-distance, true);
+        rightMotor.rotate(distance, false);
+        break;
+      case "right":
+        leftMotor.rotate(distance, true);
+        rightMotor.rotate(-distance, false);
+        break;
+    }
+  }
+
+  /**
+   * @return {@link Navigation#isNavigating}
+   */
+  public boolean isNavigating() {
+    return isNavigating;
+  }
+
+  /**
+   * Stops the motors and signals the Navigation algorithm that another process is taking over the
+   * driving of the robot by setting {@link Navigation#isAvoiding} to true.
+   */
+  public void pause() {
+    leftMotor.stop(true);
+    rightMotor.stop(true);
+
+    synchronized (lock) {
+      isAvoiding = true;
+    }
+  }
+
+  /**
+   * Resumes the navigation by setting {@link Navigation#isAvoiding} to false.
+   */
+  public void resumeNav() {
+    synchronized (lock) {
+      isAvoiding = false;
+    }
+  }
+
+  /**
+   * Indicates to navigation that a recalculation of the path is required.
+   */
+  public void update() {
+    synchronized (lock) {
+      updateNeeded = true;
+    }
+  }
+
+  /**
+   * @return {@link Navigation#waypointX}
+   */
+  public double getWaypointX() {
+    return waypointX;
+  }
+
+  /**
+   * @return {@link Navigation#waypointY}
+   */
+  public double getWaypointY() {
+    return waypointY;
+  }
+
+  /**
+   * Sets the destination of the navigation. This overwrites the previous destination.
+   * 
+   * @param x in cm
+   * @param y in cm
+   */
+  public void setWaypoints(double x, double y) {
+    synchronized (lock) {
+      waypointX = x;
+      waypointY = y;
+      updateNeeded = true;
+    }
+  }
+
+  /**
+   * @return {@link Navigation#isAvoiding}
+   */
+  public boolean isAvoiding() {
+    return isAvoiding;
+  }
 
 }
