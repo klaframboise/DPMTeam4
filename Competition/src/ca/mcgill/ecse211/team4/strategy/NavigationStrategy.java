@@ -82,12 +82,12 @@ public class NavigationStrategy {
   private void navToObjectiveByZip() {
 
     /* Initialize game parameters variables */
-    int Z0_x = gameParameters.get("Z0_" + teamChar + "_x").intValue();
-    int Z0_y = gameParameters.get("Z0_" + teamChar + "_y").intValue();
+    int Z0_x = gameParameters.get("ZO_" + teamChar + "_x").intValue();
+    int Z0_y = gameParameters.get("ZO_" + teamChar + "_y").intValue();
     int ZC_x = gameParameters.get("ZC_" + teamChar + "_x").intValue();
     int ZC_y = gameParameters.get("ZC_" + teamChar + "_y").intValue();
-    int ZF0_x = gameParameters.get("Z0_" + otherTeam + "_x").intValue();
-    int ZF0_y = gameParameters.get("Z0_" + otherTeam + "_y").intValue();
+    int ZF0_x = gameParameters.get("ZO_" + otherTeam + "_x").intValue();
+    int ZF0_y = gameParameters.get("ZO_" + otherTeam + "_y").intValue();
     int[][] objCoords =
         Helper.convertToFourCorners(gameParameters.get("S" + otherTeam + "_UR_x").intValue(),
             gameParameters.get("S" + otherTeam + "_UR_y").intValue(),
@@ -100,8 +100,8 @@ public class NavigationStrategy {
     ZipLineTraversal traversal = new ZipLineTraversal(Robot.getLineMotor(),
         Robot.getDrivingMotors()[0], Robot.getDrivingMotors()[1], ZC_x * Robot.GRID_SIZE,
         ZC_y * Robot.GRID_SIZE, ZF0_x * Robot.GRID_SIZE, ZF0_y * Robot.GRID_SIZE);
-
-    /* Travel to zip line and localize */
+    
+    /* Travel to start of zip line */
     travelTo((Z0_x - 0.1) * Robot.GRID_SIZE, (Z0_y - 0.1) * Robot.GRID_SIZE);
     Robot.getLightLocalizer().localize();
     travelTo(Robot.getLightLocalizer().getGridX(), Robot.getLightLocalizer().getGridY());
@@ -163,12 +163,12 @@ public class NavigationStrategy {
   private void navBackByZip() {
 
     /* Initialize game parameters variables */
-    int Z0_x = gameParameters.get("Z0_" + otherTeam + "_x").intValue();
-    int Z0_y = gameParameters.get("Z0_" + otherTeam + "_y").intValue();
+    int Z0_x = gameParameters.get("ZO_" + otherTeam + "_x").intValue();
+    int Z0_y = gameParameters.get("ZO_" + otherTeam + "_y").intValue();
     int ZC_x = gameParameters.get("ZC_" + otherTeam + "_x").intValue();
     int ZC_y = gameParameters.get("ZC_" + otherTeam + "_y").intValue();
-    int ZF0_x = gameParameters.get("Z0_" + teamChar + "_x").intValue();
-    int ZF0_y = gameParameters.get("Z0_" + teamChar + "_y").intValue();
+    int ZF0_x = gameParameters.get("ZO_" + teamChar + "_x").intValue();
+    int ZF0_y = gameParameters.get("ZO_" + teamChar + "_y").intValue();
     int startX = findStart()[0]; // x coord of our team's starting pos
     int startY = findStart()[1]; // y coord of our team's starting pos
 
@@ -176,8 +176,8 @@ public class NavigationStrategy {
     ZipLineTraversal traversal = new ZipLineTraversal(Robot.getLineMotor(),
         Robot.getDrivingMotors()[0], Robot.getDrivingMotors()[1], ZC_x * Robot.GRID_SIZE,
         ZC_y * Robot.GRID_SIZE, ZF0_x * Robot.GRID_SIZE, ZF0_y * Robot.GRID_SIZE);
-
-    /* Travel to zip line */
+    
+    /* Travel to start of zip line */
     travelTo((Z0_x - 0.1) * Robot.GRID_SIZE, (Z0_y - 0.1) * Robot.GRID_SIZE);
     Robot.getLightLocalizer().localize();
     travelTo(Robot.getLightLocalizer().getGridX(), Robot.getLightLocalizer().getGridY());

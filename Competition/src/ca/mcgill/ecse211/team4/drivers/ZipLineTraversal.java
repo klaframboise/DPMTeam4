@@ -2,6 +2,7 @@ package ca.mcgill.ecse211.team4.drivers;
 
 import ca.mcgill.ecse211.team4.robot.Helper;
 import ca.mcgill.ecse211.team4.robot.Robot;
+import lejos.hardware.Sound;
 import lejos.hardware.motor.EV3LargeRegulatedMotor;
 
 /**
@@ -71,13 +72,11 @@ public class ZipLineTraversal {
    * @param rightMotor robot's right motor.
    * @param x_c x coordinate of the zip line start, in cm.
    * @param y_c y coordinate of the zip line start, in cm.
-   * @param x_fc x-coordinate of the center of the zip line end.
-   * @param y_fc y-coordinate of the center of the zip line end.
-   * @param x_f0 x-coordinate of the next grid line intersection in the direction of the zip line.
-   * @param y_f0 y-coordinate of the next grid line intersection in the direction of the zip line.
+   * @param x_f0 x-coordinate of the next grid line intersection in the direction of the zip line, in cm.
+   * @param y_f0 y-coordinate of the next grid line intersection in the direction of the zip line, in cm.
    */
-  public ZipLineTraversal(EV3LargeRegulatedMotor leftMotor, EV3LargeRegulatedMotor rightMotor,
-      EV3LargeRegulatedMotor lineMotor, double x_c, double y_c, double x_f0, double y_f0) {
+  public ZipLineTraversal(EV3LargeRegulatedMotor lineMotor, EV3LargeRegulatedMotor leftMotor,
+      EV3LargeRegulatedMotor rightMotor, double x_c, double y_c, double x_f0, double y_f0) {
     this.leftMotor = leftMotor;
     this.rightMotor = rightMotor;
     this.lineMotor = lineMotor;
@@ -97,9 +96,10 @@ public class ZipLineTraversal {
     lineMotor.setSpeed(FORWARD_SPEED);
     lineMotor.forward();
 
-
     /* Navigate to start of zipline */
-    Robot.getNav().travelTo(x_c * Robot.GRID_SIZE, y_c * Robot.GRID_SIZE, false);
+    System.out.println("Going to: " + x_c + ", " + y_c);
+    Robot.getNav().travelTo(x_c, y_c, false);
+    Sound.beep();
 
     /* Set the driving motor to go forward. This helps the line motor to mount the zip line */
     leftMotor.setSpeed(250);
@@ -129,8 +129,8 @@ public class ZipLineTraversal {
     rightMotor.rotate(Helper.convertDistance(Robot.WHEEL_RADIUS, 20), false);
 
     /* Update odometer */
-    Robot.getOdo().setX(x_f0 * Robot.GRID_SIZE);
-    Robot.getOdo().setY(y_f0 * Robot.GRID_SIZE);
+    Robot.getOdo().setX(x_f0);
+    Robot.getOdo().setY(y_f0);
 
     Robot.getLightLocalizer().localize(false); // localize
 

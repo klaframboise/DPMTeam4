@@ -202,7 +202,7 @@ public class Robot {
    * 
    * @param args
    */
-  public void main(String[] args) {
+  public static void main(String[] args) {
 
     new Robot(); // construct robot in order to initialize fields
 
