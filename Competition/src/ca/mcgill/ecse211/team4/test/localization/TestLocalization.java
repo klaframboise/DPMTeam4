@@ -1,4 +1,4 @@
-package ca.mcgill.ecse211.team4.test.loclaization;
+package ca.mcgill.ecse211.team4.test.localization;
 
 import java.io.IOException;
 import java.util.Map;

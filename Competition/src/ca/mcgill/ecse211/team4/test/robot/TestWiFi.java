@@ -1,4 +1,4 @@
-package ca.mcgill.ecse211.team4.test.loclaization;
+package ca.mcgill.ecse211.team4.test.robot;
 
 import java.io.File;
 import java.io.IOException;

@@ -86,8 +86,9 @@ public class NavigationStrategy {
     int Z0_y = gameParameters.get("ZO_" + teamChar + "_y").intValue();
     int ZC_x = gameParameters.get("ZC_" + teamChar + "_x").intValue();
     int ZC_y = gameParameters.get("ZC_" + teamChar + "_y").intValue();
-    int ZF0_x = gameParameters.get("ZO_" + otherTeam + "_x").intValue();
-    int ZF0_y = gameParameters.get("ZO_" + otherTeam + "_y").intValue();
+    int[] zipLineEndPoints = getZipLineEndpoints(Z0_x, Z0_y, ZC_x, ZC_y);
+    int ZF0_x = zipLineEndPoints[2];
+    int ZF0_y = zipLineEndPoints[3];
     int[][] objCoords =
         Helper.convertToFourCorners(gameParameters.get("S" + otherTeam + "_UR_x").intValue(),
             gameParameters.get("S" + otherTeam + "_UR_y").intValue(),
@@ -115,6 +116,7 @@ public class NavigationStrategy {
         objCoords[closestCorner][1] * Robot.GRID_SIZE); // travel to closest corner
 
   }
+
 
   /**
    * Navigates to the objective using the shallow crossing.
@@ -167,8 +169,9 @@ public class NavigationStrategy {
     int Z0_y = gameParameters.get("ZO_" + otherTeam + "_y").intValue();
     int ZC_x = gameParameters.get("ZC_" + otherTeam + "_x").intValue();
     int ZC_y = gameParameters.get("ZC_" + otherTeam + "_y").intValue();
-    int ZF0_x = gameParameters.get("ZO_" + teamChar + "_x").intValue();
-    int ZF0_y = gameParameters.get("ZO_" + teamChar + "_y").intValue();
+    int[] zipLineEndPoints = getZipLineEndpoints(Z0_x, Z0_y, ZC_x, ZC_y);
+    int ZF0_x = zipLineEndPoints[2];
+    int ZF0_y = zipLineEndPoints[3];
     int startX = findStart()[0]; // x coord of our team's starting pos
     int startY = findStart()[1]; // y coord of our team's starting pos
 
@@ -270,6 +273,48 @@ public class NavigationStrategy {
 
   }
 
+  /**
+   * This method returns, in an array of integers, the waypoints at the end of the zipline. The array is structured as follows:
+   * <pre>
+   * Index   Value
+   * 0       x of zip line end point
+   * 1       y of zip line end point
+   * 2       x of "other" end point
+   * 3       y of "other" end point
+   * </pre>
+   * @param z0_x x of "other" start point.
+   * @param z0_y y of "other" start point.
+   * @param zC_x x of zip line start point.
+   * @param zC_y y of zip line start point.
+   * @return int array containing zip line endpoints
+   */
+  public static int[] getZipLineEndpoints(int z0_x, int z0_y, int zC_x, int zC_y) {
+    
+    int[] result = new int[4]; // initialize result array
+    
+    /* Get direction of the zip line by comparing start point and "other" start point */
+    int dx = ((zC_x - z0_x) != 0)? (zC_x - z0_x)/Math.abs(zC_x - z0_x) : zC_x - z0_x; // difference in x between start and "other" start
+    int dy = ((zC_y - z0_y) != 0)? (zC_y - z0_y)/Math.abs(zC_y - z0_y) : zC_y - z0_y; // difference in y between start and "other" start
+    
+    /* Case where zip line is along x or y-axis*/
+    if(dx == 0 || dy == 0) {
+      result[0] = zC_x + (dx * 4);
+      result[1] = zC_y + (dy * 4);
+    }
+    
+    /* Case where zip line is diagonal */
+    else {
+      result[0] = zC_x + (dx * 3);
+      result[1] = zC_y + (dy * 3);
+    }
+    
+    /* Compute other endpoints, one away in the direction of the zipline */
+    result[2] = result[0] + dx;
+    result[3] = result[1] + dy;
+    
+    return result;
+  }
+  
   /**
    * Finds the closest corner to the robot's current position of a rectangular area.
    * 

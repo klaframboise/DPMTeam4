@@ -1,4 +1,4 @@
-package ca.mcgill.ecse211.team4.test.loclaization;
+package ca.mcgill.ecse211.team4.test.sensing;
 
 import ca.mcgill.ecse211.team4.robot.Display;
 import ca.mcgill.ecse211.team4.robot.Robot;
