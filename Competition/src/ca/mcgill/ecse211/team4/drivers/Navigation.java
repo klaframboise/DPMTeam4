@@ -180,12 +180,23 @@ public class Navigation extends Thread {
   }
 
   /**
-   * Turns in given direction.
+   * Turns in given direction. The method will not return immediately.
    * 
    * @param dTheta change in heading wanted, in degrees.
    * @param direction left or right.
    */
   public void turn(double dTheta, String direction) {
+    turn(dTheta, direction, false);
+  }
+  
+  /**
+   * Turns in given direction.
+   * 
+   * @param dTheta change in heading wanted, in degrees.
+   * @param direction left or right.
+   * @param immediateReturn dictates whether the method returns immediately
+   */
+  public void turn(double dTheta, String direction, boolean immediateReturn) {
 
 
     int distance = Helper.convertAngle(Robot.WHEEL_RADIUS, Robot.TRACK, dTheta); // convert angle to
@@ -199,11 +210,11 @@ public class Navigation extends Thread {
     switch (direction) {
       case "left":
         leftMotor.rotate(-distance, true);
-        rightMotor.rotate(distance, false);
+        rightMotor.rotate(distance, immediateReturn);
         break;
       case "right":
         leftMotor.rotate(distance, true);
-        rightMotor.rotate(-distance, false);
+        rightMotor.rotate(-distance, immediateReturn);
         break;
     }
   }

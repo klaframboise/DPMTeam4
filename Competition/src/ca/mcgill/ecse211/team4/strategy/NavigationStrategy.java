@@ -5,6 +5,7 @@ import ca.mcgill.ecse211.team4.drivers.Navigation;
 import ca.mcgill.ecse211.team4.drivers.ZipLineTraversal;
 import ca.mcgill.ecse211.team4.robot.Helper;
 import ca.mcgill.ecse211.team4.robot.Robot;
+import lejos.hardware.Sound;
 
 /**
  * This class implements a strategy to get to the objective and back to starting point.
@@ -101,11 +102,11 @@ public class NavigationStrategy {
     ZipLineTraversal traversal = new ZipLineTraversal(Robot.getLineMotor(),
         Robot.getDrivingMotors()[0], Robot.getDrivingMotors()[1], ZC_x * Robot.GRID_SIZE,
         ZC_y * Robot.GRID_SIZE, ZF0_x * Robot.GRID_SIZE, ZF0_y * Robot.GRID_SIZE);
-    
+
     /* Travel to start of zip line */
-    travelTo((Z0_x - 0.1) * Robot.GRID_SIZE, (Z0_y - 0.1) * Robot.GRID_SIZE);
+    travelTo((Z0_x - 0.1) * Robot.GRID_SIZE, (Z0_y - 0.1) * Robot.GRID_SIZE, true);
     Robot.getLightLocalizer().localize();
-    travelTo(Robot.getLightLocalizer().getGridX(), Robot.getLightLocalizer().getGridY());
+    travelTo(Robot.getLightLocalizer().getGridX(), Robot.getLightLocalizer().getGridY(), false);
 
     /* Traverse zip line */
     traversal.traverse();
@@ -113,7 +114,7 @@ public class NavigationStrategy {
     /* Travel to search area */
     int closestCorner = findClosestCorner(objCoords); // find the closest corner of the search area
     travelTo(objCoords[closestCorner][0] * Robot.GRID_SIZE,
-        objCoords[closestCorner][1] * Robot.GRID_SIZE); // travel to closest corner
+        objCoords[closestCorner][1] * Robot.GRID_SIZE, true); // travel to closest corner
 
   }
 
@@ -123,17 +124,14 @@ public class NavigationStrategy {
    */
   private void navToObjectiveByCrossing() {
 
-    /* Determine which direction to travel in on the shallow crossing first */
-    char firstDirection = findFirstDirection();
-    char secondDirection = (firstDirection == 'H') ? 'V' : 'H';
+    /* Cross */
+    double[][] path = getCrossingPath(); // get path waypoints
+    for (double[] point : path) {
+      System.out.println("Going to: " + point[0] + ", " + point[1]);
+      travelTo(point[0] * Robot.GRID_SIZE, point[1] * Robot.GRID_SIZE, false);
+    }
 
-    /* Initialize game parameters variables */
-    int SC1_x = gameParameters.get("S" + firstDirection + "_LL_x").intValue();
-    int SC1_y = gameParameters.get("S" + firstDirection + "_LL_y").intValue();
-    int SC2_x = gameParameters.get("S" + firstDirection + "_UR_x").intValue();
-    int SC2_y = gameParameters.get("S" + firstDirection + "_UR_y").intValue();
-    int SC3_x = gameParameters.get("S" + secondDirection + "_LL_x").intValue();
-    int SC3_y = gameParameters.get("S" + secondDirection + "_LL_y").intValue();
+    /* Get search area */
     int[][] objCoords =
         Helper.convertToFourCorners(gameParameters.get("S" + otherTeam + "_UR_x").intValue(),
             gameParameters.get("S" + otherTeam + "_UR_y").intValue(),
@@ -141,21 +139,12 @@ public class NavigationStrategy {
             gameParameters.get("S" + otherTeam + "_LL_y").intValue()); // convert the objective
                                                                        // search region to a set of
                                                                        // 4 points
-
-    /* Travel to start of crossing */
-    travelTo((SC1_x + 0.5) * Robot.GRID_SIZE, SC1_y * Robot.GRID_SIZE);
-
-    /* Travel to turn in crossing */
-    travelTo((SC2_x - 0.5) * Robot.GRID_SIZE, (SC2_y - 0.5) * Robot.GRID_SIZE);
-
-    /* Travel to end of crossing */
-    travelTo(SC3_x * Robot.GRID_SIZE, (SC3_y + 0.5) * Robot.GRID_SIZE);
-
     /* Travel to search area */
     int closestCorner = findClosestCorner(objCoords); // find the closest corner of the search area
-    travelTo(objCoords[closestCorner][0] * Robot.GRID_SIZE,
-        objCoords[closestCorner][1] * Robot.GRID_SIZE); // travel to closest corner
-    
+    travelTo((objCoords[closestCorner][0] - 0.1) * Robot.GRID_SIZE,
+        (objCoords[closestCorner][1] - 0.1) * Robot.GRID_SIZE, true); // travel to closest corner
+    Robot.getLightLocalizer().localize();
+
   }
 
 
@@ -179,17 +168,17 @@ public class NavigationStrategy {
     ZipLineTraversal traversal = new ZipLineTraversal(Robot.getLineMotor(),
         Robot.getDrivingMotors()[0], Robot.getDrivingMotors()[1], ZC_x * Robot.GRID_SIZE,
         ZC_y * Robot.GRID_SIZE, ZF0_x * Robot.GRID_SIZE, ZF0_y * Robot.GRID_SIZE);
-    
+
     /* Travel to start of zip line */
-    travelTo((Z0_x - 0.1) * Robot.GRID_SIZE, (Z0_y - 0.1) * Robot.GRID_SIZE);
+    travelTo((Z0_x - 0.1) * Robot.GRID_SIZE, (Z0_y - 0.1) * Robot.GRID_SIZE, true);
     Robot.getLightLocalizer().localize();
-    travelTo(Robot.getLightLocalizer().getGridX(), Robot.getLightLocalizer().getGridY());
+    travelTo(Robot.getLightLocalizer().getGridX(), Robot.getLightLocalizer().getGridY(), false);
 
     /* Traverse zip line */
     traversal.traverse();
 
     /* Travel to start */
-    travelTo(startX * Robot.GRID_SIZE, startY * Robot.GRID_SIZE);
+    travelTo(startX * Robot.GRID_SIZE, startY * Robot.GRID_SIZE, false);
 
   }
 
@@ -198,31 +187,16 @@ public class NavigationStrategy {
    */
   private void navBackByCrossing() {
 
-    /* Determine which direction to travel in on the shallow crossing first */
-    char firstDirection = findFirstDirection();
-    char secondDirection = (firstDirection == 'H') ? 'V' : 'H';
-
-    /* Initialize game parameters variables */
-    int SC1_x = gameParameters.get("S" + secondDirection + "_LL_x").intValue();
-    int SC1_y = gameParameters.get("S" + secondDirection + "_LL_y").intValue();
-    int SC2_x = gameParameters.get("S" + secondDirection + "_UR_x").intValue();
-    int SC2_y = gameParameters.get("S" + secondDirection + "_UR_y").intValue();
-    int SC3_x = gameParameters.get("S" + firstDirection + "_LL_x").intValue();
-    int SC3_y = gameParameters.get("S" + firstDirection + "_LL_y").intValue();
-    int startX = findStart()[0];
-    int startY = findStart()[1];
-
-    /* Travel to start of crossing */
-    travelTo((SC1_x + 0.5) * Robot.GRID_SIZE, SC1_y * Robot.GRID_SIZE);
-
-    /* Travel to turn in crossing */
-    travelTo((SC2_x - 0.5) * Robot.GRID_SIZE, (SC2_y - 0.5) * Robot.GRID_SIZE);
-
-    /* Travel to end of crossing */
-    travelTo(SC3_x * Robot.GRID_SIZE, (SC3_y + 0.5) * Robot.GRID_SIZE);
+    /* Cross */
+    double[][] path = getCrossingPath(); // get path waypoints
+    for (double[] point : path) {
+      travelTo(point[0] * Robot.GRID_SIZE, point[1] * Robot.GRID_SIZE, false);
+    }
 
     /* Travel to start area */
-    travelTo(startX * Robot.GRID_SIZE, startY * Robot.GRID_SIZE);
+    int startX = findStart()[0];
+    int startY = findStart()[1];
+    travelTo(startX * Robot.GRID_SIZE, startY * Robot.GRID_SIZE, false);
   }
 
   /**
@@ -232,8 +206,9 @@ public class NavigationStrategy {
    * 
    * @param x destination-x, in cm
    * @param y destination-y, in cm
+   * @param localize indicates whether the robot is allowed to localize during travel to operation
    */
-  private void travelTo(double x, double y) {
+  private void travelTo(double x, double y, boolean localize) {
 
     /* Initialize local variables */
     final double LOCALIZATION_FREQ = 5 * Robot.GRID_SIZE; // localize every LOCALIZATION_FREQ cm in
@@ -252,12 +227,12 @@ public class NavigationStrategy {
      * Check if x is far enough to require a localization If so, then set a new waypoint closer
      * after which localization will be performed
      */
-    if (Math.abs(currentX - x) > LOCALIZATION_FREQ) {
+    if (Math.abs(currentX - x) > LOCALIZATION_FREQ && localize) {
       waypointX = currentX + (LOCALIZATION_FREQ * posX);
       localizationRequired = true;
     }
 
-    if (Math.abs(currentY - y) > LOCALIZATION_FREQ) {
+    if (Math.abs(currentY - y) > LOCALIZATION_FREQ && localize) {
       waypointY = currentY + (LOCALIZATION_FREQ * posY);
       localizationRequired = true;
     }
@@ -268,13 +243,15 @@ public class NavigationStrategy {
     /* Localize if required and continue navigating to original waypoint */
     if (localizationRequired) {
       Robot.getLightLocalizer().localize();
-      travelTo(x, y);
+      travelTo(x, y, localize);
     }
 
   }
 
   /**
-   * This method returns, in an array of integers, the waypoints at the end of the zipline. The array is structured as follows:
+   * This method returns, in an array of integers, the waypoints at the end of the zipline. The
+   * array is structured as follows:
+   * 
    * <pre>
    * Index   Value
    * 0       x of zip line end point
@@ -282,6 +259,7 @@ public class NavigationStrategy {
    * 2       x of "other" end point
    * 3       y of "other" end point
    * </pre>
+   * 
    * @param z0_x x of "other" start point.
    * @param z0_y y of "other" start point.
    * @param zC_x x of zip line start point.
@@ -289,32 +267,44 @@ public class NavigationStrategy {
    * @return int array containing zip line endpoints
    */
   public static int[] getZipLineEndpoints(int z0_x, int z0_y, int zC_x, int zC_y) {
-    
+
     int[] result = new int[4]; // initialize result array
-    
+
     /* Get direction of the zip line by comparing start point and "other" start point */
-    int dx = ((zC_x - z0_x) != 0)? (zC_x - z0_x)/Math.abs(zC_x - z0_x) : zC_x - z0_x; // difference in x between start and "other" start
-    int dy = ((zC_y - z0_y) != 0)? (zC_y - z0_y)/Math.abs(zC_y - z0_y) : zC_y - z0_y; // difference in y between start and "other" start
-    
-    /* Case where zip line is along x or y-axis*/
-    if(dx == 0 || dy == 0) {
+    int dx = ((zC_x - z0_x) != 0) ? (zC_x - z0_x) / Math.abs(zC_x - z0_x) : zC_x - z0_x; // difference
+                                                                                         // in x
+                                                                                         // between
+                                                                                         // start
+                                                                                         // and
+                                                                                         // "other"
+                                                                                         // start
+    int dy = ((zC_y - z0_y) != 0) ? (zC_y - z0_y) / Math.abs(zC_y - z0_y) : zC_y - z0_y; // difference
+                                                                                         // in y
+                                                                                         // between
+                                                                                         // start
+                                                                                         // and
+                                                                                         // "other"
+                                                                                         // start
+
+    /* Case where zip line is along x or y-axis */
+    if (dx == 0 || dy == 0) {
       result[0] = zC_x + (dx * 4);
       result[1] = zC_y + (dy * 4);
     }
-    
+
     /* Case where zip line is diagonal */
     else {
       result[0] = zC_x + (dx * 3);
       result[1] = zC_y + (dy * 3);
     }
-    
+
     /* Compute other endpoints, one away in the direction of the zipline */
     result[2] = result[0] + dx;
     result[3] = result[1] + dy;
-    
+
     return result;
   }
-  
+
   /**
    * Finds the closest corner to the robot's current position of a rectangular area.
    * 
@@ -334,8 +324,11 @@ public class NavigationStrategy {
     /* Find closest corner */
     for (int i = 0; i < rectArea.length; i++) {
 
-      distance = Math.sqrt(Math.pow((currentX - rectArea[i][0] * Robot.GRID_SIZE), 2)
-          + Math.pow(currentY, rectArea[i][1] * Robot.GRID_SIZE)); // calculate distance to corner
+      distance = Math.sqrt(Math.pow(currentX - rectArea[i][0] * Robot.GRID_SIZE, 2)
+          + Math.pow(currentY - rectArea[i][1] * Robot.GRID_SIZE, 2)); // calculate distance to corner
+
+      System.out.println("CurrentX:" + currentX + "\nCurrentY: " + currentY + "\nEvaluating point: "
+          + rectArea[i][0] + ", " + rectArea[i][1] + "\nDistance to current pos: " + distance);
 
       if (distance < minimumDistance) {
         minimumDistance = distance; // record as minimum distance if smaller than previous minimum
@@ -378,22 +371,94 @@ public class NavigationStrategy {
     return start;
   }
 
-  /**
-   * Finds the orientation of the shallow crossing connected to the robot's starting zone.
-   * 
-   * @return 'H' is the starting zone is connected to the horizontal portion of the crossing. 'V' is
-   *         the starting zone is connected to the vertical portion of the crossing.
-   */
-  private char findFirstDirection() {
+  private double[][] getCrossingPath() {
+
+    double[][] path = new double[3][2]; // result array
+
+    /* Get shallow crossing and zones properties */
+    int r_ll_x = gameParameters.get("Red_LL_x").intValue();
+    int r_ll_y = gameParameters.get("Red_LL_y").intValue();
+    int r_ur_x = gameParameters.get("Red_UR_x").intValue();
+    int r_ur_y = gameParameters.get("Red_UR_y").intValue();
+    int g_ll_x = gameParameters.get("Green_LL_x").intValue();
+    int g_ll_y = gameParameters.get("Green_LL_y").intValue();
+    int g_ur_x = gameParameters.get("Green_UR_x").intValue();
+    int g_ur_y = gameParameters.get("Green_UR_y").intValue();
+    int sv_ll_x = gameParameters.get("SV_LL_x").intValue();
+    int sv_ll_y = gameParameters.get("SV_LL_y").intValue();
+    int sv_ur_x = gameParameters.get("SV_UR_x").intValue();
+    int sv_ur_y = gameParameters.get("SV_UR_y").intValue();
+    int sh_ll_x = gameParameters.get("SH_LL_x").intValue();
+    int sh_ll_y = gameParameters.get("SH_LL_y").intValue();
+    int sh_ur_x = gameParameters.get("SH_UR_x").intValue();
+    int sh_ur_y = gameParameters.get("SH_UR_y").intValue();
 
     /*
-     * If the vertical portion is connected to our team's zone, then it is the first direction in
-     * which to travel
+     * For the first waypoint, there are 4 possibilities. The crossing can start on the left, top,
+     * right or bottom of the red zone.
      */
-    if (gameParameters.get("SV_LL_y").intValue() == gameParameters.get(teamColor + "_UR_y")) {
-      return 'V';
+    if (r_ur_x == sh_ll_x) {
+      path[0][0] = sh_ll_x;
+      path[0][1] = sh_ll_y + 0.5;
+    } else if (r_ll_x == sh_ur_x) {
+      path[0][0] = sh_ur_x;
+      path[0][1] = sh_ur_y - 0.5;
+    } else if (r_ll_y == sv_ur_y) {
+      path[0][0] = sv_ur_x - 0.5;
+      path[0][1] = sv_ur_y;
+    } else if (r_ur_y == sv_ll_y) {
+      path[0][0] = sv_ur_x + 0.5;
+      path[0][1] = sv_ur_y;
     } else {
-      return 'H';
+      Sound.buzz(); // clearly indicate that there is a missing possibility
+      System.out.println("fisrt waypoint missing");
     }
+
+    /*
+     * For the second waypoint, there are 4 possibilities. Both LL corners are equal. Both UR
+     * corners are equal. Difference between SV_LL and SH_UR is one Difference between SV_UR and
+     * SH_LL is one
+     */
+    if (sh_ll_x == sv_ll_x && sh_ll_y == sv_ll_y) {
+      path[1][0] = sh_ll_x + 0.5;
+      path[1][1] = sh_ll_y + 0.5;
+    } else if (sh_ur_x == sv_ur_x && sh_ur_y == sv_ur_y) {
+      path[1][0] = sh_ur_x - 0.5;
+      path[1][1] = sh_ur_y - 0.5;
+    } else if (Math.abs(sv_ll_x - sh_ur_x) == 1 && Math.abs(sv_ll_y - sh_ur_y) == 1) {
+      path[1][0] = (sv_ll_x + sh_ur_x) / 2.0;
+      path[1][1] = (sv_ll_y + sh_ur_y) / 2.0;
+    } else if (Math.abs(sv_ur_x - sh_ll_x) == 1 && Math.abs(sv_ur_y - sh_ll_y) == 1) {
+      path[1][0] = (sh_ll_x + sv_ur_x) / 2.0;
+      path[1][1] = (sh_ll_y + sv_ur_y) / 2.0;
+    } else {
+      Sound.buzz(); // clearly indicate there is a missing possibility
+      System.out.println("second waypoint missing");
+    }
+
+    /*
+     * For the third waypoint, there are 4 possibilities. The crossing can end at the left, top,
+     * right or bottom of green zone.
+     */
+    if (g_ur_x == sh_ll_x) {
+      path[2][0] = sh_ll_x;
+      path[2][1] = sh_ll_y + 0.5;
+    } else if (g_ll_x == sh_ur_x) {
+      path[2][0] = sh_ur_x;
+      path[2][1] = sh_ur_y - 0.5;
+    } else if (g_ll_y == sv_ur_y) {
+      path[2][0] = sv_ur_x - 0.5;
+      path[2][1] = sv_ur_y;
+    } else if (g_ur_y == sv_ll_y) {
+      path[2][0] = sv_ur_x + 0.5;
+      path[2][1] = sv_ur_y;
+    } else {
+      Sound.buzz(); // clearly indicate that there is a missing possibility
+      System.out.println("third waypoint missing");
+    }
+
+    return path;
+
   }
+
 }

@@ -20,7 +20,7 @@ public class FlagDetection {
   /**
    * Color mapping from sensor return values (index) to server color values (element).
    */
-  private static final int[] colorMapping = {0, 1, 2, 3, 0, 0, 4, 0};
+  private static final int[] colorMapping = {1, 0, 2, 3, 0, 0, 4, 0};
   /**
    * Sample provider for the color sensor. Sample Provider must be in color ID mode.
    */
@@ -92,13 +92,13 @@ public class FlagDetection {
       zone_LL_y = gameParameters.get("SR_LL_y").intValue();
       zone_UR_x = gameParameters.get("SR_UR_x").intValue();
       zone_UR_y = gameParameters.get("SR_UR_y").intValue();
-      objectiveColorID = Robot.getGameParameters().get("OG").intValue();
+      objectiveColorID = Robot.getGameParameters().get("OR").intValue();
     } else {
       zone_LL_x = gameParameters.get("SG_LL_x").intValue();
       zone_LL_y = gameParameters.get("SG_LL_y").intValue();
       zone_UR_x = gameParameters.get("SG_UR_x").intValue();
       zone_UR_y = gameParameters.get("SG_UR_y").intValue();
-      objectiveColorID = Robot.getGameParameters().get("OR").intValue();
+      objectiveColorID = Robot.getGameParameters().get("OG").intValue();
     }
 
     /* Set servo speed */
@@ -114,15 +114,15 @@ public class FlagDetection {
     int currentDistance;
     int coordinates[][] = points();
 
-    Robot.getServo().rotateTo(45, false); // rotate servo towards inside of zone
+    Robot.getServo().rotateTo(60, false); // rotate servo towards inside of zone
 
     /*
      * Travel to the four corners of the search zone while checking ultrasonic for close-by objects
      */
-    for (int i = 0; i < 4; i++) {
+    for (int i = 0; i < 8; i++) {
 
       /* Start navigating around search zone and return immediately */
-      Robot.getNav().travelTo(coordinates[i][0] * Robot.GRID_SIZE,
+      Robot.getNav().travelTo(coordinates[i % 4][0] * Robot.GRID_SIZE,
           coordinates[i][1] * Robot.GRID_SIZE, true);
 
       /* Poll ultrasonic sensor */
@@ -144,9 +144,10 @@ public class FlagDetection {
         Robot.getDrivingMotors()[0].stop(true);
         Robot.getDrivingMotors()[1].stop(true);
         Robot.getServo().rotateTo(0);
-
+        
         locateFlag();
 
+        i--; // continue with previous waypoint
       }
     }
   }
@@ -164,19 +165,21 @@ public class FlagDetection {
     /* Initialize local variable */
     double relHeadingToObject = getHeadingToObject();
     int colorReading = getColorId(colorSampler, colorData);
+    boolean flagDetected = false;
 
     /* Turn towards the detected object */
     Robot.getNav().turn(relHeadingToObject, "left");
     Robot.getServo().rotateTo(0, false);
 
     /* Set the motor speed very slow so as to not push the blocks out of the box */
-    Robot.getDrivingMotors()[0].setSpeed(60);
-    Robot.getDrivingMotors()[1].setSpeed(60);
+    Robot.getDrivingMotors()[0].setSpeed(100);
+    Robot.getDrivingMotors()[1].setSpeed(100);
 
     /*
      * Drive robot forward until one of the four colors are detected. This will happen when the
      * color sensor is very close to the flag
      */
+    int startTachoCount = Robot.getOdo().getLeftMotorTachoCount();
     while (true) {
 
       /* Get motors going */
@@ -190,20 +193,31 @@ public class FlagDetection {
         if (colorMapping[colorReading] != 0) {
           Robot.getDrivingMotors()[0].stop(true);
           Robot.getDrivingMotors()[1].stop(true);
+          System.out.println("Color read: " + colorMapping[colorReading]);
+          System.out.println("Looking for: " + objectiveColorID);
           break;
         }
       }
     }
+    int dTacho = Robot.getOdo().getLeftMotorTachoCount() - startTachoCount;
 
     /* Check if this is our flag */
     if (colorMapping[colorReading] == objectiveColorID) {
       Sound.beep();
       Sound.beep();
       Sound.beep();
-      return true; // our flag is detected
+      flagDetected = true; // our flag is detected
     }
+    
+    /* Go back to where the robot was when locateFlag() was called */
+    Robot.getDrivingMotors()[0].setSpeed(Robot.FORWARD_SPEED);
+    Robot.getDrivingMotors()[1].setSpeed(Robot.FORWARD_SPEED);
+    Robot.getDrivingMotors()[0].rotate(-dTacho, true);
+    Robot.getDrivingMotors()[1].rotate(-dTacho, false);
+    
+    Robot.getServo().rotateTo(60); // put servo back in detecting position
 
-    return false; // our flag wasn't detected
+    return flagDetected; // our flag wasn't detected
 
   }
 
@@ -226,12 +240,11 @@ public class FlagDetection {
 
     /* Prepare servo for sweep */
     Robot.getServo().rotateTo(0, false);
-    Robot.getServo().setSpeed(10); // set a slow speed for distance reading to occur
 
     /* Get data by sweeping */
-    for (int i = 0; i < 7; i++) {
-      sweepResults.put(Robot.getServo().getPosition(), Helper.getFilteredDistance(us, usData));
-      Robot.getServo().rotate(10);
+    Robot.getNav().turn(90, "left", true);
+    while(Robot.getDrivingMotors()[0].isMoving()) {
+      sweepResults.put(new Float(Robot.getOdo().getTheta()), Helper.getFilteredDistance(us, usData));
     }
 
     /* Find minimum distance */
@@ -245,10 +258,6 @@ public class FlagDetection {
         angleToMinDistance = tmpAngle.floatValue();
       }
     }
-
-    /* Reset servo to running position */
-    Robot.getServo().setSpeed(45);
-    Robot.getServo().rotateTo(0);
 
     return angleToMinDistance;
 

@@ -7,7 +7,6 @@ import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
 import ca.mcgill.ecse211.team4.drivers.Navigation;
-import ca.mcgill.ecse211.team4.odometry.Odometer;
 import ca.mcgill.ecse211.team4.robot.Robot;
 import ca.mcgill.ecse211.team4.strategy.NavigationStrategy;
 import lejos.hardware.motor.EV3LargeRegulatedMotor;
