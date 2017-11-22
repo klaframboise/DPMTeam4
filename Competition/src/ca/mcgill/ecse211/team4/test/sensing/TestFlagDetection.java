@@ -27,11 +27,12 @@ public class TestFlagDetection {
 			LL_x = Robot.getGameParameters().get("SG_LL_x").intValue();
 			LL_y = Robot.getGameParameters().get("SG_LL_y").intValue();
 		}
-		
-		System.out.println("Travelling to corner of search zone");
-		Robot.getNav().travelTo((LL_x - 0.1) * Robot.GRID_SIZE, (LL_y - 0.1) * Robot.GRID_SIZE, false);
+		Robot.getServo().rotateTo(0, false);
+//		System.out.println("Travelling to corner of search zone");
+//		Robot.getNav().travelTo((LL_x - 0.1) * Robot.GRID_SIZE, (LL_y - 0.1) * Robot.GRID_SIZE, false);
 		System.out.println("Searching and detecting");
 		Robot.getFlagDetection().searchAndDetect();
+		Robot.getNav().travelTo(5 * Robot.GRID_SIZE, 3 * Robot.GRID_SIZE, false);
 
 	}
 

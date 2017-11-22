@@ -81,5 +81,15 @@ public abstract class Helper {
     coords[3][1] = upperRightY;
     return coords;
   }
-
+  
+  /**
+   * This method calculates the euclidean distance error between the current location 
+   * and the target point (x, y)
+   * @param x
+   * @param y
+   * @return
+   */
+  public static double calculateDistanceError(double x, double y){
+	  return Math.sqrt(Math.pow(x - Robot.getOdo().getX(), 2) + Math.pow(y - Robot.getOdo().getY(), 2));
+  }
 }
