@@ -99,7 +99,7 @@ public class ZipLineTraversal {
     /* Navigate to start of zipline */
     System.out.println("Currently at: (" + Robot.getOdo().getX() + ", " + Robot.getOdo().getY() + ")");
     System.out.println("Going to: " + x_c + ", " + y_c);
-    Robot.getNav().travelTo(x_c * Robot.GRID_SIZE, y_c * Robot.GRID_SIZE, false);
+    Robot.getNav().travelTo(x_c, y_c, false);
     Sound.beep();
 
     /* Set the driving motor to go forward. This helps the line motor to mount the zip line */
@@ -108,7 +108,7 @@ public class ZipLineTraversal {
     leftMotor.rotate(700, true);
     rightMotor.rotate(700, false);
 
-    lineMotor.rotate(Helper.convertDistance(WHEEL_RADIUS, 4.5 * Robot.GRID_SIZE), false); // keep line
+    lineMotor.rotate(Helper.convertDistance(WHEEL_RADIUS, 2 * Robot.GRID_SIZE), false); // keep line
                                                                                    // motor turning
                                                                                    // until end of
                                                                                    // zip line

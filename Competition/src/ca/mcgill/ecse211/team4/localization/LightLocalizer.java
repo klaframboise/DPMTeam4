@@ -20,7 +20,7 @@ public class LightLocalizer {
   /**
    * Distance between the light sensor and the center of rotation of the robot, in cm.
    */
-  private static final double LS_TO_CENTER = 16.5;
+  public static final double LS_TO_CENTER = 16.5;
 
   /**
    * Sample provider for the color sensor. Sample Provider must be in red mode.

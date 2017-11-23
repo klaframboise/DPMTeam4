@@ -113,6 +113,16 @@ public class Navigation extends Thread {
       }
     }
   }
+  
+  /**
+   * 
+   * @param x
+   * @param y
+   * @param immediateReturn
+   */
+  public void travelTo(double x, double y, boolean immediateReturn) {
+	  travelTo(x, y, Robot.SPEED_OFFSET, immediateReturn);
+  }
 
   /**
    * Travels to the given waypoint.
@@ -122,7 +132,7 @@ public class Navigation extends Thread {
    * @param immediateReturn dictates whether the method should return immediately or wait for the
    *        motor movements to finish.
    */
-  public void travelTo(double x, double y, boolean immediateReturn) {
+  public void travelTo(double x, double y, float speedOffset, boolean immediateReturn) {
 
     /* Initialize local variable */
     double dX = x - odo.getX();
@@ -142,6 +152,8 @@ public class Navigation extends Thread {
       heading -= 2 * Math.PI;
 
     /* Turn robot to wanted heading */
+    System.out.println("My current heading is "+ Robot.getOdo().getTheta());
+    System.out.println("I am turning to "+ heading);
     turnTo(heading);
     synchronized (lock) {
       isNavigating = true;
@@ -149,10 +161,10 @@ public class Navigation extends Thread {
 
     /* Travel to x,y */
     int rotateAngle = Helper.convertDistance(Robot.WHEEL_RADIUS, distance);
-    leftMotor.setSpeed(Robot.FORWARD_SPEED * Robot.SPEED_OFFSET);
+    leftMotor.setSpeed(Robot.FORWARD_SPEED * speedOffset);
     rightMotor.setSpeed(Robot.FORWARD_SPEED);
     leftMotor.rotate(rotateAngle, true);
-    rightMotor.rotate((int) (rotateAngle / Robot.SPEED_OFFSET), immediateReturn);
+    rightMotor.rotate((int) (rotateAngle / speedOffset), immediateReturn);
   }
 
   /**

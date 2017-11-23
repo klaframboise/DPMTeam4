@@ -32,8 +32,9 @@ public class Robot {
 
   /**
    * Denotes the maximum possible coordinate on the square play surface.
+   * TODO: check this value for testing and competition
    */
-  public static final int MAX_COORD = 11;
+  public static final int MAX_COORD = 7;
 
   /**
    * Team number.
@@ -222,9 +223,10 @@ public class Robot {
     /* Follow navigation strategy */
     NavigationStrategy navStrat = new NavigationStrategy(teamColor, gameParameters, nav);
     navStrat.navigateToObjectiveZone(); // navigate to objective
-    flagDetection.searchAndDetect(); // detect flag
+//    flagDetection.searchAndDetect(); // detect flag
     navStrat.navigateBack(); // navigate back to start
-    Sound.playNote(Sound.FLUTE, Sound.DOUBLE_BEEP, 500); // celebrate
+    System.out.println(odo.getX() + ", " + odo.getY());
+    Sound.playNote(Sound.PIANO, Sound.DOUBLE_BEEP, 500); // celebrate
 
   }
 

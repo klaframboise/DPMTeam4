@@ -3,6 +3,7 @@ package ca.mcgill.ecse211.team4.strategy;
 import java.util.Map;
 import ca.mcgill.ecse211.team4.drivers.Navigation;
 import ca.mcgill.ecse211.team4.drivers.ZipLineTraversal;
+import ca.mcgill.ecse211.team4.localization.LightLocalizer;
 import ca.mcgill.ecse211.team4.robot.Helper;
 import ca.mcgill.ecse211.team4.robot.Robot;
 import lejos.hardware.Sound;
@@ -15,6 +16,11 @@ import lejos.hardware.Sound;
  */
 public class NavigationStrategy {
 
+  /**
+   * 
+   */
+  public static final float CROSSING_OFFSET = 0.985f;
+  
   /**
    * Must be "Red" or "Green". This will change the strategy used.
    */
@@ -113,8 +119,8 @@ public class NavigationStrategy {
 
     /* Travel to search area */
     int closestCorner = findClosestCorner(objCoords); // find the closest corner of the search area
-    travelTo(objCoords[closestCorner][0] * Robot.GRID_SIZE,
-        objCoords[closestCorner][1] * Robot.GRID_SIZE, true); // travel to closest corner
+    /*travelTo(objCoords[closestCorner][0] * Robot.GRID_SIZE,
+        objCoords[closestCorner][1] * Robot.GRID_SIZE, true);*/ // travel to closest corner
 
   }
 
@@ -127,9 +133,14 @@ public class NavigationStrategy {
     /* Cross */
     double[][] path = getCrossingPath(); // get path waypoints
     for (double[] point : path) {
-      System.out.println("Going to: " + point[0] + ", " + point[1]);
-      travelTo(point[0] * Robot.GRID_SIZE, point[1] * Robot.GRID_SIZE, false);
+      System.out.println("Now I am on the bridge.");
+      System.out.println("Now I am travelling to: " + point[0] + ", " + point[1]);
+      Robot.getNav().travelTo(point[0] * Robot.GRID_SIZE, point[1] * Robot.GRID_SIZE, CROSSING_OFFSET, false);
     }
+    
+    clearCrossing(path);
+    Robot.getLightLocalizer().localize(false);
+    System.out.println("After clearing the coordinate is: " + Robot.getOdo().getX() + ", " + Robot.getOdo().getY());
 
     /* Get search area */
     int[][] objCoords =
@@ -141,11 +152,12 @@ public class NavigationStrategy {
                                                                        // 4 points
     /* Travel to search area */
     int closestCorner = findClosestCorner(objCoords); // find the closest corner of the search area
-    travelTo((objCoords[closestCorner][0] - 0.1) * Robot.GRID_SIZE,
-        (objCoords[closestCorner][1] - 0.1) * Robot.GRID_SIZE, true); // travel to closest corner
-    Robot.getLightLocalizer().localize();
+    //travelTo((objCoords[closestCorner][0] - 0.1) * Robot.GRID_SIZE,
+        //(objCoords[closestCorner][1] - 0.1) * Robot.GRID_SIZE, true); // travel to closest corner
+   // Robot.getLightLocalizer().localize();
 
   }
+
 
 
   /**
@@ -161,8 +173,8 @@ public class NavigationStrategy {
     int[] zipLineEndPoints = getZipLineEndpoints(Z0_x, Z0_y, ZC_x, ZC_y);
     int ZF0_x = zipLineEndPoints[2];
     int ZF0_y = zipLineEndPoints[3];
-    int startX = findStart()[0]; // x coord of our team's starting pos
-    int startY = findStart()[1]; // y coord of our team's starting pos
+    double startX = findStart()[0]; // x coord of our team's starting pos
+    double startY = findStart()[1]; // y coord of our team's starting pos
 
     /* Initialize zip line driver */
     ZipLineTraversal traversal = new ZipLineTraversal(Robot.getLineMotor(),
@@ -190,12 +202,16 @@ public class NavigationStrategy {
     /* Cross */
     double[][] path = getCrossingPath(); // get path waypoints
     for (double[] point : path) {
-      travelTo(point[0] * Robot.GRID_SIZE, point[1] * Robot.GRID_SIZE, false);
+      Robot.getNav().travelTo(point[0] * Robot.GRID_SIZE, point[1] * Robot.GRID_SIZE, CROSSING_OFFSET, false);
     }
+    
+    clearCrossing(path);
+    Robot.getLightLocalizer().localize(false);
+    System.out.println(Robot.getOdo().getX() + ", " + Robot.getOdo().getY());
 
     /* Travel to start area */
-    int startX = findStart()[0];
-    int startY = findStart()[1];
+    double startX = findStart()[0];
+    double startY = findStart()[1];
     travelTo(startX * Robot.GRID_SIZE, startY * Robot.GRID_SIZE, false);
   }
 
@@ -345,26 +361,26 @@ public class NavigationStrategy {
    * 
    * @return an array containing the coordinates. x at i = 0, y at i = 1.
    */
-  private int[] findStart() {
+  private double[] findStart() {
 
-    int[] start = new int[2];
+    double[] start = new double[2];
 
     switch (gameParameters.get(teamColor + "Corner").intValue()) {
+      case 0:
+        start[0] = 0.5;
+        start[1] = 0.5;
+        break;
       case 1:
-        start[0] = 1;
-        start[1] = 1;
+        start[0] = Robot.MAX_COORD + 0.5;
+        start[1] = 0.5;
         break;
       case 2:
-        start[0] = Robot.MAX_COORD;
-        start[1] = 1;
+        start[0] = Robot.MAX_COORD + 0.5;
+        start[1] = Robot.MAX_COORD + 0.5;
         break;
       case 3:
-        start[0] = Robot.MAX_COORD;
-        start[1] = Robot.MAX_COORD;
-        break;
-      case 4:
-        start[0] = 1;
-        start[1] = Robot.MAX_COORD;
+        start[0] = 0.5;
+        start[1] = Robot.MAX_COORD + 0.5;
         break;
     }
 
@@ -449,9 +465,9 @@ public class NavigationStrategy {
     } else if (g_ll_y == sv_ur_y) {
       path[2][0] = sv_ur_x - 0.5;
       path[2][1] = sv_ur_y;
-    } else if (g_ur_y == sv_ll_y) {
-      path[2][0] = sv_ur_x + 0.5;
-      path[2][1] = sv_ur_y;
+    } else if (g_ur_y == sv_ll_y) {	//good
+      path[2][0] = sv_ur_x - 0.5;
+      path[2][1] = sv_ll_y;
     } else {
       Sound.buzz(); // clearly indicate that there is a missing possibility
       System.out.println("third waypoint missing");
@@ -461,4 +477,34 @@ public class NavigationStrategy {
 
   }
 
+  private void clearCrossing(double[][] path) {
+	  /* Continue until black line is crossed, to make sure that the shallow crossing is cleared */
+	  while(LightLocalizer.getRedIntensity() > Robot.LINE_RED_INTENSITY) {
+		  Robot.getDrivingMotors()[0].forward();
+		  Robot.getDrivingMotors()[1].forward();
+		  try {
+			  Thread.sleep(25);
+		  } catch (InterruptedException e) {
+			  // TODO Auto-generated catch block
+			  e.printStackTrace();
+		  }
+	  }
+	  
+	  Robot.getDrivingMotors()[0].stop(true);
+	  Robot.getDrivingMotors()[1].stop();
+	  
+	  int dx = 0;
+	  int dy = 0;
+	  
+	  if(path[2][0] - path[1][0] != 0) {
+		  dx = (int) (path[2][0] - path[1][0]/Math.abs(path[2][0] - path[1][0]));
+	  }
+	  
+	  if(path[2][1] - path[1][1] != 0) {
+		  dy = (int) (path[2][1] - path[1][1]/Math.abs(path[2][1] - path[1][1]));
+	  }
+	  
+	  Robot.getOdo().setX((path[2][0] * 30.48) + (dx * LightLocalizer.LS_TO_CENTER));
+	  Robot.getOdo().setY((path[2][1] * 30.48) + (dy * LightLocalizer.LS_TO_CENTER));
+  }
 }
