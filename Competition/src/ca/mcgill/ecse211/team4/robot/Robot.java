@@ -53,7 +53,7 @@ public class Robot {
   /**
    * Offset to compensate for mechanical design weight imbalance.
    */
-  public static final float SPEED_OFFSET = 0.997f;
+  public static final float SPEED_OFFSET = 0.99f;
 
   /**
    * Red intensity of a grid line.
@@ -189,7 +189,7 @@ public class Robot {
     double y_c = gameParameters.get("ZC_G_y").intValue();
     double x_f0 = gameParameters.get("ZO_R_x").intValue();
     double y_f0 = gameParameters.get("ZO_R_y").intValue();
-    ziplineTraversal = new ZipLineTraversal(leftMotor, rightMotor, lineMotor, x_c, y_c, x_f0, y_f0);
+    ziplineTraversal = new ZipLineTraversal(lineMotor, leftMotor, rightMotor, x_c, y_c, x_f0, y_f0);
 
     /* Set motor attributes */
     leftMotor.setAcceleration(500);

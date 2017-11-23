@@ -117,7 +117,7 @@ public class FlagDetection {
 		/* Initializing local variables */
 		int currentDistance;
 		int coordinates[][] = points();
-		Robot.getServo().rotateTo(60, false); // rotate servo to the left
+		Robot.getServo().rotateTo(60, true); // rotate servo to the left
 
 		/*
 		 * Travel to the four corners of the search zone while checking
@@ -144,36 +144,45 @@ public class FlagDetection {
 			 * Check if loop broke because object was detected
 			 * Update number of blocks detected accordingly each time we see a block
 			 * 
-			 * This is meant to avoid getting stuck on the same block over and over again
+			 * New lines of code implemented to avoid getting stuck on the same block over and over again
 			 * If we have detected a block and it's not the block we want,
 			 * go back to the previous position, and move forward for 1/3 tile, and we search again.
 			 */
 			if (currentDistance < 35) {
 				System.out.println("Block detected with distance " + currentDistance);
 				/* Stop motors if this is the first block seen */
-				if (numberBlockDetected == 0) {
-					numberBlockDetected++;
-					Robot.getDrivingMotors()[0].stop(true);
-					Robot.getDrivingMotors()[1].stop(true);
-					Robot.getServo().rotateTo(0);
-
-					// locateFlag();
-					boolean flagCaptured = captureFlag();
-					if (flagCaptured)
-						break;
-				} else {
-					numberBlockDetected = 0;
-					if (Helper.calculateDistanceError(coordinates[i][0] * Robot.GRID_SIZE,
-							coordinates[i][1] * Robot.GRID_SIZE) > Robot.GRID_SIZE / 2) {
-						Robot.getDrivingMotors()[0]
-								.rotate(Helper.convertDistance(Robot.WHEEL_RADIUS, Robot.GRID_SIZE / 3), true);
-						Robot.getDrivingMotors()[1]
-								.rotate(Helper.convertDistance(Robot.WHEEL_RADIUS, Robot.GRID_SIZE / 3), false);
-					} else {
-						Robot.getNav().travelTo(coordinates[i][0] * Robot.GRID_SIZE,
-								coordinates[i][1] * Robot.GRID_SIZE, false);
-					}
-				}
+				//Wenjie's method
+//				if (numberBlockDetected == 0) {
+//					numberBlockDetected++;
+//					Robot.getDrivingMotors()[0].stop(true);
+//					Robot.getDrivingMotors()[1].stop(true);
+//					Robot.getServo().rotateTo(0);
+//
+//					// locateFlag();
+//					boolean flagCaptured = captureFlag();
+//					if (flagCaptured)
+//						break;
+//				} else {
+//					numberBlockDetected = 0;
+//					if (Helper.calculateDistanceError(coordinates[i][0] * Robot.GRID_SIZE,
+//							coordinates[i][1] * Robot.GRID_SIZE) > Robot.GRID_SIZE / 2) {
+//						Robot.getDrivingMotors()[0]
+//								.rotate(Helper.convertDistance(Robot.WHEEL_RADIUS, Robot.GRID_SIZE / 3), true);
+//						Robot.getDrivingMotors()[1]
+//								.rotate(Helper.convertDistance(Robot.WHEEL_RADIUS, Robot.GRID_SIZE / 3), false);
+//					} else {
+//						Robot.getNav().travelTo(coordinates[i][0] * Robot.GRID_SIZE,
+//								coordinates[i][1] * Robot.GRID_SIZE, false);
+//					}
+//				}
+				
+				//Kevin's method
+				Robot.getDrivingMotors()[0].stop(true);
+				Robot.getDrivingMotors()[1].stop(true);
+				Robot.getServo().rotateTo(0);
+				
+				locateFlag();
+				
 				i--; // continue with previous waypoint
 			}
 		}

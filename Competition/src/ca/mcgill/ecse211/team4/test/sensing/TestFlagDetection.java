@@ -13,8 +13,6 @@ public class TestFlagDetection {
 		
 		Robot.getOdo().start();
 		Robot.getNav().start();
-		Robot.getOdo().setX(30.48);
-		Robot.getOdo().setY(30.48);
 		Display display = new Display(Robot.getOdo());
 		display.start();
 		
@@ -28,6 +26,10 @@ public class TestFlagDetection {
 			LL_y = Robot.getGameParameters().get("SG_LL_y").intValue();
 		}
 		Robot.getServo().rotateTo(0, false);
+
+		Robot.getOdo().setX(LL_x);
+		Robot.getOdo().setY(LL_y);
+		Robot.getOdo().setTheta(0);
 //		System.out.println("Travelling to corner of search zone");
 //		Robot.getNav().travelTo((LL_x - 0.1) * Robot.GRID_SIZE, (LL_y - 0.1) * Robot.GRID_SIZE, false);
 		System.out.println("Searching and detecting");

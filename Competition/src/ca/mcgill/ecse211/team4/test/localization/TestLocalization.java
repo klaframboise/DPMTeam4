@@ -152,14 +152,25 @@ public class TestLocalization {
 		x_d = Robot.getGameParameters().get("SR_LL_x").intValue();
 		y_d = Robot.getGameParameters().get("SR_LL_y").intValue();
 		/* Tester of some navigation strategy to avoid the zipline */
-		if(Math.abs((y_0 * GRID_SIZE - Robot.getOdo().getY())) > Math.abs((x_0 * GRID_SIZE - Robot.getOdo().getX()))){
+		/*
+		 * If both x and y are different from the target x y, then go around.
+		 * If either x and y is the same as target x and y, go there directly and avoid localizing twice
+		 */
+		if(Math.abs((y_0 * GRID_SIZE - Robot.getOdo().getY())) > Math.abs((x_0 * GRID_SIZE - Robot.getOdo().getX())) 
+				&& ((Math.round(Robot.getOdo().getX() / Robot.GRID_SIZE)) != x_0) 
+				&& ((Math.round(Robot.getOdo().getY() / Robot.GRID_SIZE)) != y_0)){
 			Robot.getNav().travelTo(Robot.getOdo().getX(), y_0 * GRID_SIZE, false);
 			Robot.getLightLocalizer().localize(false);
 			Robot.getNav().travelTo((x_0 - 0.1) * GRID_SIZE, (y_0 - 0.1) * GRID_SIZE, false);
-		} else { 
+		} else if (Math.abs((y_0 * GRID_SIZE - Robot.getOdo().getY())) < Math.abs((x_0 * GRID_SIZE - Robot.getOdo().getX())) 
+				&& ((Math.round(Robot.getOdo().getX() / Robot.GRID_SIZE)) != x_0) 
+				&& ((Math.round(Robot.getOdo().getY() / Robot.GRID_SIZE)) != y_0)){ 
 			Robot.getNav().travelTo(x_0 * GRID_SIZE, Robot.getOdo().getY(), false);
 			Robot.getLightLocalizer().localize(false);
 			Robot.getNav().travelTo((x_0 - 0.1) * GRID_SIZE, (y_0 - 0.1) * GRID_SIZE, false);
+		} else if (Math.round(Robot.getOdo().getX() / Robot.GRID_SIZE) == x_0 
+				|| Math.round(Robot.getOdo().getY() / Robot.GRID_SIZE) == y_0) {
+			Robot.getNav().travelTo((x_0 - 0.1)* GRID_SIZE, (y_0 - 0.1) * GRID_SIZE, false);
 		}
 		Robot.getLightLocalizer().localize(false);
 		Robot.getNav().travelTo(Robot.getLightLocalizer().getGridX(), Robot.getLightLocalizer().getGridY(), false);

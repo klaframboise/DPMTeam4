@@ -107,7 +107,6 @@ public class UltrasonicLocalizer {
       leftMotor.stop(true);
       rightMotor.stop(false);
       alphaAngle = Robot.getOdo().getTheta();
-      Sound.beep();
 
       /* Start turning counter-clockwise to clear wall that was just detected */
       goingClockwise = false;
@@ -146,7 +145,6 @@ public class UltrasonicLocalizer {
       leftMotor.stop(true);
       rightMotor.stop(false);
       alphaAngle = Robot.getOdo().getTheta();
-      Sound.beep();
 
       /* Start turning counter-clockwise to clear wall that was just detected */
       goingClockwise = false;
@@ -171,8 +169,6 @@ public class UltrasonicLocalizer {
       leftMotor.stop(true); // stop motors and record beta angle
       rightMotor.stop(false);
       betaAngle = Robot.getOdo().getTheta();
-      Sound.beep();
-      Sound.beep();
 
     }
 

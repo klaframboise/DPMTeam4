@@ -21,7 +21,7 @@ public class ZipLineTraversal {
   /**
    * Radius of the zip line wheel, in cm.
    */
-  public static final double WHEEL_RADIUS = 0.95;
+  public static final double WHEEL_RADIUS = 0.95; 
 
   /**
    * Length of the zip line, in cm.
@@ -97,17 +97,18 @@ public class ZipLineTraversal {
     lineMotor.forward();
 
     /* Navigate to start of zipline */
+    System.out.println("Currently at: (" + Robot.getOdo().getX() + ", " + Robot.getOdo().getY() + ")");
     System.out.println("Going to: " + x_c + ", " + y_c);
-    Robot.getNav().travelTo(x_c, y_c, false);
+    Robot.getNav().travelTo(x_c * Robot.GRID_SIZE, y_c * Robot.GRID_SIZE, false);
     Sound.beep();
 
     /* Set the driving motor to go forward. This helps the line motor to mount the zip line */
     leftMotor.setSpeed(250);
     rightMotor.setSpeed(250);
-    leftMotor.rotate(1440, true);
-    rightMotor.rotate(1440, false);
+    leftMotor.rotate(700, true);
+    rightMotor.rotate(700, false);
 
-    lineMotor.rotate(Helper.convertDistance(WHEEL_RADIUS, 1.5 * Robot.GRID_SIZE)); // keep line
+    lineMotor.rotate(Helper.convertDistance(WHEEL_RADIUS, 4.5 * Robot.GRID_SIZE), false); // keep line
                                                                                    // motor turning
                                                                                    // until end of
                                                                                    // zip line
