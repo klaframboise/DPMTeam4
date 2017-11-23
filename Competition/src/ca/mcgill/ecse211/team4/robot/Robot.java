@@ -223,7 +223,8 @@ public class Robot {
     /* Follow navigation strategy */
     NavigationStrategy navStrat = new NavigationStrategy(teamColor, gameParameters, nav);
     navStrat.navigateToObjectiveZone(); // navigate to objective
-//    flagDetection.searchAndDetect(); // detect flag
+    flagDetection.searchAndDetect(); // detect flag
+    lightLocalizer.localize();
     navStrat.navigateBack(); // navigate back to start
     System.out.println(odo.getX() + ", " + odo.getY());
     Sound.playNote(Sound.PIANO, Sound.DOUBLE_BEEP, 500); // celebrate

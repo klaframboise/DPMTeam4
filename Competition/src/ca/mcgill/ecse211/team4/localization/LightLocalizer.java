@@ -296,7 +296,11 @@ public class LightLocalizer {
                    // the center of the square. This allows us to move to the intersection by
                    // following a 45 deg angle.
     }
-
+    
+    if(!initialLocalization) {
+      Robot.getNav().turnTo(Math.PI/4);
+    }
+    
     sweep(); // acquire angle data
 
     /* Compute real position */

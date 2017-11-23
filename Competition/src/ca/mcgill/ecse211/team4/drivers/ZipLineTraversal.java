@@ -16,7 +16,7 @@ public class ZipLineTraversal {
   /**
    * Speed at which the zip line wheel turns, in degrees/sec.
    */
-  private static final int FORWARD_SPEED = 250;
+  private static final int FORWARD_SPEED = 500;
 
   /**
    * Radius of the zip line wheel, in cm.
@@ -103,10 +103,10 @@ public class ZipLineTraversal {
     Sound.beep();
 
     /* Set the driving motor to go forward. This helps the line motor to mount the zip line */
-    leftMotor.setSpeed(250);
-    rightMotor.setSpeed(250);
-    leftMotor.rotate(700, true);
-    rightMotor.rotate(700, false);
+    leftMotor.setSpeed(400);
+    rightMotor.setSpeed(400);
+    leftMotor.rotate(1000, true);
+    rightMotor.rotate(1000, false);
 
     lineMotor.rotate(Helper.convertDistance(WHEEL_RADIUS, 2 * Robot.GRID_SIZE), false); // keep line
                                                                                    // motor turning

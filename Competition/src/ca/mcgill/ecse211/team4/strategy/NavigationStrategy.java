@@ -112,15 +112,16 @@ public class NavigationStrategy {
     /* Travel to start of zip line */
     travelTo((Z0_x - 0.1) * Robot.GRID_SIZE, (Z0_y - 0.1) * Robot.GRID_SIZE, true);
     Robot.getLightLocalizer().localize();
-    travelTo(Robot.getLightLocalizer().getGridX(), Robot.getLightLocalizer().getGridY(), false);
+    travelTo(Z0_x * Robot.GRID_SIZE, Z0_y * Robot.GRID_SIZE, false);
 
     /* Traverse zip line */
     traversal.traverse();
 
     /* Travel to search area */
     int closestCorner = findClosestCorner(objCoords); // find the closest corner of the search area
-    /*travelTo(objCoords[closestCorner][0] * Robot.GRID_SIZE,
-        objCoords[closestCorner][1] * Robot.GRID_SIZE, true);*/ // travel to closest corner
+    travelTo((objCoords[closestCorner][0] - 0.1) * Robot.GRID_SIZE,
+        (objCoords[closestCorner][1] - 0.1) * Robot.GRID_SIZE, true); // travel to closest corner
+    Robot.getLightLocalizer().localize();
 
   }
 
@@ -129,9 +130,10 @@ public class NavigationStrategy {
    * Navigates to the objective using the shallow crossing.
    */
   private void navToObjectiveByCrossing() {
-
+    
     /* Cross */
     double[][] path = getCrossingPath(); // get path waypoints
+    localizeBeforeCrossing(path);
     for (double[] point : path) {
       System.out.println("Now I am on the bridge.");
       System.out.println("Now I am travelling to: " + point[0] + ", " + point[1]);
@@ -152,9 +154,9 @@ public class NavigationStrategy {
                                                                        // 4 points
     /* Travel to search area */
     int closestCorner = findClosestCorner(objCoords); // find the closest corner of the search area
-    //travelTo((objCoords[closestCorner][0] - 0.1) * Robot.GRID_SIZE,
-        //(objCoords[closestCorner][1] - 0.1) * Robot.GRID_SIZE, true); // travel to closest corner
-   // Robot.getLightLocalizer().localize();
+    travelTo((objCoords[closestCorner][0] - 0.1) * Robot.GRID_SIZE,
+        (objCoords[closestCorner][1] - 0.1) * Robot.GRID_SIZE, true); // travel to closest corner
+    Robot.getLightLocalizer().localize();
 
   }
 
@@ -184,7 +186,7 @@ public class NavigationStrategy {
     /* Travel to start of zip line */
     travelTo((Z0_x - 0.1) * Robot.GRID_SIZE, (Z0_y - 0.1) * Robot.GRID_SIZE, true);
     Robot.getLightLocalizer().localize();
-    travelTo(Robot.getLightLocalizer().getGridX(), Robot.getLightLocalizer().getGridY(), false);
+    travelTo(Z0_x * Robot.GRID_SIZE, Z0_y * Robot.GRID_SIZE, false);
 
     /* Traverse zip line */
     traversal.traverse();
@@ -201,6 +203,7 @@ public class NavigationStrategy {
 
     /* Cross */
     double[][] path = getCrossingPath(); // get path waypoints
+    localizeBeforeCrossing(path);
     for (double[] point : path) {
       Robot.getNav().travelTo(point[0] * Robot.GRID_SIZE, point[1] * Robot.GRID_SIZE, CROSSING_OFFSET, false);
     }
@@ -227,7 +230,7 @@ public class NavigationStrategy {
   private void travelTo(double x, double y, boolean localize) {
 
     /* Initialize local variables */
-    final double LOCALIZATION_FREQ = 5 * Robot.GRID_SIZE; // localize every LOCALIZATION_FREQ cm in
+    final double LOCALIZATION_FREQ = 4 * Robot.GRID_SIZE; // localize every LOCALIZATION_FREQ cm in
                                                           // a given direction
     boolean localizationRequired = false;
     double currentX = Robot.getOdo().getX();
@@ -476,6 +479,30 @@ public class NavigationStrategy {
     return path;
 
   }
+  
+  /**
+   * 
+   * @param path
+   */
+  private void localizeBeforeCrossing(double[][] path) {
+    
+    int dx = 0;
+    int dy = 0;
+    
+    if(path[1][0] - path[0][0] != 0) {
+        dx = (int) ((path[1][0] - path[0][0])/Math.abs(path[1][0] - path[0][0]));
+    }
+    
+    if(path[1][1] - path[0][1] != 0) {
+        dy = (int) ((path[1][1] - path[0][1])/Math.abs(path[1][1] - path[0][1]));
+    }
+    
+    System.out.println("dx: " + dx + " dy: " + dy);
+    
+    travelTo((path[0][0] - dx) * Robot.GRID_SIZE, (path[0][1] - dy) * Robot.GRID_SIZE, false);
+    Robot.getLightLocalizer().localize();
+    
+  }
 
   private void clearCrossing(double[][] path) {
 	  /* Continue until black line is crossed, to make sure that the shallow crossing is cleared */
@@ -497,11 +524,11 @@ public class NavigationStrategy {
 	  int dy = 0;
 	  
 	  if(path[2][0] - path[1][0] != 0) {
-		  dx = (int) (path[2][0] - path[1][0]/Math.abs(path[2][0] - path[1][0]));
+		  dx = (int) ((path[2][0] - path[1][0])/Math.abs(path[2][0] - path[1][0]));
 	  }
 	  
 	  if(path[2][1] - path[1][1] != 0) {
-		  dy = (int) (path[2][1] - path[1][1]/Math.abs(path[2][1] - path[1][1]));
+		  dy = (int) ((path[2][1] - path[1][1])/Math.abs(path[2][1] - path[1][1]));
 	  }
 	  
 	  Robot.getOdo().setX((path[2][0] * 30.48) + (dx * LightLocalizer.LS_TO_CENTER));
