@@ -78,7 +78,7 @@ public class Navigation extends Thread {
   }
 
   /**
-   * @see java.lang.Thread#run()
+   * Starts the navigation. Use {@link Navigation#start()} to use as a thread.
    */
   public void run() {
 
@@ -113,15 +113,17 @@ public class Navigation extends Thread {
       }
     }
   }
-  
+
   /**
+   * Travels to the given waypoint. Sets the wheel speed offset to {@value Robot#SPEED_OFFSET}.
    * 
-   * @param x
-   * @param y
-   * @param immediateReturn
+   * @param x x-coordinate in cm.
+   * @param y y-coordinate in cm.
+   * @param immediateReturn dictates whether the method should return immediately or wait for the
+   *        motor movements to finish.
    */
   public void travelTo(double x, double y, boolean immediateReturn) {
-	  travelTo(x, y, Robot.SPEED_OFFSET, immediateReturn);
+    travelTo(x, y, Robot.SPEED_OFFSET, immediateReturn);
   }
 
   /**
@@ -129,6 +131,7 @@ public class Navigation extends Thread {
    * 
    * @param x x-coordinate in cm.
    * @param y y-coordinate in cm.
+   * @param speedOffset coefficient by which the speed of the left motor is multiplied.
    * @param immediateReturn dictates whether the method should return immediately or wait for the
    *        motor movements to finish.
    */
@@ -152,8 +155,8 @@ public class Navigation extends Thread {
       heading -= 2 * Math.PI;
 
     /* Turn robot to wanted heading */
-    System.out.println("My current heading is "+ Robot.getOdo().getTheta());
-    System.out.println("I am turning to "+ heading);
+    System.out.println("My current heading is " + Robot.getOdo().getTheta());
+    System.out.println("I am turning to " + heading);
     turnTo(heading);
     synchronized (lock) {
       isNavigating = true;
@@ -200,7 +203,7 @@ public class Navigation extends Thread {
   public void turn(double dTheta, String direction) {
     turn(dTheta, direction, false);
   }
-  
+
   /**
    * Turns in given direction.
    * 
@@ -231,12 +234,6 @@ public class Navigation extends Thread {
     }
   }
 
-  /**
-   * @return {@link Navigation#isNavigating}
-   */
-  public boolean isNavigating() {
-    return isNavigating;
-  }
 
   /**
    * Stops the motors and signals the Navigation algorithm that another process is taking over the
@@ -302,6 +299,13 @@ public class Navigation extends Thread {
    */
   public boolean isAvoiding() {
     return isAvoiding;
+  }
+
+  /**
+   * @return {@link Navigation#isNavigating}
+   */
+  public boolean isNavigating() {
+    return isNavigating;
   }
 
 }

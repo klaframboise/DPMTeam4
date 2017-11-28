@@ -24,9 +24,7 @@ import lejos.hardware.sensor.EV3UltrasonicSensor;
 import lejos.robotics.SampleProvider;
 
 /**
- * Main class.
- * @author Kevin Laframboise
- *
+ * A test class to test light localization.
  */
 public class TestLocalization {
 

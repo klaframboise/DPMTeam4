@@ -37,9 +37,11 @@ public class GameSetup {
   /**
    * IP address of the server from which game parameters are received
    */
-  private static final String SERVER_IP = "192.168.137.1";
+  private static final String SERVER_IP = "192.168.2.3";
 
   /**
+   * Gets the data map from the server.
+   * 
    * @param debugPrint dictates whether debug information is printed to default output.
    * @return Map containing game parameters
    * @throws UnknownHostException

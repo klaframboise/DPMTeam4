@@ -47,7 +47,7 @@ public class Odometer extends Thread {
   private EV3LargeRegulatedMotor rightMotor;
 
   /**
-   * Lock object for mutual exvlusion.
+   * Lock object for mutual exclusion.
    */
   private Object lock;
 
@@ -79,7 +79,8 @@ public class Odometer extends Thread {
   }
 
   /**
-   * @see java.lang.Thread#run()
+   * Starts the odometer. Should always be used through {@link Odometer#start()} so that it is
+   * running as a spearated thread.
    */
   public void run() {
 
@@ -148,7 +149,7 @@ public class Odometer extends Thread {
   }
 
   /**
-   * Places the current x, y and theta in the position array.
+   * Places the current x, y and theta in the position array. Provided in lab 2 and used as-is.
    * 
    * @param position array to fill with x, y and theta. Element at index 0 is x, 1 is y and 2 is
    *        theta.
@@ -208,7 +209,8 @@ public class Odometer extends Thread {
   }
 
   /**
-   * Changes the current x, y and theta in to the value in the position array.
+   * Changes the current x, y and theta in to the value in the position array. Provided in lab 2 and
+   * used as-is.
    * 
    * @param position array containing new x, y and theta. Element at index 0 is x, 1 is y and 2 is
    *        theta.

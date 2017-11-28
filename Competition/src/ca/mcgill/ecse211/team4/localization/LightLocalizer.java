@@ -108,6 +108,9 @@ public class LightLocalizer {
   /**
    * Creates a LightLocalizer object with given properties. Sets debug to false.
    * 
+   * @see LightLocalizer#LightLocalizer(SampleProvider, float[], EV3LargeRegulatedMotor,
+   *      EV3LargeRegulatedMotor, boolean)
+   * 
    * @param colorSampler
    * @param lightData
    * @param leftMotor
@@ -149,7 +152,7 @@ public class LightLocalizer {
         }
       }
       /* Keep sampling while robot is turning or less than 4 lines have been detected */
-    } while (leftMotor.isMoving() && rightMotor.isMoving() && counter < angles.length); 
+    } while (leftMotor.isMoving() && rightMotor.isMoving() && counter < angles.length);
 
     /* Stop motors when done sweeping */
     leftMotor.stop(true);
@@ -296,11 +299,12 @@ public class LightLocalizer {
                    // the center of the square. This allows us to move to the intersection by
                    // following a 45 deg angle.
     }
-    
-    if(!initialLocalization) {
-      Robot.getNav().turnTo(Math.PI/4);
+
+    /* Safety precaution to ensure color sensor is away from any lines when starting sampling */
+    if (!initialLocalization) {
+      Robot.getNav().turnTo(Math.PI / 4);
     }
-    
+
     sweep(); // acquire angle data
 
     /* Compute real position */
@@ -321,6 +325,7 @@ public class LightLocalizer {
         System.out.println("dTheta: " + Math.toDegrees(dTheta));
         Button.waitForAnyPress();
       }
+
     } else {
       return false; // at least one axis was not detected, cannot perform
                     // localization
@@ -362,7 +367,7 @@ public class LightLocalizer {
   }
 
   /**
-   * Drives the robot towards the given axis until a grid line is detected then backwards 4.5 cm.
+   * Drives the robot towards the given axis until a grid line is detected then backwards 21 cm.
    * 
    * @param axis x, y, o. 'o' stands for origin, meaning that the robot will be driven in a 45 deg
    *        angle towards the intersection. 'o' should only be used when the robot is roughly at the

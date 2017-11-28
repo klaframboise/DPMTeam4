@@ -39,9 +39,9 @@ public abstract class Helper {
   }
 
   /**
-   * Returns the median of a group of sample from the ultrasonic sensor.
+   * Returns the median of a group of sample from a ultrasonic sensor.
    * 
-   * @param us SampleProvider to be used by the method.
+   * @param us SampleProvider of the US sensor to be polled.
    * @param usData buffer array for sensor data.
    * @return distance from the object, in cm.
    */
@@ -81,15 +81,17 @@ public abstract class Helper {
     coords[3][1] = upperRightY;
     return coords;
   }
-  
+
   /**
-   * This method calculates the euclidean distance error between the current location 
-   * and the target point (x, y)
+   * This method calculates the euclidean distance error between the current location and the target
+   * point (x, y)
+   * 
    * @param x
    * @param y
    * @return
    */
-  public static double calculateDistanceError(double x, double y){
-	  return Math.sqrt(Math.pow(x - Robot.getOdo().getX(), 2) + Math.pow(y - Robot.getOdo().getY(), 2));
+  public static double calculateDistanceError(double x, double y) {
+    return Math
+        .sqrt(Math.pow(x - Robot.getOdo().getX(), 2) + Math.pow(y - Robot.getOdo().getY(), 2));
   }
 }

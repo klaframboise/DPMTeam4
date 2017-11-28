@@ -21,7 +21,7 @@ public class ZipLineTraversal {
   /**
    * Radius of the zip line wheel, in cm.
    */
-  public static final double WHEEL_RADIUS = 0.95; 
+  public static final double WHEEL_RADIUS = 0.95;
 
   /**
    * Length of the zip line, in cm.
@@ -32,12 +32,12 @@ public class ZipLineTraversal {
    * Left motor, used in the zip line approach.
    */
   private EV3LargeRegulatedMotor leftMotor;
-  
+
   /**
    * Right motor, used in the zip line approach.
    */
-  private EV3LargeRegulatedMotor rightMotor; 
-  
+  private EV3LargeRegulatedMotor rightMotor;
+
   /**
    * Zip line motor, used during traversal.
    */
@@ -72,8 +72,10 @@ public class ZipLineTraversal {
    * @param rightMotor robot's right motor.
    * @param x_c x coordinate of the zip line start, in cm.
    * @param y_c y coordinate of the zip line start, in cm.
-   * @param x_f0 x-coordinate of the next grid line intersection in the direction of the zip line, in cm.
-   * @param y_f0 y-coordinate of the next grid line intersection in the direction of the zip line, in cm.
+   * @param x_f0 x-coordinate of the next grid line intersection in the direction of the zip line,
+   *        in cm.
+   * @param y_f0 y-coordinate of the next grid line intersection in the direction of the zip line,
+   *        in cm.
    */
   public ZipLineTraversal(EV3LargeRegulatedMotor lineMotor, EV3LargeRegulatedMotor leftMotor,
       EV3LargeRegulatedMotor rightMotor, double x_c, double y_c, double x_f0, double y_f0) {
@@ -97,8 +99,6 @@ public class ZipLineTraversal {
     lineMotor.forward();
 
     /* Navigate to start of zipline */
-    System.out.println("Currently at: (" + Robot.getOdo().getX() + ", " + Robot.getOdo().getY() + ")");
-    System.out.println("Going to: " + x_c + ", " + y_c);
     Robot.getNav().travelTo(x_c, y_c, false);
     Sound.beep();
 
@@ -109,24 +109,24 @@ public class ZipLineTraversal {
     rightMotor.rotate(1000, false);
 
     lineMotor.rotate(Helper.convertDistance(WHEEL_RADIUS, 2 * Robot.GRID_SIZE), false); // keep line
-                                                                                   // motor turning
-                                                                                   // until end of
-                                                                                   // zip line
+    // motor turning
+    // until end of
+    // zip line
 
     /* Line up for localization after dismount */
     leftMotor.setSpeed(250);
     rightMotor.setSpeed(250);
-    
+
     /* Go forward to clear platform */
-    leftMotor.rotate(Helper.convertDistance(Robot.WHEEL_RADIUS, 25), true); 
+    leftMotor.rotate(Helper.convertDistance(Robot.WHEEL_RADIUS, 25), true);
     rightMotor.rotate(Helper.convertDistance(Robot.WHEEL_RADIUS, 25), false);
-    
+
     /* Turn slightly to compensate for weight imbalance during dismount */
-    leftMotor.rotate(-Helper.convertAngle(Robot.WHEEL_RADIUS, Robot.TRACK, 20), true); 
+    leftMotor.rotate(-Helper.convertAngle(Robot.WHEEL_RADIUS, Robot.TRACK, 20), true);
     rightMotor.rotate(Helper.convertAngle(Robot.WHEEL_RADIUS, Robot.TRACK, 20), false);
-    
+
     /* Move to vicinity of next intersection */
-    leftMotor.rotate(Helper.convertDistance(Robot.WHEEL_RADIUS, 20), true); 
+    leftMotor.rotate(Helper.convertDistance(Robot.WHEEL_RADIUS, 20), true);
     rightMotor.rotate(Helper.convertDistance(Robot.WHEEL_RADIUS, 20), false);
 
     /* Update odometer */

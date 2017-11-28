@@ -17,10 +17,10 @@ import lejos.hardware.Sound;
 public class NavigationStrategy {
 
   /**
-   * 
+   * Left wheel speed offset to be used on shallow crossing
    */
   public static final float CROSSING_OFFSET = 0.985f;
-  
+
   /**
    * Must be "Red" or "Green". This will change the strategy used.
    */
@@ -110,7 +110,11 @@ public class NavigationStrategy {
         ZC_y * Robot.GRID_SIZE, ZF0_x * Robot.GRID_SIZE, ZF0_y * Robot.GRID_SIZE);
 
     /* Travel to start of zip line */
-    travelTo((Z0_x - 0.1) * Robot.GRID_SIZE, (Z0_y - 0.1) * Robot.GRID_SIZE, true);
+    travelTo((Z0_x - 0.1) * Robot.GRID_SIZE, (Z0_y - 0.1) * Robot.GRID_SIZE, true); // 0.1 offset
+                                                                                    // helps ensure
+                                                                                    // color sensor
+                                                                                    // is in thrid
+                                                                                    // quadrant
     Robot.getLightLocalizer().localize();
     travelTo(Z0_x * Robot.GRID_SIZE, Z0_y * Robot.GRID_SIZE, false);
 
@@ -130,19 +134,17 @@ public class NavigationStrategy {
    * Navigates to the objective using the shallow crossing.
    */
   private void navToObjectiveByCrossing() {
-    
+
     /* Cross */
     double[][] path = getCrossingPath(); // get path waypoints
-    localizeBeforeCrossing(path);
-    for (double[] point : path) {
-      System.out.println("Now I am on the bridge.");
-      System.out.println("Now I am travelling to: " + point[0] + ", " + point[1]);
-      Robot.getNav().travelTo(point[0] * Robot.GRID_SIZE, point[1] * Robot.GRID_SIZE, CROSSING_OFFSET, false);
+    localizeBeforeCrossing(path); // localize before shallow crossing
+    for (double[] point : path) { // cross point-by point
+      Robot.getNav().travelTo(point[0] * Robot.GRID_SIZE, point[1] * Robot.GRID_SIZE,
+          CROSSING_OFFSET, false);
     }
-    
-    clearCrossing(path);
-    Robot.getLightLocalizer().localize(false);
-    System.out.println("After clearing the coordinate is: " + Robot.getOdo().getX() + ", " + Robot.getOdo().getY());
+
+    clearCrossing(path); // go forward until back of robot clears crossing
+    Robot.getLightLocalizer().localize(false); // localize
 
     /* Get search area */
     int[][] objCoords =
@@ -159,8 +161,6 @@ public class NavigationStrategy {
     Robot.getLightLocalizer().localize();
 
   }
-
-
 
   /**
    * Navigates back to the start using the zip line.
@@ -203,14 +203,14 @@ public class NavigationStrategy {
 
     /* Cross */
     double[][] path = getCrossingPath(); // get path waypoints
-    localizeBeforeCrossing(path);
-    for (double[] point : path) {
-      Robot.getNav().travelTo(point[0] * Robot.GRID_SIZE, point[1] * Robot.GRID_SIZE, CROSSING_OFFSET, false);
+    localizeBeforeCrossing(path); // localize prior to crossing
+    for (double[] point : path) { // cross point-by-point
+      Robot.getNav().travelTo(point[0] * Robot.GRID_SIZE, point[1] * Robot.GRID_SIZE,
+          CROSSING_OFFSET, false);
     }
-    
-    clearCrossing(path);
-    Robot.getLightLocalizer().localize(false);
-    System.out.println(Robot.getOdo().getX() + ", " + Robot.getOdo().getY());
+
+    clearCrossing(path); // go forward until back of the robot has cleared the shallow crossing
+    Robot.getLightLocalizer().localize(false); // localize
 
     /* Travel to start area */
     double startX = findStart()[0];
@@ -317,7 +317,7 @@ public class NavigationStrategy {
       result[1] = zC_y + (dy * 3);
     }
 
-    /* Compute other endpoints, one away in the direction of the zipline */
+    /* Compute other endpoints, one foot away in the direction of the zipline */
     result[2] = result[0] + dx;
     result[3] = result[1] + dy;
 
@@ -344,10 +344,8 @@ public class NavigationStrategy {
     for (int i = 0; i < rectArea.length; i++) {
 
       distance = Math.sqrt(Math.pow(currentX - rectArea[i][0] * Robot.GRID_SIZE, 2)
-          + Math.pow(currentY - rectArea[i][1] * Robot.GRID_SIZE, 2)); // calculate distance to corner
-
-      System.out.println("CurrentX:" + currentX + "\nCurrentY: " + currentY + "\nEvaluating point: "
-          + rectArea[i][0] + ", " + rectArea[i][1] + "\nDistance to current pos: " + distance);
+          + Math.pow(currentY - rectArea[i][1] * Robot.GRID_SIZE, 2)); // calculate distance to
+                                                                       // corner
 
       if (distance < minimumDistance) {
         minimumDistance = distance; // record as minimum distance if smaller than previous minimum
@@ -390,6 +388,14 @@ public class NavigationStrategy {
     return start;
   }
 
+  /**
+   * Computes the 3-waypoints path to be taken in order to successfully cross the shallow crossing.
+   * The robot will buzz if it detects inconsistencies in the definition of the zones and of the
+   * crossing (eg.: if the crossing does not start where a navigable zone ends).
+   * 
+   * @return the path to follow on the crossing in a bidiemnsional array path[i][j] where i is the
+   *         waypoint number and j, x or y.
+   */
   private double[][] getCrossingPath() {
 
     double[][] path = new double[3][2]; // result array
@@ -435,7 +441,7 @@ public class NavigationStrategy {
 
     /*
      * For the second waypoint, there are 4 possibilities. Both LL corners are equal. Both UR
-     * corners are equal. Difference between SV_LL and SH_UR is one Difference between SV_UR and
+     * corners are equal. Difference between SV_LL and SH_UR is one. Difference between SV_UR and
      * SH_LL is one
      */
     if (sh_ll_x == sv_ll_x && sh_ll_y == sv_ll_y) {
@@ -468,7 +474,7 @@ public class NavigationStrategy {
     } else if (g_ll_y == sv_ur_y) {
       path[2][0] = sv_ur_x - 0.5;
       path[2][1] = sv_ur_y;
-    } else if (g_ur_y == sv_ll_y) {	//good
+    } else if (g_ur_y == sv_ll_y) { // good
       path[2][0] = sv_ur_x - 0.5;
       path[2][1] = sv_ll_y;
     } else {
@@ -479,59 +485,78 @@ public class NavigationStrategy {
     return path;
 
   }
-  
+
   /**
+   * Performs a light localization before crossing the bridge. The method will compute the point
+   * around which it should localize using the path provided.
    * 
-   * @param path
+   * @param path the path to follow whilst on the crossing. This array should be generated using
+   *        {@link NavigationStrategy#getCrossingPath()}.
    */
   private void localizeBeforeCrossing(double[][] path) {
-    
+
+    /* Compute direction in which the robot will be going on the crossing's 1st leg */
     int dx = 0;
     int dy = 0;
-    
-    if(path[1][0] - path[0][0] != 0) {
-        dx = (int) ((path[1][0] - path[0][0])/Math.abs(path[1][0] - path[0][0]));
+
+    /* Compute dx */
+    if (path[1][0] - path[0][0] != 0) {
+      dx = (int) ((path[1][0] - path[0][0]) / Math.abs(path[1][0] - path[0][0]));
     }
-    
-    if(path[1][1] - path[0][1] != 0) {
-        dy = (int) ((path[1][1] - path[0][1])/Math.abs(path[1][1] - path[0][1]));
+
+    /* Compute dy */
+    if (path[1][1] - path[0][1] != 0) {
+      dy = (int) ((path[1][1] - path[0][1]) / Math.abs(path[1][1] - path[0][1]));
     }
-    
-    System.out.println("dx: " + dx + " dy: " + dy);
-    
+
+    /* Travel to a point before the crossing */
     travelTo((path[0][0] - dx) * Robot.GRID_SIZE, (path[0][1] - dy) * Robot.GRID_SIZE, false);
-    Robot.getLightLocalizer().localize();
-    
+
+    Robot.getLightLocalizer().localize(); // localize
+
   }
 
+  /*
+   * This method drives the robot forward until the last grid line of the crossing is detected.
+   * Because the lines position is known (provided by server), it will also correct the odometer
+   * accordingly.
+   */
   private void clearCrossing(double[][] path) {
-	  /* Continue until black line is crossed, to make sure that the shallow crossing is cleared */
-	  while(LightLocalizer.getRedIntensity() > Robot.LINE_RED_INTENSITY) {
-		  Robot.getDrivingMotors()[0].forward();
-		  Robot.getDrivingMotors()[1].forward();
-		  try {
-			  Thread.sleep(25);
-		  } catch (InterruptedException e) {
-			  // TODO Auto-generated catch block
-			  e.printStackTrace();
-		  }
-	  }
-	  
-	  Robot.getDrivingMotors()[0].stop(true);
-	  Robot.getDrivingMotors()[1].stop();
-	  
-	  int dx = 0;
-	  int dy = 0;
-	  
-	  if(path[2][0] - path[1][0] != 0) {
-		  dx = (int) ((path[2][0] - path[1][0])/Math.abs(path[2][0] - path[1][0]));
-	  }
-	  
-	  if(path[2][1] - path[1][1] != 0) {
-		  dy = (int) ((path[2][1] - path[1][1])/Math.abs(path[2][1] - path[1][1]));
-	  }
-	  
-	  Robot.getOdo().setX((path[2][0] * 30.48) + (dx * LightLocalizer.LS_TO_CENTER));
-	  Robot.getOdo().setY((path[2][1] * 30.48) + (dy * LightLocalizer.LS_TO_CENTER));
+
+    /* Continue until black line is crossed, to make sure that the shallow crossing is cleared */
+    while (LightLocalizer.getRedIntensity() > Robot.LINE_RED_INTENSITY) {
+      Robot.getDrivingMotors()[0].forward();
+      Robot.getDrivingMotors()[1].forward();
+      try {
+        Thread.sleep(25);
+      } catch (InterruptedException e) {
+        // TODO Auto-generated catch block
+        e.printStackTrace();
+      }
+    }
+
+    /* Stop motors once line is crossed */
+    Robot.getDrivingMotors()[0].stop(true);
+    Robot.getDrivingMotors()[1].stop();
+
+    /*
+     * Decide what the line tells us on the position of the robot (i.e. does it confirm a y or a x
+     * coordinate
+     */
+    int dx = 0;
+    int dy = 0;
+
+    if (path[2][0] - path[1][0] != 0) {
+      dx = (int) ((path[2][0] - path[1][0]) / Math.abs(path[2][0] - path[1][0]));
+    }
+
+    if (path[2][1] - path[1][1] != 0) {
+      dy = (int) ((path[2][1] - path[1][1]) / Math.abs(path[2][1] - path[1][1]));
+    }
+
+    /* Correct odo */
+    Robot.getOdo().setX((path[2][0] * 30.48) + (dx * LightLocalizer.LS_TO_CENTER));
+    Robot.getOdo().setY((path[2][1] * 30.48) + (dy * LightLocalizer.LS_TO_CENTER));
+
   }
 }

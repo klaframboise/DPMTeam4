@@ -40,7 +40,7 @@ public class Display extends Thread {
   }
 
   /**
-   * @see java.lang.Thread#run()
+   * Starts the display. Should be used via {@link Display#start()}.
    */
   public void run() {
 

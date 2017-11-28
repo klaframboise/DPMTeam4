@@ -32,9 +32,8 @@ public class Robot {
 
   /**
    * Denotes the maximum possible coordinate on the square play surface.
-   * TODO: check this value for testing and competition
    */
-  public static final int MAX_COORD = 7;
+  public static final int MAX_COORD = 11;
 
   /**
    * Team number.
@@ -92,9 +91,19 @@ public class Robot {
   private static LightLocalizer lightLocalizer;
 
   /**
-   * 
+   * The robot's ultrasonic localizer.
    */
   private static UltrasonicLocalizer usLocalizer;
+
+  /**
+   * Instance of the zip line driver.
+   */
+  private static ZipLineTraversal ziplineTraversal;
+
+  /**
+   * Instance of the flag detection.
+   */
+  private static FlagDetection flagDetection;
 
   /**
    * Map containing the game parameters.
@@ -126,18 +135,7 @@ public class Robot {
    */
   private static EV3LargeRegulatedMotor servo;
 
-  /**
-   * Instance of the zip line driver.
-   */
-  private static ZipLineTraversal ziplineTraversal;
-
-  /**
-   * Instance of the flag detection.
-   */
-  private static FlagDetection flagDetection;
-
-
-  @SuppressWarnings("resource") // we don't bother closing the sensor port because they are used
+  @SuppressWarnings("resource") // we don't bother closing the sensor ports because they are used
                                 // throughout the lifetime of the class.
   /**
    * Constructs the robot. Initializes all components, sensors and gets game parameters. This should
@@ -211,7 +209,6 @@ public class Robot {
     Display display = new Display(odo);
     display.start();
 
-
     /* Start game */
     odo.start();
     nav.start();
@@ -224,9 +221,8 @@ public class Robot {
     NavigationStrategy navStrat = new NavigationStrategy(teamColor, gameParameters, nav);
     navStrat.navigateToObjectiveZone(); // navigate to objective
     flagDetection.searchAndDetect(); // detect flag
-    lightLocalizer.localize();
+    lightLocalizer.localize(); // localize
     navStrat.navigateBack(); // navigate back to start
-    System.out.println(odo.getX() + ", " + odo.getY());
     Sound.playNote(Sound.PIANO, Sound.DOUBLE_BEEP, 500); // celebrate
 
   }

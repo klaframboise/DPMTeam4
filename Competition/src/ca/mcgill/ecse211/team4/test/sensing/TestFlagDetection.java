@@ -5,6 +5,9 @@ import ca.mcgill.ecse211.team4.robot.Robot;
 import ca.mcgill.ecse211.team4.sensing.FlagDetection;
 import lejos.hardware.Button;
 
+/*
+ * A test clas for flag detection
+ */
 public class TestFlagDetection {
 
 	public static void main(String[] args) {

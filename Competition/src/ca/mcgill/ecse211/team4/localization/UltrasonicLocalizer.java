@@ -86,7 +86,7 @@ public class UltrasonicLocalizer {
     leftMotor.setSpeed(Robot.ROTATE_SPEED * Robot.SPEED_OFFSET);
     rightMotor.setSpeed(Robot.ROTATE_SPEED);
 
-    /* Move to face away from wall if starting facint it */
+    /* Move to face away from wall if starting facing it */
     currentDistance = Helper.getFilteredDistance(us, usData);
     if (currentDistance < 30) { // in case we start facing the walls
       while (currentDistance < 30) { // then move away from the walls in a clockwise manner
@@ -183,7 +183,7 @@ public class UltrasonicLocalizer {
     double currentTheta = Robot.getOdo().getTheta();
     Robot.getOdo().setTheta(currentTheta + deltaTheta); // correct the Odometer's theta value to the
                                                         // correct one
-    
+
     Robot.getNav().turnTo(0); // turn to face 0 deg heading
 
   }
