@@ -121,9 +121,8 @@ public class FlagDetection {
     long start = System.currentTimeMillis();
     int i = 0;
     while (true) {
+      
       /* Start navigating around search zone and return immediately */
-      System.out
-          .println("Travelling to (" + coordinates[i % 4][0] + ", " + coordinates[i % 4][1] + ")");
       Robot.getNav().travelTo(coordinates[i % 4][0] * Robot.GRID_SIZE,
           coordinates[i % 4][1] * Robot.GRID_SIZE, false);
 
