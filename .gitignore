@@ -1,4 +1,3 @@
-
 # Created by https://www.gitignore.io/api/java,linux,macos,eclipse,windows
 
 ### Eclipse ###
@@ -149,3 +148,7 @@ $RECYCLE.BIN/
 *.lnk
 
 # End of https://www.gitignore.io/api/java,linux,macos,eclipse,windows
+
+# Project-Specific folders 
+EV3WifiExample
+Testing
