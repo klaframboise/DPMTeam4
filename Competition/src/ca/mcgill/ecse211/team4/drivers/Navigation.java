@@ -115,7 +115,7 @@ public class Navigation extends Thread {
   }
 
   /**
-   * Travels to the given waypoint. Sets the wheel speed offset to {@value Robot#SPEED_OFFSET}.
+   * Travels to the given waypoint. Sets the wheel speed offset to {@link Robot#SPEED_OFFSET}.
    * 
    * @param x x-coordinate in cm.
    * @param y y-coordinate in cm.
